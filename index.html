@@ -2,171 +2,302 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#4CAF50">
     <title>FamBank</title>
     <style>
-        /* --- CSS STYLES --- */
+        /* --- MODERN iOS & RESPONSIVE UI --- */
         :root {
-            --primary: #4CAF50; /* Money Green */
-            --bg: #f0f2f5;
-            --card: #ffffff;
-            --text: #333;
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --bg: #F2F2F7; /* iOS Light Gray */
+            --card: #FFFFFF;
+            --text: #1C1C1E;
+            --gray: #8E8E93;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --radius: 16px;
+            --safe-area-bottom: env(safe-area-inset-bottom);
         }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, sans-serif;
             background-color: var(--bg);
             margin: 0;
-            padding: 0;
             color: var(--text);
-            padding-bottom: 80px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* App-like feel */
         }
 
-        .view { display: none; padding: 20px; }
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(0.95); } 100% { transform: scale(1); } }
+        
+        .view {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 100px; /* Space for nav */
+            animation: fadeIn 0.4s ease-out;
+        }
         .view.active { display: block; }
 
-        /* Auth Screen */
-        #auth-view { text-align: center; margin-top: 100px; }
+        /* --- LAYOUTS (Mobile vs PC) --- */
+        .app-container {
+            display: flex;
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Sidebar (Hidden on Mobile) */
+        .sidebar {
+            display: none;
+            width: 280px;
+            background: white;
+            padding: 40px 20px;
+            border-right: 1px solid #ddd;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar h1 { color: var(--primary); margin-bottom: 40px; }
+
+        .side-nav-item {
+            padding: 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--gray);
+            transition: 0.2s;
+        }
+        .side-nav-item:hover { background: #f0f0f0; }
+        .side-nav-item.active { background: var(--primary); color: white; }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            position: relative;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        /* --- COMPONENTS --- */
         
-        /* Cards */
+        /* The "Credit Card" Header */
+        .coin-card {
+            background: linear-gradient(135deg, var(--primary), #2E7D32);
+            color: white;
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Shiny effect on card */
+        .coin-card::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+            transform: rotate(30deg); pointer-events: none;
+        }
+
+        .coin-card h1 { font-size: 3.5rem; margin: 0; font-weight: 800; letter-spacing: -1px; }
+        .coin-card p { opacity: 0.9; font-weight: 500; margin-top: 5px; }
+
+        /* Task/Store Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
         .card {
             background: var(--card);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: transform 0.2s;
         }
+        
+        .card:active { transform: scale(0.98); } /* Touch feedback */
 
-        .coin-balance {
-            background: linear-gradient(135deg, var(--primary), #2E7D32);
-            color: white;
-            text-align: center;
-            padding: 40px 20px;
-            border-radius: 0 0 25px 25px;
-            margin: -20px -20px 20px -20px;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
-        }
-
-        .coin-balance h1 { margin: 0; font-size: 3.5rem; font-weight: 800; }
-        .coin-balance p { margin: 0; opacity: 0.9; font-size: 1.1rem; }
+        .card-content strong { display: block; font-size: 1.1rem; margin-bottom: 4px; }
+        .card-content small { color: var(--gray); font-size: 0.9rem; }
+        .card-content .reward { color: var(--primary); font-weight: bold; }
 
         /* Inputs & Buttons */
         input {
-            width: 100%;
-            padding: 14px;
-            margin: 8px 0;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            box-sizing: border-box;
-            font-size: 16px;
+            width: 100%; padding: 16px; margin-bottom: 12px;
+            border: none; background: #E5E5EA; border-radius: 12px;
+            font-size: 16px; outline: none; transition: 0.2s;
         }
+        input:focus { background: #D1D1D6; }
 
         button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
+            width: 100%; padding: 16px;
+            background: var(--primary); color: white;
+            border: none; border-radius: 14px;
+            font-size: 16px; font-weight: 700;
+            cursor: pointer; box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+            transition: transform 0.1s;
         }
+        button:active { animation: pop 0.2s; transform: scale(0.95); }
+        button.secondary { background: #E5E5EA; color: var(--text); box-shadow: none; }
+        button.small { width: auto; padding: 10px 20px; font-size: 0.9rem; border-radius: 10px; }
 
-        button.secondary { background-color: #e0e0e0; color: #333; }
-        button.small { width: auto; padding: 8px 16px; font-size: 0.9rem; }
-
-        /* Bottom Nav */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 15px 0;
-            border-top: 1px solid #eee;
+        /* --- MOBILE NAV (Bottom Bar) --- */
+        .mobile-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0,0,0,0.1);
+            display: flex; justify-content: space-around;
+            padding: 12px 0 calc(12px + var(--safe-area-bottom)) 0;
             z-index: 100;
         }
+        .nav-item {
+            text-align: center; color: #C7C7CC; font-size: 10px; font-weight: 600;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+        }
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 24px; margin-bottom: 2px; }
 
-        .nav-item { padding: 10px; color: #888; cursor: pointer; }
-        .nav-item.active { color: var(--primary); font-weight: bold; }
+        /* --- MEDIA QUERIES (iPad & PC) --- */
+        @media (min-width: 768px) {
+            .mobile-nav { display: none; } /* Hide bottom bar */
+            .sidebar { display: flex; }    /* Show sidebar */
+            
+            .card-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Grid layout */
+            }
+
+            .view { padding: 40px; max-width: 1200px; margin: 0 auto; }
+            
+            /* Make the header smaller on PC */
+            .coin-card { text-align: left; display: flex; justify-content: space-between; align-items: center; }
+            .coin-card h1 { font-size: 2.5rem; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="auth-view" class="view active">
-        <h1 style="color: var(--primary);">FamBank</h1>
-        <p>Teach kids the value of money.</p>
-        <button onclick="login()">Sign in with Google</button>
-    </div>
-
-    <div id="onboarding-view" class="view">
-        <h2>Setup Profile</h2>
-        <div class="card" style="display:block;">
-            <h3>I am a Parent</h3>
-            <input type="text" id="new-family-name" placeholder="Family Name (e.g. Smith Fam)">
-            <button onclick="createFamily()">Create Family</button>
-        </div>
-        <div class="card" style="display:block;">
-            <h3>I am a Kid</h3>
-            <input type="text" id="join-code" placeholder="Enter Invite Code">
-            <button class="secondary" onclick="joinFamily()">Join Family</button>
-        </div>
-    </div>
-
-    <div id="dashboard-view" class="view">
-        <div class="coin-balance">
-            <h1 id="coin-count">0</h1>
-            <p>Coins Available</p>
-            <p id="family-code-display" style="font-size: 0.9rem; margin-top: 15px; background: rgba(0,0,0,0.2); display:inline-block; padding: 5px 10px; border-radius: 8px;"></p>
-        </div>
-
-        <h3 style="margin-top:20px;">To-Do List</h3>
-        <div id="task-list">
-             <p style="text-align:center; color:#999;">Loading tasks...</p>
-        </div>
-
-        <div id="parent-controls" style="display:none; margin-top: 30px;">
-            <h3>Parent Controls</h3>
-            <div class="card" style="display:block;">
-                <input type="text" id="task-title" placeholder="New Task (e.g. Clean Room)">
-                <input type="number" id="task-reward" placeholder="Reward Amount (e.g. 50)">
-                <button onclick="addTask()">+ Add Task</button>
+    <div class="app-container">
+        
+        <div class="sidebar">
+            <div>
+                <h1>FamBank</h1>
+                <div class="side-nav-item active" onclick="switchView('dashboard-view')">Dashboard</div>
+                <div class="side-nav-item" onclick="switchView('store-view')">Rewards Store</div>
             </div>
+            <div class="side-nav-item" onclick="logout()">Logout</div>
         </div>
-    </div>
 
-    <div id="store-view" class="view">
-        <div class="coin-balance" style="padding: 20px;">
-            <h2 id="store-coin-count" style="font-size: 2rem;">0 Coins</h2>
-        </div>
-        <h3>Rewards Store</h3>
-        <div id="store-list">
-             <div class="card">
-                 <div><strong>1 Hour Screen Time</strong><br><small>50 Coins</small></div>
-                 <button class="small" onclick="alert('Bought!')">Buy</button>
-             </div>
-        </div>
-    </div>
+        <div class="main-content">
 
-    <nav class="bottom-nav" id="main-nav" style="display:none;">
-        <div class="nav-item active" onclick="switchView('dashboard-view')">Tasks</div>
-        <div class="nav-item" onclick="switchView('store-view')">Store</div>
-        <div class="nav-item" onclick="logout()">Logout</div>
-    </nav>
+            <div id="auth-view" class="view active" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+                <div style="font-size: 4rem; margin-bottom: 20px;">🏦</div>
+                <h1 style="font-size: 2rem; margin-bottom: 10px;">FamBank</h1>
+                <p style="color:gray; margin-bottom: 30px;">The best way to reward your family.</p>
+                <button onclick="login()" style="max-width: 300px;">Sign in with Google</button>
+            </div>
+
+            <div id="onboarding-view" class="view">
+                <h2 style="margin-bottom: 20px;">Who are you?</h2>
+                <div class="card" style="display:block; margin-bottom: 20px;">
+                    <div style="margin-bottom:15px;"><strong>👨‍👩‍👧‍👦 I am a Parent</strong></div>
+                    <input type="text" id="new-family-name" placeholder="Create Family Name">
+                    <button onclick="createFamily()">Create Group</button>
+                </div>
+                <div class="card" style="display:block;">
+                    <div style="margin-bottom:15px;"><strong>👶 I am a Kid</strong></div>
+                    <input type="text" id="new-code" placeholder="Enter Invite Code">
+                    <button class="secondary" onclick="joinFamily()">Join Group</button>
+                </div>
+            </div>
+
+            <div id="dashboard-view" class="view">
+                <div class="coin-card">
+                    <div>
+                        <p>Total Balance</p>
+                        <h1 id="coin-count">0</h1>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.2); padding:5px 10px; border-radius:10px;">
+                        <small id="role-badge">Loading...</small>
+                    </div>
+                </div>
+
+                <div id="invite-banner" style="background:#E3F2FD; color:#1565C0; padding:15px; border-radius:12px; margin-bottom:20px; display:none; text-align:center;">
+                    Family Invite Code: <strong id="invite-code-display">...</strong>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <h3>Tasks</h3>
+                    <button id="add-task-btn" class="small" style="display:none;" onclick="toggleTaskForm()">+ Add</button>
+                </div>
+
+                <div id="task-form" class="card" style="display:none; flex-direction:column; margin-bottom:20px;">
+                    <input type="text" id="task-title" placeholder="Task Name">
+                    <input type="number" id="task-reward" placeholder="Coins Reward">
+                    <button onclick="addTask()">Save Task</button>
+                </div>
+
+                <div id="task-list" class="card-grid">
+                    <p style="color:gray; text-align:center;">Loading tasks...</p>
+                </div>
+            </div>
+
+            <div id="store-view" class="view">
+                <h2 style="margin-bottom: 20px;">Rewards Store</h2>
+                <div id="store-list" class="card-grid">
+                    <div class="card">
+                        <div class="card-content">
+                            <strong>🎮 1 Hour Gaming</strong>
+                            <span class="reward">50 Coins</span>
+                        </div>
+                        <button class="small" onclick="alert('Purchase requested!')">Buy</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-content">
+                            <strong>🍦 Ice Cream</strong>
+                            <span class="reward">100 Coins</span>
+                        </div>
+                        <button class="small" onclick="alert('Purchase requested!')">Buy</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <nav class="mobile-nav" id="mobile-nav" style="display:none;">
+            <div class="nav-item active" onclick="switchView('dashboard-view')">
+                <span class="nav-icon">🏠</span> Tasks
+            </div>
+            <div class="nav-item" onclick="switchView('store-view')">
+                <span class="nav-icon">🛍️</span> Store
+            </div>
+            <div class="nav-item" onclick="logout()">
+                <span class="nav-icon">🚪</span> Logout
+            </div>
+        </nav>
+
+    </div>
 
     <script type="module">
-        // IMPORT FIREBASE (Using CDN links for browser)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, where, onSnapshot, updateDoc, doc, getDoc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-        // YOUR NEW CONFIGURATION
+        // --- PASTE YOUR KEYS HERE ---
         const firebaseConfig = {
             apiKey: "AIzaSyCBoSEjCf3tECszYAUqed6hGntmL77JJ7Q",
             authDomain: "fambank-c839c.firebaseapp.com",
@@ -177,7 +308,6 @@
             measurementId: "G-8MKXHE1F76"
         };
 
-        // Initialize
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -186,7 +316,7 @@
         let currentUser = null;
         let userData = null;
 
-        // --- AUTH ---
+        // AUTH
         window.login = () => signInWithPopup(auth, provider).catch(console.error);
         window.logout = () => signOut(auth).then(() => location.reload());
 
@@ -203,117 +333,114 @@
                 }
             } else {
                 switchView('auth-view');
-                document.getElementById('main-nav').style.display = 'none';
+                document.getElementById('mobile-nav').style.display = 'none';
+                document.querySelector('.sidebar').style.display = 'none';
             }
         });
 
-        // --- FAMILY LOGIC ---
+        // LOGIC
         window.createFamily = async () => {
             const name = document.getElementById('new-family-name').value;
             if(!name) return;
-            const inviteCode = Math.floor(1000 + Math.random() * 9000).toString();
-            
-            const famRef = await addDoc(collection(db, "families"), {
-                name: name, inviteCode: inviteCode, admin: currentUser.uid
-            });
-
-            await setDoc(doc(db, "users", currentUser.uid), {
-                email: currentUser.email, role: 'parent', familyId: famRef.id, coins: 0
-            });
+            const code = Math.floor(1000 + Math.random() * 9000).toString();
+            const famRef = await addDoc(collection(db, "families"), { name: name, inviteCode: code, admin: currentUser.uid });
+            await setDoc(doc(db, "users", currentUser.uid), { email: currentUser.email, role: 'parent', familyId: famRef.id, coins: 0 });
             location.reload();
         };
 
         window.joinFamily = async () => {
-            const code = document.getElementById('join-code').value;
+            const code = document.getElementById('new-code').value;
             const q = query(collection(db, "families"), where("inviteCode", "==", code));
-            const querySnapshot = await getDocs(q);
-            if (querySnapshot.empty) return alert("Invalid Code!");
-
-            let familyId = null;
-            querySnapshot.forEach((doc) => familyId = doc.id);
-
-            await setDoc(doc(db, "users", currentUser.uid), {
-                email: currentUser.email, role: 'child', familyId: familyId, coins: 0
-            });
+            const snap = await getDocs(q);
+            if(snap.empty) return alert("Invalid Code");
+            let fid = null; snap.forEach(d => fid = d.id);
+            await setDoc(doc(db, "users", currentUser.uid), { email: currentUser.email, role: 'child', familyId: fid, coins: 0 });
             location.reload();
         };
 
-        // --- DASHBOARD ---
         function loadDashboard() {
             switchView('dashboard-view');
-            document.getElementById('main-nav').style.display = 'flex';
-            
+            // Show Navs
+            if(window.innerWidth < 768) document.getElementById('mobile-nav').style.display = 'flex';
+            else document.querySelector('.sidebar').style.display = 'flex';
+
+            // Role Logic
+            document.getElementById('role-badge').innerText = userData.role.toUpperCase();
             if(userData.role === 'parent') {
-                document.getElementById('parent-controls').style.display = 'block';
-                getDoc(doc(db, "families", userData.familyId)).then(snap => {
-                    document.getElementById('family-code-display').innerText = "Invite Code: " + snap.data().inviteCode;
+                document.getElementById('add-task-btn').style.display = 'block';
+                document.getElementById('invite-banner').style.display = 'block';
+                getDoc(doc(db, "families", userData.familyId)).then(s => {
+                    document.getElementById('invite-code-display').innerText = s.data().inviteCode;
                 });
             }
 
-            // Real-time Coins
-            onSnapshot(doc(db, "users", currentUser.uid), (doc) => {
-                const coins = doc.data().coins || 0;
-                document.getElementById('coin-count').innerText = coins;
-                document.getElementById('store-coin-count').innerText = coins + " Coins";
+            // Realtime Listeners
+            onSnapshot(doc(db, "users", currentUser.uid), (d) => {
+                document.getElementById('coin-count').innerText = d.data().coins || 0;
             });
 
-            // Real-time Tasks
             const q = query(collection(db, "tasks"), where("familyId", "==", userData.familyId));
-            onSnapshot(q, (snapshot) => {
+            onSnapshot(q, (snap) => {
                 const list = document.getElementById('task-list');
                 list.innerHTML = "";
-                snapshot.forEach((docSnap) => {
-                    const task = docSnap.data();
-                    const taskId = docSnap.id;
+                snap.forEach(d => {
+                    const t = d.data();
+                    const tid = d.id;
                     let btn = "";
-
-                    if(userData.role === 'child' && task.status === 'pending') {
-                        btn = `<button class="small" onclick="updateTaskStatus('${taskId}', 'review')">Mark Done</button>`;
-                    } else if (userData.role === 'parent' && task.status === 'review') {
-                        btn = `<button class="small" onclick="approveTask('${taskId}', ${task.reward})">Approve</button>`;
-                    } else if (task.status === 'completed') {
-                        btn = `<span style="color:green; font-weight:bold;">✔ Done</span>`;
-                    } else if (task.status === 'review') {
-                        btn = `<span style="color:orange; font-weight:bold;">⏳ Waiting</span>`;
-                    }
+                    
+                    if(userData.role === 'child' && t.status === 'pending') 
+                        btn = `<button class="small" onclick="updTask('${tid}', 'review')">Done</button>`;
+                    else if(userData.role === 'parent' && t.status === 'review') 
+                        btn = `<button class="small" onclick="approveTask('${tid}', ${t.reward})">Approve</button>`;
+                    else if(t.status === 'completed') btn = `<span style="color:green">✔</span>`;
+                    else if(t.status === 'review') btn = `<span style="color:orange">⏳</span>`;
 
                     list.innerHTML += `
                         <div class="card">
-                            <div><strong>${task.title}</strong><br><small>${task.reward} Coins</small></div>
+                            <div class="card-content">
+                                <strong>${t.title}</strong>
+                                <span class="reward">${t.reward} Coins</span>
+                            </div>
                             <div>${btn}</div>
                         </div>`;
                 });
             });
         }
 
+        window.toggleTaskForm = () => {
+            const f = document.getElementById('task-form');
+            f.style.display = f.style.display === 'none' ? 'flex' : 'none';
+        }
+
         window.addTask = async () => {
             const title = document.getElementById('task-title').value;
             const reward = parseInt(document.getElementById('task-reward').value);
-            if(!title || !reward) return;
-            await addDoc(collection(db, "tasks"), {
-                title, reward, familyId: userData.familyId, status: 'pending'
-            });
+            if(!title) return;
+            await addDoc(collection(db, "tasks"), { title, reward, familyId: userData.familyId, status: 'pending' });
+            window.toggleTaskForm();
             document.getElementById('task-title').value = "";
         };
 
-        window.updateTaskStatus = async (id, status) => {
-            await updateDoc(doc(db, "tasks", id), { status });
-        };
-
-        window.approveTask = async (taskId, reward) => {
-            await updateDoc(doc(db, "tasks", taskId), { status: 'completed' });
-            // Note: For simplicity, this demo adds coins to the CURRENT user (the parent).
-            // In a real app, you would add coins to the child user ID found in the task.
-            const ref = doc(db, "users", currentUser.uid);
-            const snap = await getDoc(ref);
-            await updateDoc(ref, { coins: (snap.data().coins || 0) + reward });
-            alert("Approved! (Coins updated)");
+        window.updTask = (id, s) => updateDoc(doc(db, "tasks", id), { status: s });
+        
+        window.approveTask = async (id, r) => {
+            await updateDoc(doc(db, "tasks", id), { status: 'completed' });
+            const userRef = doc(db, "users", currentUser.uid); // NOTE: In real app, find child ID
+            const u = await getDoc(userRef);
+            await updateDoc(userRef, { coins: (u.data().coins || 0) + r });
         };
 
         window.switchView = (id) => {
             document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+            document.querySelectorAll('.side-nav-item').forEach(e => e.classList.remove('active'));
+            // Highlight nav
+            if(id === 'dashboard-view') {
+                document.querySelectorAll('.nav-item')[0].classList.add('active');
+            } else if(id === 'store-view') {
+                 document.querySelectorAll('.nav-item')[1].classList.add('active');
+            }
         };
     </script>
 </body>
