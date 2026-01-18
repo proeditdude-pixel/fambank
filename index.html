@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FamBank</title>
+    <style>
+        /* --- CSS STYLES --- */
+        :root {
+            --primary: #4CAF50; /* Money Green */
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --text: #333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0;
+            color: var(--text);
+            padding-bottom: 80px;
+        }
+
+        .view { display: none; padding: 20px; }
+        .view.active { display: block; }
+
+        /* Auth Screen */
+        #auth-view { text-align: center; margin-top: 100px; }
+        
+        /* Cards */
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .coin-balance {
+            background: linear-gradient(135deg, var(--primary), #2E7D32);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            border-radius: 0 0 25px 25px;
+            margin: -20px -20px 20px -20px;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .coin-balance h1 { margin: 0; font-size: 3.5rem; font-weight: 800; }
+        .coin-balance p { margin: 0; opacity: 0.9; font-size: 1.1rem; }
+
+        /* Inputs & Buttons */
+        input {
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button.secondary { background-color: #e0e0e0; color: #333; }
+        button.small { width: auto; padding: 8px 16px; font-size: 0.9rem; }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            border-top: 1px solid #eee;
+            z-index: 100;
+        }
+
+        .nav-item { padding: 10px; color: #888; cursor: pointer; }
+        .nav-item.active { color: var(--primary); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-view" class="view active">
+        <h1 style="color: var(--primary);">FamBank</h1>
+        <p>Teach kids the value of money.</p>
+        <button onclick="login()">Sign in with Google</button>
+    </div>
+
+    <div id="onboarding-view" class="view">
+        <h2>Setup Profile</h2>
+        <div class="card" style="display:block;">
+            <h3>I am a Parent</h3>
+            <input type="text" id="new-family-name" placeholder="Family Name (e.g. Smith Fam)">
+            <button onclick="createFamily()">Create Family</button>
+        </div>
+        <div class="card" style="display:block;">
+            <h3>I am a Kid</h3>
+            <input type="text" id="join-code" placeholder="Enter Invite Code">
+            <button class="secondary" onclick="joinFamily()">Join Family</button>
+        </div>
+    </div>
+
+    <div id="dashboard-view" class="view">
+        <div class="coin-balance">
+            <h1 id="coin-count">0</h1>
+            <p>Coins Available</p>
+            <p id="family-code-display" style="font-size: 0.9rem; margin-top: 15px; background: rgba(0,0,0,0.2); display:inline-block; padding: 5px 10px; border-radius: 8px;"></p>
+        </div>
+
+        <h3 style="margin-top:20px;">To-Do List</h3>
+        <div id="task-list">
+             <p style="text-align:center; color:#999;">Loading tasks...</p>
+        </div>
+
+        <div id="parent-controls" style="display:none; margin-top: 30px;">
+            <h3>Parent Controls</h3>
+            <div class="card" style="display:block;">
+                <input type="text" id="task-title" placeholder="New Task (e.g. Clean Room)">
+                <input type="number" id="task-reward" placeholder="Reward Amount (e.g. 50)">
+                <button onclick="addTask()">+ Add Task</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="store-view" class="view">
+        <div class="coin-balance" style="padding: 20px;">
+            <h2 id="store-coin-count" style="font-size: 2rem;">0 Coins</h2>
+        </div>
+        <h3>Rewards Store</h3>
+        <div id="store-list">
+             <div class="card">
+                 <div><strong>1 Hour Screen Time</strong><br><small>50 Coins</small></div>
+                 <button class="small" onclick="alert('Bought!')">Buy</button>
+             </div>
+        </div>
+    </div>
+
+    <nav class="bottom-nav" id="main-nav" style="display:none;">
+        <div class="nav-item active" onclick="switchView('dashboard-view')">Tasks</div>
+        <div class="nav-item" onclick="switchView('store-view')">Store</div>
+        <div class="nav-item" onclick="logout()">Logout</div>
+    </nav>
+
+    <script type="module">
+        // IMPORT FIREBASE (Using CDN links for browser)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, updateDoc, doc, getDoc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        // YOUR NEW CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyCBoSEjCf3tECszYAUqed6hGntmL77JJ7Q",
+            authDomain: "fambank-c839c.firebaseapp.com",
+            projectId: "fambank-c839c",
+            storageBucket: "fambank-c839c.firebasestorage.app",
+            messagingSenderId: "875048284285",
+            appId: "1:875048284285:web:0a1cf3c5f980015e210114",
+            measurementId: "G-8MKXHE1F76"
+        };
+
+        // Initialize
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        let currentUser = null;
+        let userData = null;
+
+        // --- AUTH ---
+        window.login = () => signInWithPopup(auth, provider).catch(console.error);
+        window.logout = () => signOut(auth).then(() => location.reload());
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('auth-view').classList.remove('active');
+                const userSnap = await getDoc(doc(db, "users", user.uid));
+                if (userSnap.exists()) {
+                    userData = userSnap.data();
+                    loadDashboard();
+                } else {
+                    switchView('onboarding-view');
+                }
+            } else {
+                switchView('auth-view');
+                document.getElementById('main-nav').style.display = 'none';
+            }
+        });
+
+        // --- FAMILY LOGIC ---
+        window.createFamily = async () => {
+            const name = document.getElementById('new-family-name').value;
+            if(!name) return;
+            const inviteCode = Math.floor(1000 + Math.random() * 9000).toString();
+            
+            const famRef = await addDoc(collection(db, "families"), {
+                name: name, inviteCode: inviteCode, admin: currentUser.uid
+            });
+
+            await setDoc(doc(db, "users", currentUser.uid), {
+                email: currentUser.email, role: 'parent', familyId: famRef.id, coins: 0
+            });
+            location.reload();
+        };
+
+        window.joinFamily = async () => {
+            const code = document.getElementById('join-code').value;
+            const q = query(collection(db, "families"), where("inviteCode", "==", code));
+            const querySnapshot = await getDocs(q);
+            if (querySnapshot.empty) return alert("Invalid Code!");
+
+            let familyId = null;
+            querySnapshot.forEach((doc) => familyId = doc.id);
+
+            await setDoc(doc(db, "users", currentUser.uid), {
+                email: currentUser.email, role: 'child', familyId: familyId, coins: 0
+            });
+            location.reload();
+        };
+
+        // --- DASHBOARD ---
+        function loadDashboard() {
+            switchView('dashboard-view');
+            document.getElementById('main-nav').style.display = 'flex';
+            
+            if(userData.role === 'parent') {
+                document.getElementById('parent-controls').style.display = 'block';
+                getDoc(doc(db, "families", userData.familyId)).then(snap => {
+                    document.getElementById('family-code-display').innerText = "Invite Code: " + snap.data().inviteCode;
+                });
+            }
+
+            // Real-time Coins
+            onSnapshot(doc(db, "users", currentUser.uid), (doc) => {
+                const coins = doc.data().coins || 0;
+                document.getElementById('coin-count').innerText = coins;
+                document.getElementById('store-coin-count').innerText = coins + " Coins";
+            });
+
+            // Real-time Tasks
+            const q = query(collection(db, "tasks"), where("familyId", "==", userData.familyId));
+            onSnapshot(q, (snapshot) => {
+                const list = document.getElementById('task-list');
+                list.innerHTML = "";
+                snapshot.forEach((docSnap) => {
+                    const task = docSnap.data();
+                    const taskId = docSnap.id;
+                    let btn = "";
+
+                    if(userData.role === 'child' && task.status === 'pending') {
+                        btn = `<button class="small" onclick="updateTaskStatus('${taskId}', 'review')">Mark Done</button>`;
+                    } else if (userData.role === 'parent' && task.status === 'review') {
+                        btn = `<button class="small" onclick="approveTask('${taskId}', ${task.reward})">Approve</button>`;
+                    } else if (task.status === 'completed') {
+                        btn = `<span style="color:green; font-weight:bold;">✔ Done</span>`;
+                    } else if (task.status === 'review') {
+                        btn = `<span style="color:orange; font-weight:bold;">⏳ Waiting</span>`;
+                    }
+
+                    list.innerHTML += `
+                        <div class="card">
+                            <div><strong>${task.title}</strong><br><small>${task.reward} Coins</small></div>
+                            <div>${btn}</div>
+                        </div>`;
+                });
+            });
+        }
+
+        window.addTask = async () => {
+            const title = document.getElementById('task-title').value;
+            const reward = parseInt(document.getElementById('task-reward').value);
+            if(!title || !reward) return;
+            await addDoc(collection(db, "tasks"), {
+                title, reward, familyId: userData.familyId, status: 'pending'
+            });
+            document.getElementById('task-title').value = "";
+        };
+
+        window.updateTaskStatus = async (id, status) => {
+            await updateDoc(doc(db, "tasks", id), { status });
+        };
+
+        window.approveTask = async (taskId, reward) => {
+            await updateDoc(doc(db, "tasks", taskId), { status: 'completed' });
+            // Note: For simplicity, this demo adds coins to the CURRENT user (the parent).
+            // In a real app, you would add coins to the child user ID found in the task.
+            const ref = doc(db, "users", currentUser.uid);
+            const snap = await getDoc(ref);
+            await updateDoc(ref, { coins: (snap.data().coins || 0) + reward });
+            alert("Approved! (Coins updated)");
+        };
+
+        window.switchView = (id) => {
+            document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+        };
+    </script>
+</body>
+</html>
