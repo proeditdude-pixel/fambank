@@ -100,17 +100,22 @@
         /* --- 3. LAYOUT & ANIMATIONS --- */
         .main-content {
             flex: 1; position: relative; 
-            overflow-y: auto; -webkit-overflow-scrolling: touch; 
             height: 100%; padding: 20px; padding-bottom: 120px;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            overflow-y: scroll; /* Use scroll instead of auto for consistent behavior */
+            -webkit-overflow-scrolling: touch;
         }
 
+        /* FIXED VIEW TRANSITION LOGIC */
         .view {
             display: none; max-width: 600px; margin: 0 auto;
-            opacity: 0; transform: scale(0.95) translateY(10px);
-            transition: opacity 0.4s ease, transform 0.4s var(--bounce);
+            opacity: 0; 
+            transform: translateY(15px);
+            transition: opacity 0.3s ease, transform 0.3s var(--bounce);
+            width: 100%;
         }
         .view.active { 
-            display: block; opacity: 1; transform: scale(1) translateY(0); 
+            display: block; opacity: 1; transform: translateY(0); 
         }
 
         /* --- 4. NAVIGATION (DESKTOP / IPAD) --- */
@@ -183,13 +188,11 @@
             position: relative; 
         }
         
-        /* PFP Touching Bottom of Banner */
         .prof-pfp-container {
             width: 120px; height: 120px;
             background: white; border-radius: 50%;
             position: absolute; 
-            bottom: 0; 
-            left: 50%; 
+            bottom: 0; left: 50%; 
             transform: translateX(-50%); 
             display: flex; justify-content: center; align-items: center;
             padding: 5px; z-index: 10;
@@ -201,11 +204,11 @@
             display: flex; justify-content: center; align-items: center;
             overflow: hidden; 
         }
-        .prof-pfp img { width: 100%; height: 100%; object-fit: cover; }
+        /* Ensure GIF covers correctly */
+        .prof-pfp img { width: 100%; height: 100%; object-fit: cover; display: block;}
         
         .prof-info-area { margin-top: 25px; padding: 0 25px; }
         
-        /* Badges */
         .badge-grid {
             display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 15px;
             min-height: 40px;
@@ -320,17 +323,11 @@
         <div style="font-size:26px; font-weight:900; color:var(--primary); margin-bottom:50px; display:flex; align-items:center; gap:10px;">
             <span>🏦</span> FamBank
         </div>
-        
         <div class="nav-item active" onclick="switchNav('family-view')">👨‍👩‍👧 Family</div>
-        
         <div class="nav-item" onclick="switchNav('profile-view')">👤 Profile</div>
-        
         <div class="nav-item" onclick="switchNav('notif-view')">🔔 Notifications</div>
-        
         <div class="nav-item" onclick="switchNav('settings-view')">⚙️ Settings</div>
-
         <div class="nav-item" id="desk-admin-btn" style="display:none; color:var(--primary);" onclick="switchNav('admin-view')">👑 Admin Panel</div>
-
         <div style="flex:1;"></div>
         <div class="nav-item" style="color:var(--error);" onclick="logout()">🚪 Log Out</div>
     </div>
@@ -461,13 +458,12 @@
     <div class="modal-overlay" id="edit-modal">
         <div class="modal-card">
             <h2>Edit Profile</h2>
-            
             <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:5px;">DISPLAY NAME</p>
             <input type="text" id="edit-name-in">
             
-            <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:5px;">PROFILE PICTURE</p>
+            <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:5px;">PROFILE PICTURE (JPG, PNG or GIF)</p>
             <div class="file-upload-btn" id="lbl-pfp">
-                <span>📁 Upload Image</span>
+                <span>📁 Upload Image/GIF</span>
                 <input type="file" id="file-pfp" accept="image/*" onchange="previewFile('file-pfp','prev-pfp')">
             </div>
             <div id="prev-pfp" class="preview-box"></div>
@@ -508,11 +504,11 @@
             </div>
 
             <div class="admin-section">
-                <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px;">BADGES (TAP TO TOGGLE)</p>
+                <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px;">BADGES</p>
                 <div class="admin-badge-grid" id="adm-badge-grid"></div>
             </div>
 
-            <button class="btn danger" style="margin-top:10px;" onclick="alert('Ban Logic Here')">🚫 Ban User</button>
+            <button class="btn danger" style="margin-top:10px;">🚫 Ban User</button>
             <button class="btn secondary" style="margin-top:10px;" onclick="closeModal('admin-modal')">Close</button>
         </div>
     </div>
@@ -598,21 +594,21 @@
 
         // --- CORE ---
         function loadApp() {
-            document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
             document.getElementById('auth-view').style.display='none';
             document.getElementById('setup-view').style.display='none';
             document.getElementById('loader').style.display='none';
+            
+            // Explicitly render FIRST before showing view
+            renderProfile(); 
             switchNav('family-view');
 
-            // ADMIN CHECK FOR UI BUTTONS
             if(currentUser.email === ADMIN_EMAIL) {
                 document.getElementById('desk-admin-btn').style.display = 'flex';
                 document.getElementById('mob-admin-btn').style.display = 'flex';
                 if(!userData.isAdmin) updateDoc(doc(db,"users",currentUser.uid), { isAdmin: true });
-                loadAdminData(); // Pre-load admin list
+                loadAdminData(); 
             }
 
-            renderProfile();
             onSnapshot(doc(db, "users", currentUser.uid), (s) => {
                 userData = s.data();
                 renderProfile();
@@ -631,6 +627,7 @@
         }
 
         function renderProfile() {
+            if(!userData) return;
             document.getElementById('p-name').innerText = userData.name;
             document.getElementById('p-email').innerText = userData.email;
             const p = document.getElementById('p-pfp');
@@ -676,18 +673,25 @@
             });
         }
 
-        // --- UI UTILS ---
+        // --- UPDATED VIEW SWITCHING (FIXES BLANK BUG) ---
         window.switchNav = (id) => {
-            // Change View
+            // 1. Hide all others immediately to prevent stacking/floating
             document.querySelectorAll('.view').forEach(e => {
-                e.classList.remove('active');
-                if(e.id === id) {
-                    e.style.display = 'block';
-                    setTimeout(()=>e.classList.add('active'), 10);
-                } else {
-                    setTimeout(()=>e.style.display='none', 400);
+                if(e.id !== id) {
+                    e.classList.remove('active');
+                    e.style.display = 'none'; 
                 }
             });
+
+            // 2. Show new view
+            const target = document.getElementById(id);
+            if(target) {
+                target.style.display = 'block';
+                // Small delay to allow CSS transition to catch the "block" state
+                requestAnimationFrame(() => {
+                    target.classList.add('active');
+                });
+            }
 
             // Update Desktop Sidebar
             document.querySelectorAll('.sidebar .nav-item').forEach(el => el.classList.remove('active'));
@@ -724,12 +728,11 @@
             const m = document.getElementById(id);
             m.classList.remove('show');
             setTimeout(()=>m.style.display='none', 300);
-            // Reset fields
             if(id === 'edit-modal') {
                 tempPfp = null; tempBan = null;
                 document.getElementById('prev-pfp').style.display='none';
                 document.getElementById('prev-ban').style.display='none';
-                document.querySelector('#lbl-pfp span').innerText = '📁 Upload Image';
+                document.querySelector('#lbl-pfp span').innerText = '📁 Upload Image/GIF';
                 document.querySelector('#lbl-ban span').innerText = '🖼️ Upload Banner';
                 document.getElementById('save-btn').innerText = 'Save Changes';
                 document.getElementById('save-btn').disabled = false;
@@ -741,52 +744,71 @@
             openModal('edit-modal');
         }
 
-        // NEW: Image Compression Logic
+        // --- UPDATED IMAGE HANDLER (FIXES GIF BUG) ---
         window.previewFile = (inId, prevId) => {
             const file = document.getElementById(inId).files[0];
             if(!file) return;
 
-            // Update button text
             const labelSpan = document.querySelector(`#${inId === 'file-pfp' ? 'lbl-pfp' : 'lbl-ban'} span`);
             labelSpan.innerText = "⏳ Processing...";
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    // Compress via Canvas
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    // Max dimensions
-                    const MAX_WIDTH = 500;
-                    const MAX_HEIGHT = 500;
-                    let width = img.width;
-                    let height = img.height;
+            // 1. Check if GIF
+            if(file.type === 'image/gif') {
+                // GIF Limit Check (350KB safe limit for Firestore strings)
+                if(file.size > 350 * 1024) {
+                    alert("GIF is too large! Please choose one under 350KB.");
+                    labelSpan.innerText = "❌ Too Large";
+                    return;
+                }
 
-                    if (width > height) {
-                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                    } else {
-                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8); // 80% quality JPEG
-                    
-                    // Show Preview
-                    document.getElementById(prevId).style.backgroundImage = `url(${dataUrl})`;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const res = e.target.result;
+                    document.getElementById(prevId).style.backgroundImage = `url(${res})`;
                     document.getElementById(prevId).style.display='block';
-                    labelSpan.innerText = "✅ Image Selected";
-
-                    // Assign to global temp vars
-                    if(inId==='file-pfp') tempPfp = dataUrl;
-                    if(inId==='file-ban') tempBan = dataUrl;
+                    labelSpan.innerText = "✅ GIF Selected";
+                    
+                    if(inId==='file-pfp') tempPfp = res;
+                    if(inId==='file-ban') tempBan = res;
                 };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+                reader.readAsDataURL(file);
+
+            } else {
+                // 2. Standard JPEG/PNG Compression
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        
+                        const MAX_WIDTH = 500;
+                        const MAX_HEIGHT = 500;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                        } else {
+                            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                        
+                        document.getElementById(prevId).style.backgroundImage = `url(${dataUrl})`;
+                        document.getElementById(prevId).style.display='block';
+                        labelSpan.innerText = "✅ Image Selected";
+
+                        if(inId==='file-pfp') tempPfp = dataUrl;
+                        if(inId==='file-ban') tempBan = dataUrl;
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
         }
 
         window.saveProfile = async () => {
@@ -801,16 +823,15 @@
                 
                 await updateDoc(doc(db,"users",currentUser.uid), u);
                 toast("Profile Updated");
-                closeModal('edit-modal'); // Hide GUI
+                closeModal('edit-modal');
             } catch(e) {
                 console.error(e);
-                toast("Error Saving: Image might be too large");
+                toast("Error: Image too large or Network error");
                 btn.innerText = "Save Changes";
                 btn.disabled = false;
             }
         }
 
-        // Admin Modal Logic
         window.openAdminModal = (uid, u) => {
             selectedAdminUid = uid;
             document.getElementById('adm-title').innerText = u.name;
