@@ -163,29 +163,41 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.03); cursor: pointer;
         }
 
-        /* --- 8. PROFILE SPECIFIC STYLES (NEW) --- */
+        /* --- 8. PROFILE SPECIFIC STYLES (UPDATED) --- */
         .profile-card {
-            background: white; border-radius: 30px; overflow: hidden;
+            background: white; border-radius: 30px; 
+            /* FIXED: Removed overflow hidden so PFP can pop if needed, though structure handles it */
             box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center;
             padding-bottom: 30px;
+            position: relative;
         }
         .prof-banner {
             height: 140px; width: 100%;
-            background: linear-gradient(135deg, #a8c0ff, #3f2b96);
+            background-size: cover; background-position: center;
+            border-radius: 30px 30px 0 0;
             position: relative;
         }
+        /* FIXED: PFP Positioning */
         .prof-pfp-container {
-            width: 110px; height: 110px;
+            width: 120px; height: 120px;
             background: white; border-radius: 50%;
-            position: absolute; bottom: -55px; left: 50%; transform: translateX(-50%);
+            position: absolute; 
+            bottom: -60px; /* Half height */
+            left: 50%; 
+            transform: translateX(-50%);
             display: flex; justify-content: center; align-items: center;
-            padding: 6px; /* White border effect */
+            padding: 6px; 
+            z-index: 10;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .prof-pfp {
             width: 100%; height: 100%; border-radius: 50%;
             background: #EEF2F9; font-size: 50px;
             display: flex; justify-content: center; align-items: center;
+            overflow: hidden; /* Ensures img stays in circle */
         }
+        .prof-pfp img { width: 100%; height: 100%; object-fit: cover; }
+
         .badge-grid {
             display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 15px 0;
         }
@@ -198,26 +210,41 @@
             background: white; width: 40px; height: 40px; border-radius: 50%;
             position: absolute; top: 15px; right: 15px;
             display: flex; justify-content: center; align-items: center; cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); font-size: 18px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); font-size: 18px; z-index: 20;
         }
 
         /* --- 9. MODAL FOR EDITING --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 5000;
-            display: none; justify-content: center; align-items: flex-end; /* Bottom sheet on mobile */
+            display: none; justify-content: center; align-items: flex-end; 
         }
         .modal-card {
             background: white; width: 100%; max-width: 600px;
             border-radius: 30px 30px 0 0; padding: 30px;
             animation: fadeUp 0.3s ease-out;
+            max-height: 90vh; overflow-y: auto;
         }
         @media(min-width: 768px) {
             .modal-overlay { align-items: center; }
             .modal-card { border-radius: 30px; margin: 20px; }
         }
-        .color-opt { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
-        .color-opt.selected { border-color: var(--text-main); transform: scale(1.1); }
+        
+        /* File Upload Styles */
+        .file-upload-btn {
+            background: #EEF2F9; border: 2px dashed #C5CEE0;
+            color: var(--text-sec); padding: 15px; border-radius: 15px;
+            text-align: center; font-weight: 700; cursor: pointer;
+            margin-bottom: 15px; position: relative;
+        }
+        .file-upload-btn input {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; cursor: pointer;
+        }
+        .preview-box {
+            width: 100%; height: 80px; background: #eee; border-radius: 10px;
+            margin-bottom: 15px; display: none; background-size: cover; background-position: center;
+        }
 
     </style>
 </head>
@@ -245,21 +272,17 @@
                 <div style="font-size:60px; margin-bottom:10px;">👋</div>
                 <h1>Welcome!</h1>
                 <p>Sign in to manage your family.</p>
-                
                 <button class="btn google-btn" onclick="loginGoogle()">
                     <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
                     Continue with Google
                 </button>
-
                 <div style="display:flex; align-items:center; margin:20px 0; color:#C5CEE0;">
                     <div style="flex:1; height:2px; background:#EEF2F9;"></div>
                     <span style="padding:0 10px; font-size:12px; font-weight:800;">OR</span>
                     <div style="flex:1; height:2px; background:#EEF2F9;"></div>
                 </div>
-
                 <input type="email" id="email-in" placeholder="Email">
                 <input type="password" id="pass-in" placeholder="Password">
-                
                 <div style="display: flex; gap: 10px;">
                     <button class="btn" style="flex:1;" onclick="loginEmail()">Log In</button>
                     <button class="btn secondary" style="flex:1;" onclick="signupEmail()">Sign Up</button>
@@ -367,22 +390,17 @@
 
         <div id="profile-view" class="view">
             <h1 style="margin-bottom:20px;">Profile</h1>
-            
             <div class="profile-card">
                 <div class="prof-banner" id="p-banner">
                     <div class="edit-fab" onclick="openEditProfile()">✏️</div>
                 </div>
-                
                 <div class="prof-pfp-container">
                     <div class="prof-pfp" id="p-pfp">🙂</div>
                 </div>
-
-                <div style="margin-top: 60px; padding: 0 20px;">
+                <div style="margin-top: 70px; padding: 0 20px;">
                     <h2 style="margin:0; font-size:26px;" id="p-name">Loading...</h2>
                     <div style="color:var(--text-sec); font-size:14px; margin-top:5px;" id="p-date">Member since...</div>
-                    
-                    <div class="badge-grid" id="p-badges">
-                        </div>
+                    <div class="badge-grid" id="p-badges"></div>
                 </div>
             </div>
 
@@ -407,30 +425,26 @@
     <div class="modal-overlay" id="edit-modal">
         <div class="modal-card">
             <h2 style="margin-top:0;">Edit Profile</h2>
+            <div id="upload-error" style="color:var(--error); font-size:12px; font-weight:bold; margin-bottom:10px; display:none;"></div>
             
             <p style="font-weight:700; font-size:12px; color:var(--text-sec); margin-bottom:5px;">DISPLAY NAME</p>
             <input type="text" id="edit-name-in">
 
-            <p style="font-weight:700; font-size:12px; color:var(--text-sec); margin-bottom:5px;">AVATAR (EMOJI)</p>
-            <select id="edit-pfp-in">
-                <option value="🙂">🙂 Smiley</option>
-                <option value="😎">😎 Cool</option>
-                <option value="🦊">🦊 Fox</option>
-                <option value="🤖">🤖 Robot</option>
-                <option value="👻">👻 Ghost</option>
-                <option value="👸">👸 Princess</option>
-                <option value="🦸">🦸 Super</option>
-            </select>
-
-            <p style="font-weight:700; font-size:12px; color:var(--text-sec); margin-bottom:10px;">BANNER COLOR</p>
-            <div style="display:flex; gap:10px; margin-bottom:25px;">
-                <div class="color-opt" style="background:linear-gradient(135deg, #a8c0ff, #3f2b96);" onclick="selectBanner(this, 'linear-gradient(135deg, #a8c0ff, #3f2b96)')"></div>
-                <div class="color-opt" style="background:linear-gradient(135deg, #FF9A9E, #FECFEF);" onclick="selectBanner(this, 'linear-gradient(135deg, #FF9A9E, #FECFEF)')"></div>
-                <div class="color-opt" style="background:linear-gradient(135deg, #84fab0, #8fd3f4);" onclick="selectBanner(this, 'linear-gradient(135deg, #84fab0, #8fd3f4)')"></div>
-                <div class="color-opt" style="background:linear-gradient(135deg, #fccb90, #d57eeb);" onclick="selectBanner(this, 'linear-gradient(135deg, #fccb90, #d57eeb)')"></div>
+            <p style="font-weight:700; font-size:12px; color:var(--text-sec); margin-bottom:5px;">AVATAR (GIF/PNG)</p>
+            <div class="file-upload-btn">
+                <span>📁 Upload New Avatar</span>
+                <input type="file" id="file-pfp" accept="image/png, image/jpeg, image/gif" onchange="previewFile('file-pfp', 'preview-pfp')">
             </div>
+            <div id="preview-pfp" class="preview-box"></div>
 
-            <button class="btn" onclick="saveProfile()">Save Changes</button>
+            <p style="font-weight:700; font-size:12px; color:var(--text-sec); margin-bottom:10px;">BANNER IMAGE</p>
+            <div class="file-upload-btn">
+                <span>🖼️ Upload New Banner</span>
+                <input type="file" id="file-banner" accept="image/png, image/jpeg, image/gif" onchange="previewFile('file-banner', 'preview-banner')">
+            </div>
+            <div id="preview-banner" class="preview-box"></div>
+
+            <button class="btn" onclick="saveProfile()" id="save-btn">Save Changes</button>
             <button class="btn secondary" style="margin-top:10px;" onclick="closeEditProfile()">Cancel</button>
         </div>
     </div>
@@ -474,7 +488,8 @@
 
         let currentUser = null;
         let userData = null;
-        let selectedBannerTemp = '';
+        let tempPfp = null;
+        let tempBanner = null;
 
         function showToast(id, msg, type) {
             const el = document.getElementById(id);
@@ -530,7 +545,6 @@
                 userData = snap.data();
                 loadApp(); 
             } else {
-                // New User Setup
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('auth-view').style.display = 'none';
                 document.getElementById('verify-view').style.display = 'none';
@@ -541,7 +555,6 @@
         window.finalizeSetup = async () => {
             const name = document.getElementById('setup-name').value;
             if(!name) return;
-            // INITIALIZE PROFILE DATA HERE
             const newUserData = {
                 name: name,
                 email: currentUser.email,
@@ -568,14 +581,13 @@
             if(window.innerWidth > 768) { document.getElementById('desktop-sidebar').style.display = 'flex'; }
             else { document.getElementById('mobile-navbar').style.display = 'flex'; document.getElementById('header-title').style.display = 'flex'; }
 
-            // RENDER PROFILE
             renderProfile();
 
             switchNav('home-view');
             onSnapshot(doc(db, "users", currentUser.uid), (d) => {
-                userData = d.data(); // Sync local data
+                userData = d.data(); 
                 document.getElementById('coin-count').innerText = userData.coins || 0;
-                renderProfile(); // Re-render if changed
+                renderProfile(); 
             });
 
             if(userData.familyId) {
@@ -599,10 +611,27 @@
         function renderProfile() {
             document.getElementById('p-name').innerText = userData.name;
             document.getElementById('user-email').innerText = currentUser.email;
-            document.getElementById('p-pfp').innerText = userData.pfp || '🙂';
-            document.getElementById('p-banner').style.background = userData.banner || 'var(--primary)';
             
-            // Format Date
+            // PFP RENDER
+            const pfpEl = document.getElementById('p-pfp');
+            if(userData.pfp && userData.pfp.startsWith('data:image')) {
+                pfpEl.innerHTML = `<img src="${userData.pfp}" alt="PFP">`;
+                pfpEl.style.background = 'white';
+            } else {
+                pfpEl.innerHTML = userData.pfp || '🙂';
+                pfpEl.style.background = '#EEF2F9';
+            }
+
+            // BANNER RENDER
+            const bannerEl = document.getElementById('p-banner');
+            if(userData.banner && userData.banner.startsWith('data:image')) {
+                bannerEl.style.background = `url(${userData.banner})`;
+                bannerEl.style.backgroundSize = 'cover';
+                bannerEl.style.backgroundPosition = 'center';
+            } else {
+                bannerEl.style.background = userData.banner || 'var(--primary)';
+            }
+            
             let dateStr = "Unknown";
             if(userData.joinedDate) {
                 const date = userData.joinedDate.toDate();
@@ -610,7 +639,6 @@
             }
             document.getElementById('p-date').innerText = dateStr;
 
-            // Badges
             const badgesDiv = document.getElementById('p-badges');
             badgesDiv.innerHTML = '';
             const badges = userData.badges || [];
@@ -620,36 +648,60 @@
             });
         }
 
-        // --- EDIT PROFILE LOGIC ---
+        // --- EDIT PROFILE (UPDATED WITH IMAGE LOGIC) ---
         window.openEditProfile = () => {
             document.getElementById('edit-name-in').value = userData.name;
-            document.getElementById('edit-pfp-in').value = userData.pfp || '🙂';
-            selectedBannerTemp = userData.banner;
             document.getElementById('edit-modal').style.display = 'flex';
+            document.getElementById('upload-error').style.display = 'none';
+            tempPfp = null;
+            tempBanner = null;
         };
         window.closeEditProfile = () => document.getElementById('edit-modal').style.display = 'none';
         
-        window.selectBanner = (el, gradient) => {
-            document.querySelectorAll('.color-opt').forEach(d => d.classList.remove('selected'));
-            el.classList.add('selected');
-            selectedBannerTemp = gradient;
+        // Helper to read file to Base64
+        window.previewFile = (inputId, previewId) => {
+            const file = document.getElementById(inputId).files[0];
+            const errorDiv = document.getElementById('upload-error');
+            errorDiv.style.display = 'none';
+            
+            if(!file) return;
+
+            // Limit file size to 800KB to prevent Firestore limit errors
+            if(file.size > 800 * 1024) {
+                errorDiv.innerText = "File too big! Please use an image under 800KB.";
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const res = reader.result;
+                document.getElementById(previewId).style.backgroundImage = `url(${res})`;
+                document.getElementById(previewId).style.display = 'block';
+                if(inputId === 'file-pfp') tempPfp = res;
+                if(inputId === 'file-banner') tempBanner = res;
+            };
+            reader.readAsDataURL(file);
         };
 
         window.saveProfile = async () => {
             const newName = document.getElementById('edit-name-in').value;
-            const newPfp = document.getElementById('edit-pfp-in').value;
+            const btn = document.getElementById('save-btn');
             
             if(!newName) return;
+            btn.innerText = "Saving...";
 
-            await updateDoc(doc(db, "users", currentUser.uid), {
-                name: newName,
-                pfp: newPfp,
-                banner: selectedBannerTemp
-            });
+            const updateData = { name: newName };
+            if(tempPfp) updateData.pfp = tempPfp;
+            if(tempBanner) updateData.banner = tempBanner;
+
+            await updateDoc(doc(db, "users", currentUser.uid), updateData);
+            
+            btn.innerText = "Save Changes";
             closeEditProfile();
         };
 
-        // --- NAVIGATION ---
+        // --- NAVIGATION & LOGIC ---
         window.switchNav = (viewId) => {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
