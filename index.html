@@ -6,19 +6,18 @@
     <meta name="theme-color" content="#F4F7FE">
     <title>FamBank</title>
     <style>
-        /* --- 1. THEME VARIABLES (Bubbly & Friendly) --- */
+        /* --- 1. THEME VARIABLES --- */
         :root {
-            --primary: #4D8EFF;       /* Friendly Blue */
-            --primary-dark: #3a75d9;
-            --accent: #FFB142;        /* Soft Orange */
-            --bg-body: #F4F7FE;       /* Very light cool gray */
-            --bg-card: #FFFFFF;
-            --text-main: #2C3A59;     /* Dark Blue-Gray */
+            --primary: #4D8EFF;
+            --accent: #FFB142;
+            --success: #00D68F;
+            --error: #FF6B6B;
+            --bg-body: #F4F7FE;
+            --text-main: #2C3A59;
             --text-sec: #8F9BB3;
-            --radius: 25px;           /* SUPER ROUND CORNERS */
+            --radius: 25px;
             --shadow: 0 10px 30px rgba(77, 142, 255, 0.15);
             --safe-top: env(safe-area-inset-top);
-            --safe-bottom: env(safe-area-inset-bottom);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -34,93 +33,82 @@
         }
 
         /* --- 2. ANIMATIONS --- */
-        @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.95) translateY(10px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
 
         /* --- 3. UI ELEMENTS --- */
-        
-        /* Bubbly Inputs */
         input {
             width: 100%; padding: 18px; font-size: 16px;
             border: 2px solid transparent; background: #EEF2F9;
             border-radius: var(--radius); margin-bottom: 15px;
-            color: var(--text-main); font-weight: 600;
-            transition: 0.3s;
+            color: var(--text-main); font-weight: 700; transition: 0.3s;
         }
         input:focus { background: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(77, 142, 255, 0.2); }
 
-        /* Bubbly Buttons */
         .btn {
             width: 100%; padding: 16px;
             background: var(--primary); color: white;
             border: none; border-radius: var(--radius);
             font-size: 16px; font-weight: 800; cursor: pointer;
             box-shadow: 0 4px 15px rgba(77, 142, 255, 0.3);
-            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.1s;
             display: flex; justify-content: center; align-items: center;
         }
         .btn:active { transform: scale(0.96); }
+        .btn.secondary { background: #E4E9F2; color: var(--text-main); box-shadow: none; }
         
-        /* Secondary Button (Gray) */
-        .btn.secondary { 
-            background: #E4E9F2; 
-            color: var(--text-main); 
-            box-shadow: none; 
-        }
-
-        /* Google Button Style */
-        .google-btn {
-            background: white; color: #3c4043;
-            border: 1px solid #dadce0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
+        .google-btn { 
+            background: white; color: #3c4043; 
+            border: 1px solid #dadce0; box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+            margin-bottom: 20px; 
         }
         .google-btn svg { margin-right: 10px; }
 
-        /* Titles & Text */
-        h1 { font-size: 28px; font-weight: 800; margin: 0 0 10px 0; color: var(--text-main); letter-spacing: -0.5px; }
-        p { color: var(--text-sec); font-size: 15px; margin-bottom: 20px; font-weight: 600; }
+        /* Custom Toast Message (Error/Success) */
+        .toast-msg {
+            font-size: 14px; font-weight: 700; 
+            margin-top: 10px; min-height: 20px; text-align: center;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .toast-msg.show { opacity: 1; animation: shake 0.3s; }
+        .toast-msg.error { color: var(--error); }
+        .toast-msg.success { color: var(--success); }
 
-        /* Layout Containers */
+        /* --- 4. LAYOUT --- */
         .main-content {
             flex: 1; position: relative; overflow-y: auto;
-            background: var(--bg-body);
-            height: 100%;
+            background: var(--bg-body); height: 100%;
         }
 
         .view {
             display: none; padding: 25px; padding-bottom: 120px;
             max-width: 800px; margin: 0 auto;
-            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: fadeUp 0.4s ease-out;
         }
         .view.active { display: block; }
 
-        /* --- 4. NAVIGATION (SIDEBAR & BOTTOM BAR) --- */
-
-        /* PC Sidebar */
+        /* --- 5. NAVIGATION (HIDDEN INITIALLY) --- */
         .sidebar {
             width: 280px; background: white;
             display: none; /* Controlled by JS */
             flex-direction: column; padding: 30px;
-            border-right: 1px solid #EEF2F9;
-            z-index: 50;
+            border-right: 1px solid #EEF2F9; z-index: 50;
         }
         .nav-item {
             display: flex; align-items: center; padding: 15px 20px;
             margin-bottom: 8px; border-radius: 18px;
-            color: var(--text-sec); font-weight: 700; cursor: pointer;
-            transition: 0.2s;
+            color: var(--text-sec); font-weight: 700; cursor: pointer; transition: 0.2s;
         }
         .nav-item:hover { background: #F4F7FE; color: var(--primary); }
         .nav-item.active { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(77, 142, 255, 0.4); }
 
-        /* Mobile Bottom Bar */
         .mobile-nav {
             position: fixed; bottom: 20px; left: 20px; right: 20px;
             background: white; height: 75px; border-radius: 40px;
@@ -135,44 +123,28 @@
         }
         .mobile-tab.active { color: white; background: var(--primary); transform: translateY(-5px); box-shadow: 0 5px 15px rgba(77, 142, 255, 0.4); }
 
-        /* Mobile Header */
         .mobile-header {
             position: fixed; top: 0; left: 0; width: 100%; height: 70px;
-            background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
-            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+            display: none; /* Controlled by JS */
+            align-items: center; justify-content: center;
             font-weight: 800; font-size: 18px; color: var(--text-main);
-            z-index: 90; box-shadow: 0 2px 20px rgba(0,0,0,0.03);
-            padding-top: var(--safe-top);
+            z-index: 90; padding-top: var(--safe-top);
         }
 
-        /* --- 5. RESPONSIVE BREAKPOINTS --- */
-        
-        /* Desktop */
-        @media (min-width: 769px) {
-            .mobile-nav, .mobile-header { display: none !important; }
-            
-            /* Auth Centered Overlay */
-            #auth-view {
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background: var(--bg-body); /* Solid bg for clean look */
-                display: flex !important; justify-content: center; align-items: center;
-                z-index: 9999;
-            }
-            .auth-card {
-                background: white; width: 450px; padding: 50px;
-                border-radius: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.08);
-                text-align: center;
-            }
+        /* --- 6. AUTH & SETUP OVERLAYS --- */
+        #auth-view {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-body); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .auth-card {
+            background: white; width: 100%; max-width: 450px; padding: 40px;
+            border-radius: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.05);
+            text-align: center; margin: 20px;
         }
 
-        /* Mobile */
-        @media (max-width: 768px) {
-            .view { padding-top: 90px; }
-            #auth-view { background: white; z-index: 9999; display:flex !important; flex-direction:column; justify-content:center; }
-            .auth-card { width: 100%; padding: 20px; text-align: center; }
-        }
-
-        /* --- 6. LOADING & LISTS --- */
+        /* --- 7. LOADING & LISTS --- */
         #loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: white; z-index: 10000;
@@ -183,24 +155,19 @@
         .list-item {
             background: white; padding: 20px; border-radius: 25px;
             display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            cursor: pointer; transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); cursor: pointer;
         }
-        .list-item:active { transform: scale(0.98); }
 
     </style>
 </head>
 <body>
 
     <div id="loader">
-        <div style="font-size:50px; animation: bounce 1s infinite;">🏦</div>
-        <p style="margin-top: 20px; font-weight: 700;">Loading...</p>
+        <div style="font-size:60px; animation: shake 2s infinite;">🏦</div>
     </div>
 
     <div class="sidebar" id="desktop-sidebar">
-        <div style="font-size:24px; font-weight:900; color:var(--primary); margin-bottom:40px; padding-left:10px;">
-            🏦 FamBank
-        </div>
+        <div style="font-size:24px; font-weight:900; color:var(--primary); margin-bottom:40px; padding-left:10px;">🏦 FamBank</div>
         <div class="nav-item active" onclick="switchNav('home-view')" id="pc-home">🏠 Home</div>
         <div class="nav-item" onclick="switchNav('family-view')" id="pc-fam">👨‍👩‍👧 Family</div>
         <div class="nav-item" onclick="switchNav('store-view')" id="pc-store">🛍️ Store</div>
@@ -210,82 +177,80 @@
     </div>
 
     <div class="main-content">
-
         <div class="mobile-header" id="header-title">Home</div>
 
         <div id="auth-view" class="view active">
             <div class="auth-card">
-                <div style="font-size:70px; margin-bottom:10px;">👋</div>
-                <h1>Hello!</h1>
-                <p>Please sign in to continue.</p>
+                <div style="font-size:60px; margin-bottom:10px;">👋</div>
+                <h1>Welcome!</h1>
+                <p>Sign in to manage your family.</p>
                 
                 <button class="btn google-btn" onclick="loginGoogle()">
-                    <svg width="18" height="18" viewBox="0 0 24 24">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                    </svg>
-                    Sign Up Or Log In With Google
+                    <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                    Continue with Google
                 </button>
 
-                <div style="display:flex; align-items:center; margin:25px 0; color:#C5CEE0;">
-                    <div style="flex:1; height:2px; background:#EEF2F9; border-radius:2px;"></div>
-                    <span style="padding:0 15px; font-size:12px; font-weight:800;">OR EMAIL</span>
-                    <div style="flex:1; height:2px; background:#EEF2F9; border-radius:2px;"></div>
+                <div style="display:flex; align-items:center; margin:20px 0; color:#C5CEE0;">
+                    <div style="flex:1; height:2px; background:#EEF2F9;"></div>
+                    <span style="padding:0 10px; font-size:12px; font-weight:800;">OR</span>
+                    <div style="flex:1; height:2px; background:#EEF2F9;"></div>
                 </div>
 
-                <input type="email" id="email-in" placeholder="Email Address">
+                <input type="email" id="email-in" placeholder="Email">
                 <input type="password" id="pass-in" placeholder="Password">
                 
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                    <button class="btn" style="flex: 1;" onclick="loginEmail()">Log In</button>
-                    <button class="btn secondary" style="flex: 1;" onclick="signupEmail()">Create Account</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn" style="flex:1;" onclick="loginEmail()">Log In</button>
+                    <button class="btn secondary" style="flex:1;" onclick="signupEmail()">Sign Up</button>
                 </div>
                 
-                <p id="auth-error" style="color:#FF6B6B; font-size:14px; font-weight:700; margin-top:20px;"></p>
+                <div id="auth-feedback" class="toast-msg"></div>
+            </div>
+        </div>
+
+        <div id="setup-view" class="view" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; background:var(--bg-body); display:none; align-items:center; justify-content:center;">
+            <div class="auth-card">
+                <div style="font-size:60px; margin-bottom:10px;">📝</div>
+                <h1>One last thing!</h1>
+                <p>What should we call you?</p>
+                <input type="text" id="setup-name" placeholder="Your Name (e.g. Dad, Mom)">
+                <button class="btn" onclick="finalizeSetup()">Let's Go!</button>
             </div>
         </div>
 
         <div id="home-view" class="view">
             <div style="background: linear-gradient(135deg, var(--primary), #6C5CE7); color: white; padding: 35px; border-radius: 35px; box-shadow: var(--shadow); position:relative; overflow:hidden;">
-                <div style="position:absolute; top:-30px; right:-30px; width:120px; height:120px; background:white; opacity:0.15; border-radius:50%;"></div>
-                <div style="position:absolute; bottom:-30px; left:-30px; width:100px; height:100px; background:white; opacity:0.1; border-radius:50%;"></div>
-                
-                <p style="color:rgba(255,255,255,0.9); margin:0; text-transform:uppercase; letter-spacing:1px; font-size:12px; font-weight:800;">My Balance</p>
+                <p style="color:rgba(255,255,255,0.9); margin:0; text-transform:uppercase; font-size:12px; font-weight:800;">Balance</p>
                 <h1 style="color:white; font-size:60px; margin: 10px 0;" id="coin-count">0</h1>
-                <div style="font-weight:700; font-size:16px;">Tokens</div>
+                <div style="font-weight:700;">Tokens</div>
             </div>
 
-            <h2 style="margin: 30px 0 20px 5px;">To-Do List</h2>
+            <h2 style="margin: 30px 0 20px 5px;">Tasks</h2>
             
             <div id="no-fam-alert" style="display:none; background:white; padding:30px; border-radius:30px; text-align:center; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
                 <div style="font-size:40px; margin-bottom:15px;">👨‍👩‍👧</div>
-                <h3 style="margin:0 0 10px 0;">No Family Yet</h3>
+                <h3>No Family Yet</h3>
                 <p>Join or create a family to see tasks.</p>
                 <button class="btn secondary" onclick="switchNav('family-view')">Go to Family</button>
             </div>
 
-            <div id="task-list" class="bubble-list">
-                </div>
+            <div id="task-list" class="bubble-list"></div>
         </div>
 
         <div id="family-view" class="view">
-            <h1>Family Team</h1>
-            
+            <h1>Family</h1>
             <div id="family-forms">
                 <div style="background:white; padding:30px; border-radius:30px; margin-bottom:20px;">
-                    <h3>New Family</h3>
+                    <h3>New Group</h3>
                     <input type="text" id="create-fam-name" placeholder="Family Name">
-                    <button class="btn" onclick="createFamily()">Create Group</button>
+                    <button class="btn" onclick="createFamily()">Create</button>
                 </div>
-                
-                <div style="text-align:center; color:var(--text-sec); font-weight:800; margin: 20px;">OR</div>
-
+                <div style="text-align:center; color:var(--text-sec); font-weight:800; margin:20px;">OR</div>
                 <div style="background:white; padding:30px; border-radius:30px;">
-                    <h3>Join Family</h3>
+                    <h3>Join Group</h3>
                     <input type="number" id="join-fam-code" placeholder="Invite Code">
-                    <button class="btn secondary" onclick="joinFamily()">Join Group</button>
+                    <button class="btn secondary" onclick="joinFamily()">Join</button>
+                    <div id="join-error" class="toast-msg error"></div>
                 </div>
             </div>
 
@@ -293,8 +258,8 @@
                 <div class="bubble-list">
                     <div class="list-item" style="cursor:default;">
                         <div>
-                            <div style="font-size:12px; color:var(--text-sec); font-weight:800;">FAMILY NAME</div>
-                            <div style="font-size:20px; font-weight:800;" id="fam-name-display">Loading...</div>
+                            <div style="font-size:12px; color:var(--text-sec); font-weight:800;">NAME</div>
+                            <div style="font-size:20px; font-weight:800;" id="fam-name-display">...</div>
                         </div>
                         <div style="font-size:30px;">🏠</div>
                     </div>
@@ -310,29 +275,14 @@
         </div>
 
         <div id="store-view" class="view">
-            <h1>Rewards Store</h1>
-            <p>Spend your hard-earned tokens!</p>
-            
+            <h1>Store</h1>
             <div class="bubble-list">
                 <div class="list-item">
                     <div style="display:flex; align-items:center;">
-                        <div style="width:50px; height:50px; background:#E3F2FD; border-radius:15px; display:flex; justify-content:center; align-items:center; font-size:24px; margin-right:15px;">🍦</div>
-                        <div>
-                            <div style="font-weight:800;">Ice Cream</div>
-                            <div style="color:var(--primary); font-weight:700;">100 Tokens</div>
-                        </div>
+                        <div style="font-size:24px; margin-right:15px;">🍦</div>
+                        <div><div style="font-weight:800;">Ice Cream</div><div style="color:var(--primary);">100 Tokens</div></div>
                     </div>
-                    <button class="btn" style="width:auto; padding:10px 25px; margin:0; font-size:14px;">Buy</button>
-                </div>
-                <div class="list-item">
-                    <div style="display:flex; align-items:center;">
-                        <div style="width:50px; height:50px; background:#F3E5F5; border-radius:15px; display:flex; justify-content:center; align-items:center; font-size:24px; margin-right:15px;">🎮</div>
-                        <div>
-                            <div style="font-weight:800;">Gaming (1hr)</div>
-                            <div style="color:var(--primary); font-weight:700;">50 Tokens</div>
-                        </div>
-                    </div>
-                    <button class="btn" style="width:auto; padding:10px 25px; margin:0; font-size:14px;">Buy</button>
+                    <button class="btn" style="width:auto; padding:10px 20px; margin:0; font-size:14px;">Buy</button>
                 </div>
             </div>
         </div>
@@ -352,55 +302,33 @@
                         <div style="font-size:16px; font-weight:600;" id="user-email">...</div>
                     </div>
                 </div>
-                <div class="list-item" style="cursor:default;">
-                    <div>
-                        <div style="font-size:12px; color:var(--text-sec); font-weight:800;">ROLE</div>
-                        <div style="background:var(--accent); color:white; padding:5px 15px; border-radius:15px; font-size:12px; display:inline-block; font-weight:800; margin-top:5px;" id="user-role-badge">...</div>
-                    </div>
-                </div>
             </div>
             <button class="btn" style="background:#FF6B6B; margin-top:30px;" onclick="logout()">Log Out</button>
         </div>
-
     </div>
 
     <div class="mobile-nav" id="mobile-navbar">
-        <div class="mobile-tab active" onclick="switchNav('home-view')">
-            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        </div>
-        <div class="mobile-tab" onclick="switchNav('profile-view')">
-            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-        </div>
-        <div class="mobile-tab" onclick="openSheet()">
-            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-        </div>
+        <div class="mobile-tab active" onclick="switchNav('home-view')"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+        <div class="mobile-tab" onclick="switchNav('profile-view')"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+        <div class="mobile-tab" onclick="openSheet()"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
     </div>
 
-    <div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet(event)">
+    <div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet(event)" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:200; opacity:0; pointer-events:none; transition:0.3s;">
         <div class="sheet-card" style="position:absolute; bottom:20px; left:20px; right:20px; background:white; border-radius:30px; padding:25px; transform:translateY(150%); transition:0.4s;">
             <div style="width:50px; height:6px; background:#EEF2F9; border-radius:10px; margin:0 auto 20px auto;"></div>
             <h2>More</h2>
             <div class="bubble-list">
-                <div class="list-item" onclick="mobileGo('family-view')">
-                    <div style="display:flex; align-items:center;">
-                        <div style="font-size:24px; margin-right:15px;">👨‍👩‍👧</div>
-                        <div style="font-weight:700;">Family Group</div>
-                    </div>
-                </div>
-                <div class="list-item" onclick="mobileGo('store-view')">
-                    <div style="display:flex; align-items:center;">
-                        <div style="font-size:24px; margin-right:15px;">🛍️</div>
-                        <div style="font-weight:700;">Rewards Store</div>
-                    </div>
-                </div>
+                <div class="list-item" onclick="mobileGo('family-view')"><div style="font-weight:700;">👨‍👩‍👧 Family Group</div></div>
+                <div class="list-item" onclick="mobileGo('store-view')"><div style="font-weight:700;">🛍️ Rewards Store</div></div>
             </div>
         </div>
     </div>
-    <style>.sheet-overlay.open .sheet-card { transform: translateY(0) !important; }</style>
+    <style>.sheet-overlay.open { opacity: 1; pointer-events: auto; } .sheet-overlay.open .sheet-card { transform: translateY(0); }</style>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        // ADDED: sendEmailVerification
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, where, onSnapshot, updateDoc, doc, getDoc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -420,71 +348,105 @@
         let currentUser = null;
         let userData = null;
 
-        // AUTH ACTIONS
-        window.loginGoogle = () => signInWithPopup(auth, provider).catch(e => document.getElementById('auth-error').innerText = e.message);
-        window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value).catch(e => document.getElementById('auth-error').innerText = e.message);
-        window.signupEmail = () => createUserWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value).catch(e => document.getElementById('auth-error').innerText = e.message);
+        // --- HELPER FOR TOAST MESSAGES ---
+        function showToast(id, msg, type) {
+            const el = document.getElementById(id);
+            el.innerText = msg;
+            el.className = `toast-msg show ${type}`; // e.g. "toast-msg show error"
+            setTimeout(() => {
+                el.classList.remove('show');
+            }, 4000);
+        }
+
+        // --- AUTH FUNCTIONS ---
+        window.loginGoogle = () => signInWithPopup(auth, provider).catch(e => showToast('auth-feedback', "Google Login Failed", "error"));
+        
+        window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value)
+            .catch(e => showToast('auth-feedback', "Wrong Email or Password", "error"));
+
+        // UPDATED: Signup with Verification
+        window.signupEmail = async () => {
+            const email = document.getElementById('email-in').value;
+            const pass = document.getElementById('pass-in').value;
+            
+            if(!email || !pass) return showToast('auth-feedback', "Please enter email & password", "error");
+
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                // Send verification email
+                await sendEmailVerification(cred.user);
+                showToast('auth-feedback', "Account Created! Verification email sent.", "success");
+                // The onAuthStateChanged will handle the transition
+            } catch(e) {
+                showToast('auth-feedback', e.message, "error");
+            }
+        };
+
         window.logout = () => signOut(auth).then(() => location.reload());
 
-        // STATE LISTENER
+        // --- AUTH STATE & LOADING ---
         onAuthStateChanged(auth, async (user) => {
             const loader = document.getElementById('loader');
-            const mobileNav = document.getElementById('mobile-navbar');
-            const desktopSidebar = document.getElementById('desktop-sidebar');
-            const header = document.getElementById('header-title');
-
+            
             if (user) {
                 currentUser = user;
-                
-                // SHOW UI ELEMENTS
-                if(window.innerWidth > 768) desktopSidebar.style.display = 'flex';
-                else {
-                    mobileNav.style.display = 'flex';
-                    header.style.display = 'flex';
-                }
-
                 const snap = await getDoc(doc(db, "users", user.uid));
+                
                 if (snap.exists()) {
                     userData = snap.data();
-                    loadApp();
+                    loadApp(); 
                 } else {
-                    const name = prompt("What is your name?");
-                    if(name) {
-                        await setDoc(doc(db, "users", user.uid), { name, email: user.email, coins: 0, familyId: null, role: null });
-                        location.reload();
-                    }
+                    // New User -> Go to Setup View
+                    loader.style.display = 'none';
+                    document.getElementById('auth-view').style.display = 'none';
+                    document.getElementById('setup-view').style.display = 'flex';
                 }
             } else {
-                // NOT LOGGED IN: HIDE NAV BARS
-                mobileNav.style.display = 'none';
-                desktopSidebar.style.display = 'none';
-                header.style.display = 'none';
+                // Logged Out -> Hide Nav, Show Auth
+                document.getElementById('mobile-navbar').style.display = 'none';
+                document.getElementById('header-title').style.display = 'none';
+                document.getElementById('desktop-sidebar').style.display = 'none';
                 
                 loader.style.opacity = '0';
                 setTimeout(() => loader.style.display = 'none', 500);
-                
                 document.getElementById('auth-view').classList.add('active');
             }
         });
 
-        // APP LOADING
-        function loadApp() {
-            document.getElementById('loader').style.opacity = '0';
-            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        // --- SETUP NEW USER ---
+        window.finalizeSetup = async () => {
+            const name = document.getElementById('setup-name').value;
+            if(!name) return; 
             
+            await setDoc(doc(db, "users", currentUser.uid), { name, email: currentUser.email, coins: 0, familyId: null, role: null });
+            document.getElementById('setup-view').style.display = 'none';
+            
+            const snap = await getDoc(doc(db, "users", currentUser.uid));
+            userData = snap.data();
+            loadApp();
+        };
+
+        // --- APP LOGIC ---
+        function loadApp() {
+            document.getElementById('loader').style.display = 'none';
             document.getElementById('auth-view').classList.remove('active');
-            switchNav('home-view'); // Default to home
+            
+            if(window.innerWidth > 768) {
+                document.getElementById('desktop-sidebar').style.display = 'flex';
+            } else {
+                document.getElementById('mobile-navbar').style.display = 'flex';
+                document.getElementById('header-title').style.display = 'flex';
+            }
 
             document.getElementById('display-name').innerText = userData.name;
             document.getElementById('user-email').innerText = currentUser.email;
-            document.getElementById('user-role-badge').innerText = userData.role ? userData.role.toUpperCase() : "MEMBER";
 
-            // Coins Listener
+            switchNav('home-view');
+            
             onSnapshot(doc(db, "users", currentUser.uid), (d) => {
                 document.getElementById('coin-count').innerText = d.data().coins || 0;
             });
 
-            // Family Check
             if(userData.familyId) {
                 document.getElementById('no-fam-alert').style.display = 'none';
                 document.getElementById('family-forms').style.display = 'none';
@@ -504,26 +466,26 @@
             }
         }
 
-        // NAV SWITCHER
+        // --- NAV ---
         window.switchNav = (viewId) => {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.view').forEach(v => {
+                if(v.id !== 'auth-view' && v.id !== 'setup-view') v.classList.remove('active');
+            });
             document.getElementById(viewId).classList.add('active');
 
-            // Titles
             const titles = { 'home-view': 'Home', 'family-view': 'Family', 'store-view': 'Store', 'profile-view': 'Profile' };
             document.getElementById('header-title').innerText = titles[viewId];
-
-            // Highlights
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            if(viewId.includes('home')) document.getElementById('pc-home').classList.add('active');
-            if(viewId.includes('fam')) document.getElementById('pc-fam').classList.add('active');
-            if(viewId.includes('store')) document.getElementById('pc-store').classList.add('active');
-            if(viewId.includes('prof')) document.getElementById('pc-prof').classList.add('active');
 
             document.querySelectorAll('.mobile-tab').forEach(el => el.classList.remove('active'));
             if(viewId === 'home-view') document.querySelectorAll('.mobile-tab')[0].classList.add('active');
             else if(viewId === 'profile-view') document.querySelectorAll('.mobile-tab')[1].classList.add('active');
             else document.querySelectorAll('.mobile-tab')[2].classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if(viewId.includes('home')) document.getElementById('pc-home').classList.add('active');
+            if(viewId.includes('fam')) document.getElementById('pc-fam').classList.add('active');
+            if(viewId.includes('store')) document.getElementById('pc-store').classList.add('active');
+            if(viewId.includes('prof')) document.getElementById('pc-prof').classList.add('active');
         };
 
         window.openSheet = () => document.getElementById('sheet-overlay').classList.add('open');
@@ -536,7 +498,7 @@
             switchNav(id);
         };
 
-        // BACKEND FUNCS
+        // --- BACKEND ---
         window.createFamily = async () => {
             const name = document.getElementById('create-fam-name').value;
             if(!name) return;
@@ -550,7 +512,10 @@
             const code = document.getElementById('join-fam-code').value;
             const q = query(collection(db, "families"), where("inviteCode", "==", code));
             const snap = await getDocs(q);
-            if(snap.empty) return alert("Code not found.");
+            if(snap.empty) {
+                showToast('join-error', "Code not found", "error");
+                return;
+            }
             let fid = null; snap.forEach(d => fid = d.id);
             await updateDoc(doc(db, "users", currentUser.uid), { familyId: fid, role: 'child' });
             location.reload();
@@ -567,13 +532,8 @@
                     list.innerHTML += `
                         <div class="list-item" style="cursor:default;">
                             <div style="display:flex; align-items:center;">
-                                <div style="width:40px; height:40px; background:${t.status==='Done'?'var(--primary)':'#EEF2F9'}; color:${t.status==='Done'?'white':'inherit'}; border-radius:50%; display:flex; justify-content:center; align-items:center; margin-right:15px; font-weight:bold;">
-                                    ${t.status === 'Done' ? '✓' : ''}
-                                </div>
-                                <div>
-                                    <div style="font-weight:700;">${t.title}</div>
-                                    <div style="font-size:13px; color:var(--text-sec);">+${t.reward} Tokens</div>
-                                </div>
+                                <div style="width:40px; height:40px; background:${t.status==='Done'?'var(--primary)':'#EEF2F9'}; color:${t.status==='Done'?'white':'inherit'}; border-radius:50%; display:flex; justify-content:center; align-items:center; margin-right:15px; font-weight:bold;">${t.status === 'Done' ? '✓' : ''}</div>
+                                <div><div style="font-weight:700;">${t.title}</div><div style="font-size:13px; color:var(--text-sec);">+${t.reward} Tokens</div></div>
                             </div>
                         </div>`;
                 });
