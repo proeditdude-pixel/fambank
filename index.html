@@ -18,6 +18,7 @@
             --radius: 25px;
             --shadow: 0 10px 30px rgba(77, 142, 255, 0.15);
             --safe-top: env(safe-area-inset-top);
+            --safe-bottom: env(safe-area-inset-bottom);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -27,9 +28,12 @@
             background-color: var(--bg-body);
             color: var(--text-main);
             margin: 0;
-            height: 100vh;
+            /* FIXED: Use 100dvh for mobile browsers to handle address bars correctly */
+            height: 100dvh; 
+            width: 100vw;
             display: flex;
-            overflow: hidden;
+            overflow: hidden; /* Prevent body scroll, we scroll internal div */
+            position: fixed; /* Lock body in place */
         }
 
         /* --- 2. ANIMATIONS --- */
@@ -71,12 +75,11 @@
         }
         .google-btn svg { margin-right: 10px; }
 
-        /* Custom Toast Notification (Replaces Alerts) */
         .toast-msg {
             font-size: 14px; font-weight: 700; 
-            margin-top: 15px; min-height: 20px; text-align: center;
+            margin-top: 15px; text-align: center;
             opacity: 0; transition: opacity 0.3s;
-            padding: 10px; border-radius: 10px;
+            padding: 10px; border-radius: 10px; pointer-events: none;
         }
         .toast-msg.show { opacity: 1; animation: shake 0.3s; }
         .toast-msg.error { color: var(--error); background: rgba(255, 107, 107, 0.1); }
@@ -84,22 +87,25 @@
 
         /* --- 4. LAYOUT --- */
         .main-content {
-            flex: 1; position: relative; overflow-y: auto;
-            background: var(--bg-body); height: 100%;
+            flex: 1; position: relative; 
+            /* FIXED: Proper scrolling settings */
+            overflow-y: auto; 
+            -webkit-overflow-scrolling: touch; 
+            height: 100%;
+            padding-bottom: 120px; /* Space for bottom nav */
         }
 
         .view {
-            display: none; padding: 25px; padding-bottom: 120px;
+            display: none; padding: 25px;
             max-width: 800px; margin: 0 auto;
             animation: fadeUp 0.4s ease-out;
         }
         .view.active { display: block; }
 
-        /* --- 5. NAVIGATION (HIDDEN BY DEFAULT) --- */
+        /* --- 5. NAVIGATION --- */
         .sidebar {
             width: 280px; background: white;
-            display: none; /* Controlled by JS */
-            flex-direction: column; padding: 30px;
+            display: none; flex-direction: column; padding: 30px;
             border-right: 1px solid #EEF2F9; z-index: 50;
         }
         .nav-item {
@@ -113,9 +119,9 @@
         .mobile-nav {
             position: fixed; bottom: 20px; left: 20px; right: 20px;
             background: white; height: 75px; border-radius: 40px;
-            display: none; /* Controlled by JS */
-            justify-content: space-around; align-items: center;
+            display: none; justify-content: space-around; align-items: center;
             box-shadow: 0 10px 40px rgba(0,0,0,0.1); z-index: 100;
+            padding-bottom: var(--safe-bottom);
         }
         .mobile-tab { 
             color: #C5CEE0; width: 50px; height: 50px; 
@@ -125,19 +131,20 @@
         .mobile-tab.active { color: white; background: var(--primary); transform: translateY(-5px); box-shadow: 0 5px 15px rgba(77, 142, 255, 0.4); }
 
         .mobile-header {
-            position: fixed; top: 0; left: 0; width: 100%; height: 70px;
-            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
-            display: none; /* Controlled by JS */
-            align-items: center; justify-content: center;
+            position: sticky; top: 0; left: 0; width: 100%; height: 70px;
+            background: rgba(244, 247, 254, 0.95); backdrop-filter: blur(10px);
+            display: none; align-items: center; justify-content: center;
             font-weight: 800; font-size: 18px; color: var(--text-main);
             z-index: 90; padding-top: var(--safe-top);
+            margin-bottom: 10px;
         }
 
-        /* --- 6. AUTH & SETUP OVERLAYS --- */
-        #auth-view {
+        /* --- 6. OVERLAYS (Auth, Setup, Verify) --- */
+        .fullscreen-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-body); z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
+            display: none; justify-content: center; align-items: center;
+            overflow-y: auto;
         }
         .auth-card {
             background: white; width: 100%; max-width: 450px; padding: 40px;
@@ -158,6 +165,7 @@
             display: flex; align-items: center; justify-content: space-between;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03); cursor: pointer;
         }
+
     </style>
 </head>
 <body>
@@ -179,7 +187,7 @@
     <div class="main-content">
         <div class="mobile-header" id="header-title">Home</div>
 
-        <div id="auth-view" class="view active">
+        <div id="auth-view" class="fullscreen-overlay active" style="display:flex;">
             <div class="auth-card">
                 <div style="font-size:60px; margin-bottom:10px;">👋</div>
                 <h1>Welcome!</h1>
@@ -208,7 +216,22 @@
             </div>
         </div>
 
-        <div id="setup-view" class="view" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; background:var(--bg-body); display:none; align-items:center; justify-content:center;">
+        <div id="verify-view" class="fullscreen-overlay" style="z-index: 10000;">
+            <div class="auth-card">
+                <div style="font-size:60px; margin-bottom:10px;">📧</div>
+                <h1>Check Email</h1>
+                <p>We sent a verification link to your email.</p>
+                <p style="font-size:13px; color:var(--text-sec); margin-bottom:30px;">You must click the link before you can use the app.</p>
+                
+                <button class="btn" onclick="checkVerification()" style="margin-bottom:15px;">I've Verified!</button>
+                <button class="btn secondary" onclick="resendVerification()">Resend Email</button>
+                
+                <div id="verify-feedback" class="toast-msg"></div>
+                <div style="margin-top:20px; font-size:13px; color:#FF6B6B; cursor:pointer;" onclick="logout()">Wrong email? Log Out</div>
+            </div>
+        </div>
+
+        <div id="setup-view" class="fullscreen-overlay">
             <div class="auth-card">
                 <div style="font-size:60px; margin-bottom:10px;">📝</div>
                 <h1>One last thing!</h1>
@@ -304,8 +327,8 @@
                 </div>
                 <div class="list-item" style="cursor:default;">
                     <div>
-                        <div style="font-size:12px; color:var(--text-sec); font-weight:800;">VERIFIED</div>
-                        <div style="font-size:14px; font-weight:700; color:var(--success);" id="user-verified">Checking...</div>
+                        <div style="font-size:12px; color:var(--text-sec); font-weight:800;">STATUS</div>
+                        <div style="font-size:14px; font-weight:700; color:var(--success);">Verified ✅</div>
                     </div>
                 </div>
             </div>
@@ -333,7 +356,6 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        // IMPORTING sendEmailVerification here:
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, where, onSnapshot, updateDoc, doc, getDoc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
@@ -354,40 +376,28 @@
         let currentUser = null;
         let userData = null;
 
-        // --- HELPER FOR TOAST MESSAGES (No Alerts) ---
         function showToast(id, msg, type) {
             const el = document.getElementById(id);
             el.innerText = msg;
-            el.className = `toast-msg show ${type}`; // Apply 'error' or 'success' class
-            setTimeout(() => {
-                el.classList.remove('show');
-            }, 4000);
+            el.className = `toast-msg show ${type}`;
+            setTimeout(() => el.classList.remove('show'), 4000);
         }
 
-        // --- AUTH FUNCTIONS ---
+        // --- AUTH & VERIFICATION ---
         window.loginGoogle = () => signInWithPopup(auth, provider).catch(e => showToast('auth-feedback', "Google Login Failed", "error"));
         
         window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value)
             .catch(e => showToast('auth-feedback', "Wrong Email or Password", "error"));
 
-        // SIGNUP WITH VERIFICATION EMAIL
         window.signupEmail = async () => {
             const email = document.getElementById('email-in').value;
             const pass = document.getElementById('pass-in').value;
-            
             if(!email || !pass) return showToast('auth-feedback', "Please enter email & password", "error");
 
             try {
-                // 1. Create User
                 const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                
-                // 2. Send Verification Email
                 await sendEmailVerification(cred.user);
-                
-                // 3. Notify User
-                showToast('auth-feedback', "Account Created! Verification email sent.", "success");
-                
-                // Note: The onAuthStateChanged listener below will automatically fire and log them in
+                // User created, onAuthStateChanged will trigger logic to show Verify Screen
             } catch(e) {
                 showToast('auth-feedback', e.message, "error");
             }
@@ -395,57 +405,88 @@
 
         window.logout = () => signOut(auth).then(() => location.reload());
 
-        // --- AUTH STATE & APP LOADING ---
+        window.resendVerification = async () => {
+            if(currentUser) {
+                try {
+                    await sendEmailVerification(currentUser);
+                    showToast('verify-feedback', "Email Sent!", "success");
+                } catch(e) {
+                    showToast('verify-feedback', "Too many requests. Wait a bit.", "error");
+                }
+            }
+        };
+
+        window.checkVerification = async () => {
+            if(currentUser) {
+                await currentUser.reload(); // FORCE FIREBASE TO UPDATE STATUS
+                if(currentUser.emailVerified) {
+                    showToast('verify-feedback', "Verified! Loading...", "success");
+                    document.getElementById('verify-view').style.display = 'none';
+                    checkUserProfile();
+                } else {
+                    showToast('verify-feedback', "Not verified yet. Check email.", "error");
+                }
+            }
+        };
+
+        // --- AUTH STATE CHANGED ---
         onAuthStateChanged(auth, async (user) => {
             const loader = document.getElementById('loader');
             
             if (user) {
                 currentUser = user;
-                const snap = await getDoc(doc(db, "users", user.uid));
                 
-                if (snap.exists()) {
-                    // OLD USER -> Load App
-                    userData = snap.data();
-                    loadApp(); 
-                } else {
-                    // NEW USER -> Hide Loader, Hide Auth, Show Name Setup
+                // 1. STRICT CHECK: IS EMAIL VERIFIED?
+                if (!user.emailVerified) {
                     loader.style.display = 'none';
                     document.getElementById('auth-view').style.display = 'none';
-                    document.getElementById('setup-view').style.display = 'flex'; // GUI Prompt
+                    document.getElementById('verify-view').style.display = 'flex'; // TRAPPED HERE
+                    return; 
                 }
+
+                // 2. Verified -> Check Database
+                checkUserProfile();
             } else {
-                // LOGGED OUT -> Hide Nav, Show Auth
+                // Logged Out
                 document.getElementById('mobile-navbar').style.display = 'none';
                 document.getElementById('header-title').style.display = 'none';
                 document.getElementById('desktop-sidebar').style.display = 'none';
                 
                 loader.style.opacity = '0';
                 setTimeout(() => loader.style.display = 'none', 500);
-                document.getElementById('auth-view').classList.add('active');
+                document.getElementById('auth-view').style.display = 'flex';
             }
         });
 
-        // --- SETUP NEW USER (GUI) ---
+        async function checkUserProfile() {
+            const snap = await getDoc(doc(db, "users", currentUser.uid));
+            if (snap.exists()) {
+                userData = snap.data();
+                loadApp(); 
+            } else {
+                // Verified but no Name yet -> Setup Screen
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('auth-view').style.display = 'none';
+                document.getElementById('verify-view').style.display = 'none';
+                document.getElementById('setup-view').style.display = 'flex';
+            }
+        }
+
         window.finalizeSetup = async () => {
             const name = document.getElementById('setup-name').value;
-            if(!name) return; // Wait for input
-            
-            // Create user doc
+            if(!name) return;
             await setDoc(doc(db, "users", currentUser.uid), { name, email: currentUser.email, coins: 0, familyId: null, role: null });
             document.getElementById('setup-view').style.display = 'none';
-            
-            // Reload user data
-            const snap = await getDoc(doc(db, "users", currentUser.uid));
-            userData = snap.data();
-            loadApp();
+            checkUserProfile();
         };
 
-        // --- LOAD DASHBOARD ---
+        // --- MAIN APP ---
         function loadApp() {
             document.getElementById('loader').style.display = 'none';
-            document.getElementById('auth-view').classList.remove('active');
+            document.getElementById('auth-view').style.display = 'none';
+            document.getElementById('verify-view').style.display = 'none';
+            document.getElementById('setup-view').style.display = 'none';
             
-            // Responsive Nav Display
             if(window.innerWidth > 768) {
                 document.getElementById('desktop-sidebar').style.display = 'flex';
             } else {
@@ -453,28 +494,15 @@
                 document.getElementById('header-title').style.display = 'flex';
             }
 
-            // Fill Profile Data
             document.getElementById('display-name').innerText = userData.name;
             document.getElementById('user-email').innerText = currentUser.email;
-            
-            // Check Verification Status
-            const verifiedEl = document.getElementById('user-verified');
-            if(currentUser.emailVerified) {
-                verifiedEl.innerText = "Yes ✅";
-                verifiedEl.style.color = "var(--success)";
-            } else {
-                verifiedEl.innerText = "No ❌ (Check Email)";
-                verifiedEl.style.color = "var(--error)";
-            }
 
             switchNav('home-view');
             
-            // Listen for Coins
             onSnapshot(doc(db, "users", currentUser.uid), (d) => {
                 document.getElementById('coin-count').innerText = d.data().coins || 0;
             });
 
-            // Check Family Status
             if(userData.familyId) {
                 document.getElementById('no-fam-alert').style.display = 'none';
                 document.getElementById('family-forms').style.display = 'none';
@@ -494,11 +522,8 @@
             }
         }
 
-        // --- NAVIGATION LOGIC ---
         window.switchNav = (viewId) => {
-            document.querySelectorAll('.view').forEach(v => {
-                if(v.id !== 'auth-view' && v.id !== 'setup-view') v.classList.remove('active');
-            });
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
 
             const titles = { 'home-view': 'Home', 'family-view': 'Family', 'store-view': 'Store', 'profile-view': 'Profile' };
@@ -526,7 +551,6 @@
             switchNav(id);
         };
 
-        // --- BACKEND LOGIC ---
         window.createFamily = async () => {
             const name = document.getElementById('create-fam-name').value;
             if(!name) return;
