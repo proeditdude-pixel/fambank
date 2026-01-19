@@ -3,297 +3,433 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#F2F2F7"> <title>FamBank</title>
+    <meta name="theme-color" content="#F4F7FE">
+    <title>FamBank</title>
     <style>
-        /* --- iOS DESIGN SYSTEM --- */
+        /* --- 1. FRIENDLY THEME VARIABLES --- */
         :root {
-            --ios-blue: #007AFF;
-            --ios-bg: #F2F2F7;         /* System Gray 6 */
-            --ios-card: #FFFFFF;       /* White */
-            --ios-text: #000000;
-            --ios-gray-text: #8E8E93;  /* System Gray */
-            --ios-separator: #C6C6C8;  /* Separator Color */
+            --primary: #4D8EFF;       /* Friendly Blue */
+            --primary-dark: #3a75d9;
+            --accent: #FFB142;        /* Soft Orange */
+            --bg-body: #F4F7FE;       /* Very light cool gray */
+            --bg-card: #FFFFFF;
+            --text-main: #2C3A59;     /* Dark Blue-Gray (softer than black) */
+            --text-sec: #8F9BB3;
+            --radius: 25px;           /* SUPER ROUND */
+            --shadow: 0 10px 30px rgba(77, 142, 255, 0.15);
+            --safe-top: env(safe-area-inset-top);
             --safe-bottom: env(safe-area-inset-bottom);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--ios-bg);
-            color: var(--ios-text);
+            font-family: -apple-system, BlinkMacSystemFont, "Nunito", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
             margin: 0;
             height: 100vh;
             display: flex;
-            flex-direction: column;
             overflow: hidden;
         }
 
-        /* --- VIEWS --- */
+        /* --- 2. ANIMATIONS --- */
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- 3. COMMON UI ELEMENTS --- */
+        
+        /* Bubbly Inputs */
+        input {
+            width: 100%; padding: 18px; font-size: 16px;
+            border: 2px solid transparent; background: #EEF2F9;
+            border-radius: var(--radius); margin-bottom: 12px;
+            color: var(--text-main); font-weight: 600;
+            transition: 0.3s;
+        }
+        input:focus { background: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(77, 142, 255, 0.2); }
+
+        /* Bubbly Buttons */
+        .btn {
+            width: 100%; padding: 16px;
+            background: var(--primary); color: white;
+            border: none; border-radius: var(--radius);
+            font-size: 16px; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(77, 142, 255, 0.3);
+            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 12px;
+        }
+        .btn:active { transform: scale(0.96); }
+        .btn.secondary { background: #E4E9F2; color: var(--text-main); box-shadow: none; }
+
+        /* THE GOOGLE BUTTON */
+        .google-btn {
+            background: white; color: #3c4043;
+            border: 1px solid #dadce0;
+            display: flex; align-items: center; justify-content: center;
+            gap: 12px; position: relative;
+        }
+        .google-btn:hover { background: #f7f8f8; }
+
+        /* Lists */
+        .bubble-list { display: flex; flex-direction: column; gap: 12px; }
+        .list-item {
+            background: white; padding: 16px; border-radius: 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            cursor: pointer; transition: transform 0.2s;
+        }
+        .list-item:hover { transform: translateY(-2px); }
+        .list-icon { 
+            width: 45px; height: 45px; background: #EEF2F9; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 15px;
+        }
+
+        /* Titles */
+        h1 { font-size: 28px; font-weight: 800; margin: 0 0 10px 0; color: var(--text-main); letter-spacing: -0.5px; }
+        p { color: var(--text-sec); font-size: 15px; margin-bottom: 20px; font-weight: 500; }
+
+        /* --- 4. LAYOUT & RESPONSIVENESS --- */
+        
+        .sidebar {
+            width: 280px; background: white;
+            display: none; /* Hidden on Mobile */
+            flex-direction: column; padding: 30px;
+            border-right: 1px solid #EEF2F9;
+            box-shadow: 2px 0 20px rgba(0,0,0,0.02);
+            z-index: 50;
+        }
+
+        .main-content {
+            flex: 1; position: relative; overflow-y: auto;
+            background: var(--bg-body);
+        }
+
         .view {
-            display: none;
-            width: 100%;
-            height: 100%;
-            overflow-y: auto;
-            padding: 20px;
-            padding-top: 60px; /* Header space */
-            padding-bottom: calc(90px + var(--safe-bottom)); /* Tab bar space */
+            display: none; padding: 25px; padding-bottom: 120px;
+            max-width: 800px; margin: 0 auto;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .view.active { display: block; }
 
-        /* --- COMPONENTS --- */
-        h1 { font-size: 34px; font-weight: 700; margin: 0 0 10px 0; letter-spacing: -0.5px; }
-        h2 { font-size: 22px; font-weight: 600; margin: 20px 0 10px 0; }
-        p { color: var(--ios-gray-text); font-size: 17px; margin: 0 0 20px 0; line-height: 1.4; }
-
-        /* iOS List/Card Style */
-        .ios-list {
-            background: var(--ios-card);
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-        .list-item {
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: white;
-            border-bottom: 0.5px solid var(--ios-separator);
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .list-item:last-child { border-bottom: none; }
-        .list-item:active { background: #E5E5EA; }
-        
-        .list-icon { font-size: 24px; width: 35px; text-align: center; margin-right: 15px; }
-        .list-content { flex: 1; font-size: 17px; }
-        .list-arrow { color: #C7C7CC; font-weight: 600; font-size: 18px; }
-
-        /* Buttons */
-        .btn-ios {
-            background: var(--ios-blue);
-            color: white;
-            border: none;
-            font-size: 17px;
-            font-weight: 600;
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-        .btn-ios:active { opacity: 0.7; }
-        .btn-text { background: none; color: var(--ios-blue); margin-top: 10px; }
-
-        /* Inputs */
-        input {
-            width: 100%;
-            padding: 16px;
-            font-size: 17px;
-            border: none;
-            background: white;
-            border-radius: 12px;
-            margin-bottom: 15px;
+        /* Desktop Logic */
+        @media (min-width: 769px) {
+            .sidebar { display: flex; }
+            .mobile-nav { display: none !important; }
+            .mobile-header { display: none !important; }
+            
+            /* Desktop Auth Overlay */
+            #auth-view {
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(44, 58, 89, 0.6); backdrop-filter: blur(8px);
+                z-index: 9999; display: flex !important; justify-content: center; align-items: center;
+            }
+            #auth-view.hidden { display: none !important; }
+            .auth-card {
+                background: white; width: 420px; padding: 40px;
+                border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+                text-align: center;
+            }
         }
 
-        /* --- TAB BAR (BOTTOM) --- */
-        .tab-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: calc(50px + var(--safe-bottom));
-            background: rgba(249, 249, 249, 0.94); /* Translucent */
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 0.5px solid rgba(0,0,0,0.3);
-            display: flex;
-            justify-content: space-around;
-            padding-bottom: var(--safe-bottom);
-            z-index: 500;
+        /* Mobile Logic */
+        @media (max-width: 768px) {
+            .view { padding-top: 80px; }
+            .auth-card { padding-top: 40px; text-align: center; }
+            #auth-view { background: white; z-index: 9999; }
         }
 
-        .tab-btn {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--ios-gray-text);
-            font-size: 10px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        .tab-btn svg { width: 24px; height: 24px; margin-bottom: 4px; fill: currentColor; }
-        
-        .tab-btn.active { color: var(--ios-blue); }
+        /* --- 5. SPECIFIC COMPONENTS --- */
 
-        /* --- "MORE" SHEET (MODAL) --- */
+        /* Loading Screen */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; z-index: 10000;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            transition: opacity 0.5s;
+        }
+        .loader-dots { display: flex; gap: 8px; }
+        .dot {
+            width: 15px; height: 15px; background: var(--primary); border-radius: 50%;
+            animation: bounce 0.6s infinite alternate;
+        }
+        .dot:nth-child(2) { animation-delay: 0.1s; background: var(--accent); }
+        .dot:nth-child(3) { animation-delay: 0.2s; }
+
+        /* Sidebar Items */
+        .nav-item {
+            display: flex; align-items: center; padding: 15px 20px;
+            margin-bottom: 8px; border-radius: 18px;
+            color: var(--text-sec); font-weight: 700; cursor: pointer;
+            transition: 0.2s;
+        }
+        .nav-item:hover { background: #F4F7FE; color: var(--primary); }
+        .nav-item.active { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(77, 142, 255, 0.4); }
+        .nav-icon { margin-right: 15px; font-size: 20px; }
+
+        /* Mobile Bottom Bar */
+        .mobile-nav {
+            position: fixed; bottom: 20px; left: 20px; right: 20px;
+            background: white; height: 70px; border-radius: 35px;
+            display: flex; justify-content: space-around; align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 100;
+        }
+        .mobile-tab { 
+            color: #C5CEE0; font-size: 24px; padding: 10px 20px; border-radius: 20px; transition: 0.3s;
+        }
+        .mobile-tab.active { color: var(--primary); background: #F4F7FE; transform: translateY(-5px); }
+
+        /* Mobile Header */
+        .mobile-header {
+            position: fixed; top: 0; left: 0; width: 100%; height: 70px;
+            background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 18px; color: var(--text-main);
+            z-index: 90; box-shadow: 0 2px 20px rgba(0,0,0,0.03);
+            padding-top: var(--safe-top);
+        }
+
+        /* More Sheet */
         .sheet-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4);
-            z-index: 1000;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.3s;
+            background: rgba(0,0,0,0.4); z-index: 200;
+            opacity: 0; pointer-events: none; transition: 0.3s;
         }
         .sheet-overlay.open { opacity: 1; pointer-events: auto; }
-
-        .action-sheet {
-            position: absolute; bottom: 0; left: 0; width: 100%;
-            background: var(--ios-bg);
-            border-radius: 16px 16px 0 0;
-            padding: 20px;
-            padding-bottom: calc(40px + var(--safe-bottom));
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        .sheet-card {
+            position: absolute; bottom: 20px; left: 20px; right: 20px;
+            background: white; border-radius: 30px; padding: 25px;
+            transform: translateY(150%); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .sheet-overlay.open .action-sheet { transform: translateY(0); }
-        
-        .sheet-handle {
-            width: 40px; height: 5px; background: #C7C7CC;
-            border-radius: 10px; margin: 0 auto 20px auto;
-        }
+        .sheet-overlay.open .sheet-card { transform: translateY(0); }
 
-        /* Header Bar (Fake Navigation Bar) */
-        .nav-bar {
-            position: fixed; top: 0; left: 0; width: 100%;
-            height: 44px; padding-top: env(safe-area-inset-top);
-            display: flex; justify-content: center; align-items: center;
-            background: rgba(242,242,247,0.8);
-            backdrop-filter: blur(10px);
-            z-index: 100;
-            font-weight: 600; font-size: 17px;
-        }
-
-        /* --- ICONS (SVG) --- */
-        .icon { width:24px; height:24px; display:block; }
     </style>
 </head>
 <body>
 
-    <div class="nav-bar" id="nav-title">Family Centre</div>
-
-    <div id="auth-view" class="view active" style="z-index: 2000; background: var(--ios-bg); padding-top: 100px;">
-        <div style="text-align: center; margin-bottom: 40px;">
-            <div style="font-size: 60px;">🏦</div>
-            <h1>FamBank</h1>
-            <p>iOS Edition</p>
+    <div id="loader">
+        <div class="loader-dots">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
         </div>
-
-        <div class="ios-list" style="margin: 0 20px;">
-            <div class="list-item" style="display:block;">
-                <input type="email" id="email-in" placeholder="Email" style="margin:0; padding:0;">
-            </div>
-            <div class="list-item" style="display:block; border:none;">
-                <input type="password" id="pass-in" placeholder="Password" style="margin:0; padding:0;">
-            </div>
-        </div>
-
-        <div style="padding: 0 20px;">
-            <button class="btn-ios" onclick="loginEmail()">Log In</button>
-            <button class="btn-ios btn-text" onclick="loginGoogle()">Sign in with Google</button>
-            <button class="btn-ios btn-text" onclick="signupEmail()" style="color:var(--ios-gray-text);">Create Account</button>
-        </div>
-        <p id="auth-error" style="color:red; text-align:center; margin-top:20px;"></p>
+        <p style="margin-top: 20px; font-weight: 700;">Loading FamBank...</p>
     </div>
 
-    <div id="home-view" class="view">
-        <h1 style="margin-top: 20px;">Dashboard</h1>
-        
-        <div style="background: linear-gradient(135deg, #007AFF, #00C6FF); color: white; padding: 25px; border-radius: 18px; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(0,122,255,0.2);">
-            <p style="color:rgba(255,255,255,0.8); margin:0; font-size:15px; font-weight:600; text-transform:uppercase;">Current Balance</p>
-            <h1 style="font-size: 48px; margin: 5px 0;" id="coin-count">0</h1>
-            <div style="font-size: 15px; opacity: 0.9;">Tokens Available</div>
+    <div class="sidebar">
+        <div style="font-size:24px; font-weight:900; color:var(--primary); margin-bottom:40px; padding-left:10px;">
+            🏦 FamBank
+        </div>
+        <div class="nav-item active" onclick="switchNav('home-view')" id="pc-home">
+            <span class="nav-icon">🏠</span> Home
+        </div>
+        <div class="nav-item" onclick="switchNav('family-view')" id="pc-fam">
+            <span class="nav-icon">👨‍👩‍👧</span> Family
+        </div>
+        <div class="nav-item" onclick="switchNav('store-view')" id="pc-store">
+            <span class="nav-icon">🛍️</span> Store
+        </div>
+        <div class="nav-item" onclick="switchNav('profile-view')" id="pc-prof">
+            <span class="nav-icon">👤</span> Profile
+        </div>
+        <div style="flex:1;"></div>
+        <div class="nav-item" style="color:#FF6B6B;" onclick="logout()">
+            <span class="nav-icon">🚪</span> Log Out
+        </div>
+    </div>
+
+    <div class="main-content">
+
+        <div class="mobile-header" id="header-title">Home</div>
+
+        <div id="auth-view" class="view active">
+            <div class="auth-card">
+                <div style="font-size:60px; margin-bottom:10px;">🏦</div>
+                <h1>Welcome Back!</h1>
+                <p>Manage your family bank.</p>
+                
+                <button class="btn google-btn" onclick="loginGoogle()">
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    Sign Up Or Log In With Google
+                </button>
+
+                <div style="display:flex; align-items:center; margin:20px 0; color:#C5CEE0;">
+                    <div style="flex:1; height:1px; background:#EEF2F9;"></div>
+                    <span style="padding:0 10px; font-size:12px; font-weight:700;">OR EMAIL</span>
+                    <div style="flex:1; height:1px; background:#EEF2F9;"></div>
+                </div>
+
+                <input type="email" id="email-in" placeholder="Email Address">
+                <input type="password" id="pass-in" placeholder="Password">
+                
+                <button class="btn" onclick="loginEmail()">Log In</button>
+                <button class="btn secondary" style="background:transparent; color:var(--text-sec); box-shadow:none;" onclick="signupEmail()">No account? Create one</button>
+                
+                <p id="auth-error" style="color:#FF6B6B; font-size:13px; font-weight:700; margin-top:10px;"></p>
+            </div>
         </div>
 
-        <div id="no-family-state" style="display:none; text-align:center; padding: 20px;">
-            <p>You aren't in a family group yet.</p>
-            <button class="btn-ios btn-text" onclick="openMoreMenu()">Tap 'More' to Join</button>
-        </div>
+        <div id="home-view" class="view">
+            <div style="background: linear-gradient(135deg, var(--primary), #6C5CE7); color: white; padding: 30px; border-radius: 30px; box-shadow: var(--shadow); position:relative; overflow:hidden;">
+                <div style="position:absolute; top:-20px; right:-20px; width:100px; height:100px; background:white; opacity:0.1; border-radius:50%;"></div>
+                
+                <p style="color:rgba(255,255,255,0.8); margin:0; text-transform:uppercase; letter-spacing:1px; font-size:12px; font-weight:800;">My Wallet</p>
+                <h1 style="color:white; font-size:56px; margin: 5px 0;" id="coin-count">0</h1>
+                <div style="font-weight:600; font-size:14px; opacity:0.9;">Tokens Available</div>
+            </div>
 
-        <div id="family-content">
-            <h2 style="padding-left: 5px;">Today's Tasks</h2>
-            <div id="task-list" class="ios-list" style="background: transparent;">
+            <h2 style="margin: 30px 0 15px 5px;">Today's Tasks</h2>
+
+            <div id="no-fam-alert" style="display:none; text-align:center; padding:30px; background:white; border-radius:30px; box-shadow:0 4px 15px rgba(0,0,0,0.03);">
+                <div style="font-size:40px; margin-bottom:10px;">😢</div>
+                <h3 style="margin:0;">No Family Yet</h3>
+                <p>Join a family to see tasks.</p>
+                <button class="btn secondary" style="width:auto; margin:0;" onclick="switchNav('family-view')">Join Now</button>
+            </div>
+
+            <div id="task-list" class="bubble-list">
                 </div>
         </div>
-    </div>
 
-    <div id="profile-view" class="view">
-        <h1 style="margin-top: 20px;">Profile</h1>
-        
-        <div class="ios-list">
-            <div class="list-item">
-                <div class="list-content">Name</div>
-                <div style="color:var(--ios-gray-text);" id="display-name">...</div>
-            </div>
-            <div class="list-item">
-                <div class="list-content">Role</div>
-                <div style="color:var(--ios-gray-text);" id="user-role-badge">...</div>
-            </div>
-            <div class="list-item">
-                <div class="list-content">Email</div>
-                <div style="color:var(--ios-gray-text); font-size:14px;" id="user-email">...</div>
-            </div>
-        </div>
-
-        <button class="btn-ios" style="background:white; color:#FF3B30;" onclick="logout()">Log Out</button>
-    </div>
-
-    <div class="sheet-overlay" id="more-sheet" onclick="closeMoreMenu(event)">
-        <div class="action-sheet" onclick="event.stopPropagation()">
-            <div class="sheet-handle"></div>
-            <h2 style="margin-top:0;">More Options</h2>
-
-            <div class="ios-list">
-                <div class="list-item" onclick="alert('Store Feature coming soon!')">
-                    <span class="list-icon">🛍️</span>
-                    <div class="list-content">Rewards Store</div>
-                    <div class="list-arrow">›</div>
-                </div>
-            </div>
-
-            <div class="ios-list">
-                <div class="list-item" onclick="toggleFamilyForms()">
-                    <span class="list-icon">👨‍👩‍👧</span>
-                    <div class="list-content">Create or Join Family</div>
-                    <div class="list-arrow">›</div>
+        <div id="family-view" class="view">
+            <h1>Family Team</h1>
+            
+            <div id="family-forms">
+                <div style="background:white; padding:25px; border-radius:30px; margin-bottom:20px; box-shadow:0 4px 15px rgba(0,0,0,0.03);">
+                    <h3>Start New Group</h3>
+                    <input type="text" id="create-fam-name" placeholder="Family Name">
+                    <button class="btn" onclick="createFamily()">Create</button>
                 </div>
                 
-                <div id="fam-forms" style="display:none; padding:16px; background:#f9f9f9; border-top: 1px solid #ccc;">
-                    <input type="text" id="create-fam-name" placeholder="New Family Name">
-                    <button class="btn-ios" style="margin-bottom:15px;" onclick="createFamily()">Create New</button>
-                    <div style="text-align:center; margin:10px; color:#aaa;">- OR -</div>
+                <div style="text-align:center; color:var(--text-sec); font-weight:700; font-size:14px; margin-bottom:20px;">- OR -</div>
+                
+                <div style="background:white; padding:25px; border-radius:30px; box-shadow:0 4px 15px rgba(0,0,0,0.03);">
+                    <h3>Join Group</h3>
                     <input type="number" id="join-fam-code" placeholder="Invite Code">
-                    <button class="btn-ios" style="background:#8E8E93;" onclick="joinFamily()">Join Existing</button>
-                </div>
-            </div>
-            
-            <div id="more-fam-info" class="ios-list" style="display:none;">
-                <div class="list-item">
-                    <span class="list-icon">ℹ️</span>
-                    <div class="list-content">Invite Code: <span id="fam-code-display" style="font-weight:bold; color:var(--ios-blue);">Loading...</span></div>
+                    <button class="btn secondary" onclick="joinFamily()">Join</button>
                 </div>
             </div>
 
-            <button class="btn-ios" style="background: white; color: var(--ios-blue); margin-top:10px;" onclick="closeMoreMenu()">Cancel</button>
+            <div id="family-info" style="display:none;">
+                <div class="bubble-list">
+                    <div class="list-item" style="cursor:default;">
+                        <div style="display:flex; align-items:center;">
+                            <div class="list-icon">🏠</div>
+                            <div>
+                                <div style="font-size:13px; color:var(--text-sec); font-weight:700;">FAMILY NAME</div>
+                                <div style="font-size:18px; font-weight:800;" id="fam-name-display">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-item" style="cursor:default; background:#FFF8E1;">
+                        <div style="display:flex; align-items:center;">
+                            <div class="list-icon" style="background:#FFE082; color:#5D4037;">🔑</div>
+                            <div>
+                                <div style="font-size:13px; color:#5D4037; font-weight:700;">INVITE CODE</div>
+                                <div style="font-size:24px; font-weight:900; letter-spacing:3px; color:#FF8F00;" id="fam-code-display">....</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="store-view" class="view">
+            <h1>Rewards Shop</h1>
+            <p>Spend your tokens!</p>
+            
+            <div class="bubble-list">
+                <div class="list-item" onclick="alert('Item bought!')">
+                    <div style="display:flex; align-items:center;">
+                        <div class="list-icon" style="background:#E3F2FD; font-size:24px;">🍦</div>
+                        <div>
+                            <div style="font-weight:700;">Ice Cream</div>
+                            <div style="color:var(--primary); font-weight:800; font-size:14px;">100 Tokens</div>
+                        </div>
+                    </div>
+                    <button class="btn" style="width:auto; padding:10px 20px; font-size:14px; margin:0;">Get</button>
+                </div>
+
+                <div class="list-item" onclick="alert('Item bought!')">
+                    <div style="display:flex; align-items:center;">
+                        <div class="list-icon" style="background:#F3E5F5; font-size:24px;">🎮</div>
+                        <div>
+                            <div style="font-weight:700;">Video Games (1hr)</div>
+                            <div style="color:var(--primary); font-weight:800; font-size:14px;">50 Tokens</div>
+                        </div>
+                    </div>
+                    <button class="btn" style="width:auto; padding:10px 20px; font-size:14px; margin:0;">Get</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="profile-view" class="view">
+            <h1>Profile</h1>
+            <div class="bubble-list">
+                <div class="list-item" style="cursor:default;">
+                    <div>
+                        <div style="font-size:12px; color:var(--text-sec); font-weight:700;">NAME</div>
+                        <div style="font-size:18px; font-weight:700;" id="display-name">...</div>
+                    </div>
+                </div>
+                <div class="list-item" style="cursor:default;">
+                    <div>
+                        <div style="font-size:12px; color:var(--text-sec); font-weight:700;">EMAIL</div>
+                        <div style="font-size:16px; font-weight:600;" id="user-email">...</div>
+                    </div>
+                </div>
+                <div class="list-item" style="cursor:default;">
+                    <div>
+                        <div style="font-size:12px; color:var(--text-sec); font-weight:700;">ROLE</div>
+                        <div style="background:var(--accent); color:white; padding:5px 15px; border-radius:15px; font-size:12px; display:inline-block; font-weight:800; margin-top:5px;" id="user-role-badge">...</div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn" style="background:#FF6B6B; margin-top:30px;" onclick="logout()">Log Out</button>
+        </div>
+
+    </div>
+
+    <div class="mobile-nav">
+        <div class="mobile-tab active" onclick="switchNav('home-view')">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        </div>
+        <div class="mobile-tab" onclick="switchNav('profile-view')">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        </div>
+        <div class="mobile-tab" onclick="openSheet()">
+            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
         </div>
     </div>
 
-    <div class="tab-bar" id="tab-bar" style="display:none;">
-        <div class="tab-btn active" id="tab-home" onclick="switchTab('home-view')">
-            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            Home
-        </div>
-
-        <div class="tab-btn" id="tab-profile" onclick="switchTab('profile-view')">
-            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            Profile
-        </div>
-
-        <div class="tab-btn" id="tab-more" onclick="openMoreMenu()">
-            <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-            More
+    <div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet(event)">
+        <div class="sheet-card">
+            <div style="width:50px; height:6px; background:#EEF2F9; border-radius:10px; margin:0 auto 20px auto;"></div>
+            <h2 style="margin-top:0;">More</h2>
+            <div class="bubble-list">
+                <div class="list-item" onclick="mobileGo('family-view')">
+                    <div style="display:flex; align-items:center;">
+                        <div class="list-icon">👨‍👩‍👧</div>
+                        <div style="font-weight:700;">Family Group</div>
+                    </div>
+                </div>
+                <div class="list-item" onclick="mobileGo('store-view')">
+                    <div style="display:flex; align-items:center;">
+                        <div class="list-icon">🛍️</div>
+                        <div style="font-weight:700;">Store</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -319,87 +455,86 @@
         let currentUser = null;
         let userData = null;
 
-        // --- AUTH ---
+        // AUTH FUNCTIONS
         window.loginGoogle = () => signInWithPopup(auth, provider).catch(e => document.getElementById('auth-error').innerText = e.message);
         window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value).catch(e => document.getElementById('auth-error').innerText = e.message);
         window.signupEmail = () => createUserWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value).catch(e => document.getElementById('auth-error').innerText = e.message);
         window.logout = () => signOut(auth).then(() => location.reload());
 
+        // STATE MANAGER
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                // Check user doc
                 const snap = await getDoc(doc(db, "users", user.uid));
                 if (snap.exists()) {
                     userData = snap.data();
                     loadApp();
                 } else {
-                    // Quick setup for new user
-                    const name = prompt("What is your name?");
+                    // Simple prompt for now
+                    const name = prompt("What should we call you?");
                     if(name) {
-                        await setDoc(doc(db, "users", user.uid), { name: name, email: user.email, coins: 0, familyId: null, role: null });
+                        await setDoc(doc(db, "users", user.uid), { name, email: user.email, coins: 0, familyId: null, role: null });
                         location.reload();
                     }
                 }
             } else {
-                document.getElementById('auth-view').classList.add('active');
-                document.getElementById('tab-bar').style.display = 'none';
-                document.getElementById('nav-title').innerText = "Login";
+                // Not logged in
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+                document.getElementById('auth-view').classList.remove('hidden');
+                document.querySelector('.sidebar').style.display = 'none';
             }
         });
 
-        // --- NAVIGATION ---
-        window.switchTab = (viewId) => {
+        // NAVIGATION
+        window.switchNav = (viewId) => {
             // Hide all views
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            // Show selected view
             document.getElementById(viewId).classList.add('active');
-            
-            // Update Tab Icons
-            document.getElementById('tab-home').classList.remove('active');
-            document.getElementById('tab-profile').classList.remove('active');
-            
-            if(viewId === 'home-view') {
-                document.getElementById('tab-home').classList.add('active');
-                document.getElementById('nav-title').innerText = "Family Centre";
-            } else if (viewId === 'profile-view') {
-                document.getElementById('tab-profile').classList.add('active');
-                document.getElementById('nav-title').innerText = "Profile";
-            }
+
+            // Header Title (Mobile)
+            const titles = { 'home-view': 'Home', 'family-view': 'Family', 'store-view': 'Store', 'profile-view': 'Profile' };
+            document.getElementById('header-title').innerText = titles[viewId];
+
+            // PC Sidebar Active State
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if(viewId === 'home-view') document.getElementById('pc-home').classList.add('active');
+            if(viewId === 'family-view') document.getElementById('pc-fam').classList.add('active');
+            if(viewId === 'store-view') document.getElementById('pc-store').classList.add('active');
+            if(viewId === 'profile-view') document.getElementById('pc-prof').classList.add('active');
+
+            // Mobile Tab Active State
+            document.querySelectorAll('.mobile-tab').forEach(el => el.classList.remove('active'));
+            if(viewId === 'home-view') document.querySelectorAll('.mobile-tab')[0].classList.add('active');
+            else if(viewId === 'profile-view') document.querySelectorAll('.mobile-tab')[1].classList.add('active');
+            else document.querySelectorAll('.mobile-tab')[2].classList.add('active');
         };
 
-        // --- MORE MENU LOGIC ---
-        window.openMoreMenu = () => {
-            document.getElementById('more-sheet').classList.add('open');
-            document.getElementById('tab-more').classList.add('active');
+        // SHEET LOGIC
+        window.openSheet = () => document.getElementById('sheet-overlay').classList.add('open');
+        window.closeSheet = (e) => {
+            if(e && !e.target.classList.contains('sheet-overlay')) return;
+            document.getElementById('sheet-overlay').classList.remove('open');
+        };
+        window.mobileGo = (viewId) => {
+            document.getElementById('sheet-overlay').classList.remove('open');
+            switchNav(viewId);
         };
 
-        window.closeMoreMenu = (e) => {
-            if (e && e.target !== document.getElementById('more-sheet') && e.target.tagName !== 'BUTTON') return;
-            document.getElementById('more-sheet').classList.remove('open');
-            document.getElementById('tab-more').classList.remove('active');
-            
-            // Re-highlight current tab
-            if(document.getElementById('home-view').classList.contains('active')) document.getElementById('tab-home').classList.add('active');
-            else document.getElementById('tab-profile').classList.add('active');
-        };
-
-        window.toggleFamilyForms = () => {
-            const el = document.getElementById('fam-forms');
-            el.style.display = el.style.display === 'none' ? 'block' : 'none';
-        };
-
-        // --- DATA LOADING ---
+        // DATA LOADING
         function loadApp() {
-            document.getElementById('auth-view').classList.remove('active');
-            document.getElementById('tab-bar').style.display = 'flex';
+            // Hide Loader
+            document.getElementById('loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
             
-            // Fill Profile
+            document.getElementById('auth-view').classList.add('hidden');
+            if(window.innerWidth > 768) document.querySelector('.sidebar').style.display = 'flex';
+
             document.getElementById('display-name').innerText = userData.name;
             document.getElementById('user-email').innerText = currentUser.email;
-            document.getElementById('user-role-badge').innerText = userData.role || "None";
-            
-            switchTab('home-view');
+            document.getElementById('user-role-badge').innerText = userData.role ? userData.role.toUpperCase() : "NEW";
+
+            switchNav('home-view');
 
             // Listen for Coins
             onSnapshot(doc(db, "users", currentUser.uid), (d) => {
@@ -408,21 +543,25 @@
 
             // Family Logic
             if(userData.familyId) {
-                document.getElementById('no-family-state').style.display = 'none';
-                document.getElementById('family-content').style.display = 'block';
-                document.getElementById('more-fam-info').style.display = 'block';
+                document.getElementById('no-fam-alert').style.display = 'none';
+                document.getElementById('family-forms').style.display = 'none';
+                document.getElementById('family-info').style.display = 'block';
 
                 getDoc(doc(db, "families", userData.familyId)).then(s => {
-                    if(s.exists()) document.getElementById('fam-code-display').innerText = s.data().inviteCode;
+                    if(s.exists()) {
+                        document.getElementById('fam-name-display').innerText = s.data().name;
+                        document.getElementById('fam-code-display').innerText = s.data().inviteCode;
+                    }
                 });
                 loadTasks();
             } else {
-                document.getElementById('no-family-state').style.display = 'block';
-                document.getElementById('family-content').style.display = 'none';
+                document.getElementById('no-fam-alert').style.display = 'block';
+                document.getElementById('family-forms').style.display = 'block';
+                document.getElementById('family-info').style.display = 'none';
             }
         }
 
-        // --- TASKS & FAMILY ---
+        // BACKEND LOGIC (Unchanged)
         window.createFamily = async () => {
             const name = document.getElementById('create-fam-name').value;
             if(!name) return;
@@ -447,19 +586,19 @@
             onSnapshot(q, (snap) => {
                 const list = document.getElementById('task-list');
                 list.innerHTML = "";
-                if(snap.empty) list.innerHTML = "<div style='padding:20px; text-align:center; color:#8E8E93;'>No tasks available</div>";
-                
+                if(snap.empty) return; 
                 snap.forEach(d => {
                     const t = d.data();
-                    // iOS List Item Style
                     list.innerHTML += `
-                        <div class="list-item" style="background:white; margin:0; border-radius:0;">
-                            <div style="width:20px; height:20px; border:2px solid #C7C7CC; border-radius:50%; margin-right:15px; display:flex; justify-content:center; align-items:center;">
-                                ${t.status === 'Done' ? '<div style="width:12px; height:12px; background:#007AFF; border-radius:50%;"></div>' : ''}
-                            </div>
-                            <div class="list-content">
-                                <div style="font-weight:600;">${t.title}</div>
-                                <div style="font-size:13px; color:var(--ios-gray-text);">Reward: ${t.reward} Tokens</div>
+                        <div class="list-item" style="cursor:default;">
+                            <div style="display:flex; align-items:center;">
+                                <div class="list-icon" style="background:${t.status==='Done' ? 'var(--primary)' : '#EEF2F9'}; color:${t.status==='Done' ? 'white' : 'inherit'};">
+                                    ${t.status === 'Done' ? '✓' : '★'}
+                                </div>
+                                <div>
+                                    <div style="font-weight:700;">${t.title}</div>
+                                    <div style="font-size:13px; color:var(--text-sec);">+${t.reward} Tokens</div>
+                                </div>
                             </div>
                         </div>`;
                 });
