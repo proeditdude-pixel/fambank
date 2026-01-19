@@ -2,339 +2,300 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#ffffff">
-    <title>FamBank</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#F2F2F7"> <title>FamBank</title>
     <style>
-        /* --- DUOLINGO THEME VARIABLES --- */
+        /* --- iOS DESIGN SYSTEM --- */
         :root {
-            --duo-green: #58CC02;
-            --duo-green-shade: #46A302;
-            --duo-blue: #1CB0F6;
-            --duo-blue-shade: #1899D6;
-            --duo-yellow: #FFC800;
-            --duo-red: #FF4B4B;
-            --duo-gray: #E5E5E5;
-            --duo-text: #4B4B4B;
-            --duo-bg: #FFFFFF;
-            --radius: 16px;
+            --ios-blue: #007AFF;
+            --ios-bg: #F2F2F7;         /* System Gray 6 */
+            --ios-card: #FFFFFF;       /* White */
+            --ios-text: #000000;
+            --ios-gray-text: #8E8E93;  /* System Gray */
+            --ios-separator: #C6C6C8;  /* Separator Color */
+            --safe-bottom: env(safe-area-inset-bottom);
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
         body {
-            font-family: 'Nunito', sans-serif; /* Round font */
-            background-color: var(--duo-bg);
-            color: var(--duo-text);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--ios-bg);
+            color: var(--ios-text);
             margin: 0;
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            -webkit-font-smoothing: antialiased;
         }
 
-        h1, h2, h3 { margin: 0; font-weight: 800; color: #3c3c3c; }
-        p { color: #777; font-weight: 700; font-size: 1.1rem; margin-bottom: 20px; }
-
-        /* --- LAYOUT --- */
-        .app-container {
-            flex: 1;
-            overflow-y: auto;
-            max-width: 500px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 20px;
-            padding-bottom: 100px; /* Space for navbar */
-        }
-
+        /* --- VIEWS --- */
         .view {
             display: none;
-            animation: fadeIn 0.3s ease;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            padding-top: 60px; /* Header space */
+            padding-bottom: calc(90px + var(--safe-bottom)); /* Tab bar space */
         }
         .view.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- THE "DUOLINGO" COMPONENTS --- */
+        /* --- COMPONENTS --- */
+        h1 { font-size: 34px; font-weight: 700; margin: 0 0 10px 0; letter-spacing: -0.5px; }
+        h2 { font-size: 22px; font-weight: 600; margin: 20px 0 10px 0; }
+        p { color: var(--ios-gray-text); font-size: 17px; margin: 0 0 20px 0; line-height: 1.4; }
 
-        /* 1. THE 3D BUTTONS */
-        .btn {
-            width: 100%;
-            padding: 15px;
-            font-family: 'Nunito', sans-serif;
-            font-weight: 800;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            border: none;
-            border-radius: var(--radius);
+        /* iOS List/Card Style */
+        .ios-list {
+            background: var(--ios-card);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .list-item {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            border-bottom: 0.5px solid var(--ios-separator);
             cursor: pointer;
-            margin-bottom: 15px;
-            transition: all 0.1s;
-            position: relative;
-            letter-spacing: 0.8px;
+            transition: background 0.2s;
         }
+        .list-item:last-child { border-bottom: none; }
+        .list-item:active { background: #E5E5EA; }
+        
+        .list-icon { font-size: 24px; width: 35px; text-align: center; margin-right: 15px; }
+        .list-content { flex: 1; font-size: 17px; }
+        .list-arrow { color: #C7C7CC; font-weight: 600; font-size: 18px; }
 
-        /* Green Button (Primary) */
-        .btn-green {
-            background-color: var(--duo-green);
+        /* Buttons */
+        .btn-ios {
+            background: var(--ios-blue);
             color: white;
-            box-shadow: 0px 5px 0px var(--duo-green-shade); /* The 3D Shadow */
+            border: none;
+            font-size: 17px;
+            font-weight: 600;
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            margin-top: 10px;
+            cursor: pointer;
         }
-        .btn-green:active {
-            transform: translateY(5px); /* Push down effect */
-            box-shadow: 0px 0px 0px var(--duo-green-shade);
-        }
+        .btn-ios:active { opacity: 0.7; }
+        .btn-text { background: none; color: var(--ios-blue); margin-top: 10px; }
 
-        /* Blue Button (Secondary) */
-        .btn-blue {
-            background-color: var(--duo-blue);
-            color: white;
-            box-shadow: 0px 5px 0px var(--duo-blue-shade);
-        }
-        .btn-blue:active { transform: translateY(5px); box-shadow: none; }
-
-        /* Outline Button (Google/Secondary) */
-        .btn-outline {
-            background-color: white;
-            color: var(--duo-blue);
-            border: 2px solid var(--duo-gray);
-            box-shadow: 0px 5px 0px var(--duo-gray);
-        }
-        .btn-outline:active {
-            transform: translateY(5px);
-            box-shadow: none;
-            background-color: #f7f7f7;
-        }
-
-        /* 2. CHUNKY INPUTS */
+        /* Inputs */
         input {
             width: 100%;
-            padding: 15px;
-            background: #f7f7f7;
-            border: 2px solid var(--duo-gray);
-            border-radius: var(--radius);
-            font-family: 'Nunito', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #4b4b4b;
-            box-sizing: border-box;
-            margin-bottom: 15px;
-            outline: none;
-        }
-        input:focus { border-color: var(--duo-blue); background: white; }
-
-        /* 3. CARDS (Like Lesson Units) */
-        .unit-card {
-            border: 2px solid var(--duo-gray);
-            border-radius: var(--radius);
-            padding: 20px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        /* 4. TOP STATS BAR */
-        .stats-bar {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0 30px 0;
-        }
-        .stat-badge {
-            display: flex;
-            align-items: center;
-            font-weight: 800;
-            color: var(--duo-yellow);
-            font-size: 1.2rem;
-        }
-        .gem-icon {
-            width: 30px; height: 30px;
-            background: var(--duo-yellow);
-            border-radius: 50%;
-            margin-right: 8px;
-            box-shadow: 0 3px 0 #dcb000;
-        }
-
-        /* 5. BOTTOM NAV BAR */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; width: 100%;
+            padding: 16px;
+            font-size: 17px;
+            border: none;
             background: white;
-            border-top: 2px solid var(--duo-gray);
-            display: flex; justify-content: center;
-            padding-bottom: env(safe-area-inset-bottom);
-            z-index: 100;
+            border-radius: 12px;
+            margin-bottom: 15px;
         }
-        .nav-inner {
-            display: flex; justify-content: space-around;
-            width: 100%; max-width: 500px;
-        }
-        .nav-item {
-            padding: 15px; cursor: pointer;
-            flex: 1; text-align: center;
-        }
-        .nav-icon {
-            font-size: 28px; display: block; opacity: 0.4;
-            transition: 0.2s;
-        }
-        .nav-item.active .nav-icon {
-            opacity: 1; transform: scale(1.1);
-            filter: drop-shadow(0 4px 0 rgba(0,0,0,0.1));
-        }
-        /* Color icons differently when active */
-        .nav-item:nth-child(1).active .nav-icon { color: var(--duo-green); opacity: 1; }
-        .nav-item:nth-child(2).active .nav-icon { color: var(--duo-red); opacity: 1; }
-        .nav-item:nth-child(3).active .nav-icon { color: var(--duo-blue); opacity: 1; }
 
-        /* --- UTILS --- */
-        .mascot-lg { font-size: 5rem; margin-bottom: 20px; animation: bounce 2s infinite; display: inline-block; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        /* --- TAB BAR (BOTTOM) --- */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: calc(50px + var(--safe-bottom));
+            background: rgba(249, 249, 249, 0.94); /* Translucent */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 0.5px solid rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: space-around;
+            padding-bottom: var(--safe-bottom);
+            z-index: 500;
+        }
+
+        .tab-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--ios-gray-text);
+            font-size: 10px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .tab-btn svg { width: 24px; height: 24px; margin-bottom: 4px; fill: currentColor; }
         
-        .divider { 
-            text-align: center; font-weight: 800; 
-            color: #afafaf; margin: 20px 0; font-size: 0.9rem;
-            text-transform: uppercase; letter-spacing: 1px;
+        .tab-btn.active { color: var(--ios-blue); }
+
+        /* --- "MORE" SHEET (MODAL) --- */
+        .sheet-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 1000;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .sheet-overlay.open { opacity: 1; pointer-events: auto; }
+
+        .action-sheet {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: var(--ios-bg);
+            border-radius: 16px 16px 0 0;
+            padding: 20px;
+            padding-bottom: calc(40px + var(--safe-bottom));
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .sheet-overlay.open .action-sheet { transform: translateY(0); }
+        
+        .sheet-handle {
+            width: 40px; height: 5px; background: #C7C7CC;
+            border-radius: 10px; margin: 0 auto 20px auto;
         }
 
-        .error-msg { color: var(--duo-red); font-weight: 800; text-align: center; margin-bottom: 10px; }
+        /* Header Bar (Fake Navigation Bar) */
+        .nav-bar {
+            position: fixed; top: 0; left: 0; width: 100%;
+            height: 44px; padding-top: env(safe-area-inset-top);
+            display: flex; justify-content: center; align-items: center;
+            background: rgba(242,242,247,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            font-weight: 600; font-size: 17px;
+        }
 
+        /* --- ICONS (SVG) --- */
+        .icon { width:24px; height:24px; display:block; }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        
-        <div id="auth-view" class="view active" style="text-align: center; padding-top: 40px;">
-            <div class="mascot-lg">🦉</div> <h1 style="color:var(--duo-green); font-size: 2.2rem; margin-bottom:10px;">FamBank</h1>
-            <p>Learn to earn.<br>Together.</p>
-            
-            <div style="margin-top: 40px;">
-                <button class="btn btn-green" onclick="switchView('login-form-view')">GET STARTED</button>
-                <button class="btn btn-outline" onclick="switchView('login-form-view')">I ALREADY HAVE AN ACCOUNT</button>
+    <div class="nav-bar" id="nav-title">Family Centre</div>
+
+    <div id="auth-view" class="view active" style="z-index: 2000; background: var(--ios-bg); padding-top: 100px;">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <div style="font-size: 60px;">🏦</div>
+            <h1>FamBank</h1>
+            <p>iOS Edition</p>
+        </div>
+
+        <div class="ios-list" style="margin: 0 20px;">
+            <div class="list-item" style="display:block;">
+                <input type="email" id="email-in" placeholder="Email" style="margin:0; padding:0;">
+            </div>
+            <div class="list-item" style="display:block; border:none;">
+                <input type="password" id="pass-in" placeholder="Password" style="margin:0; padding:0;">
             </div>
         </div>
 
-        <div id="login-form-view" class="view" style="padding-top: 20px;">
-            <button class="btn btn-outline" style="width: auto; padding: 10px 20px; font-size:0.9rem;" onclick="switchView('auth-view')">← BACK</button>
-            <h1 style="margin: 20px 0;">Log in</h1>
-
-            <button class="btn btn-outline" onclick="loginGoogle()">
-                <span style="margin-right:8px;">G</span> GOOGLE LOGIN
-            </button>
-
-            <div class="divider">OR</div>
-
-            <input type="email" id="email-in" placeholder="Email or username">
-            <input type="password" id="pass-in" placeholder="Password">
-            
-            <p id="auth-error" class="error-msg"></p>
-
-            <button class="btn btn-blue" onclick="loginEmail()">LOG IN</button>
-            <button class="btn btn-outline" style="border:none; box-shadow:none; color:#afafaf;" onclick="signupEmail()">No account? Create one</button>
+        <div style="padding: 0 20px;">
+            <button class="btn-ios" onclick="loginEmail()">Log In</button>
+            <button class="btn-ios btn-text" onclick="loginGoogle()">Sign in with Google</button>
+            <button class="btn-ios btn-text" onclick="signupEmail()" style="color:var(--ios-gray-text);">Create Account</button>
         </div>
-
-        <div id="name-view" class="view" style="padding-top: 60px; text-align: center;">
-            <h1>What's your name?</h1>
-            <p>This is what you'll see on the leaderboard.</p>
-            <input type="text" id="user-name-input" placeholder="Name">
-            <button class="btn btn-green" onclick="saveName()">CONTINUE</button>
-        </div>
-
-        <div id="dashboard-view" class="view">
-            <div class="stats-bar">
-                <div style="display:flex; gap:10px;">
-                     <div style="background:var(--duo-gray); padding:5px 10px; border-radius:10px; font-weight:800; color:#afafaf; text-transform:uppercase; font-size:0.8rem; display:flex; align-items:center;">
-                        <span id="user-role-badge">USER</span>
-                    </div>
-                </div>
-                <div class="stat-badge">
-                    <div class="gem-icon"></div>
-                    <span id="coin-count">0</span>
-                </div>
-            </div>
-
-            <h2 style="margin-bottom: 20px;">Today's Goals</h2>
-
-            <div id="no-family-alert" style="display:none; text-align:center; padding:30px; border:2px dashed var(--duo-gray); border-radius:16px;">
-                <div style="font-size:3rem;">😢</div>
-                <h3>You aren't in a family yet!</h3>
-                <p>Join a club to get tasks.</p>
-                <button class="btn btn-blue" onclick="switchView('family-view')">FIND A FAMILY</button>
-            </div>
-
-            <div id="task-list"></div>
-        </div>
-
-        <div id="family-view" class="view">
-            <h1 style="color: var(--duo-red);">Family Club</h1>
-            <p>Compete and collaborate.</p>
-
-            <div id="family-setup-forms">
-                <div class="unit-card" style="display:block; text-align:center;">
-                    <div style="font-size:3rem; margin-bottom:10px;">👑</div>
-                    <h3>Create a Club</h3>
-                    <p style="font-size:0.9rem; margin-bottom:15px;">Become the Admin.</p>
-                    <input type="text" id="create-fam-name" placeholder="Family Name">
-                    <button class="btn btn-green" onclick="createFamily()">CREATE</button>
-                </div>
-
-                <div class="divider">OR</div>
-
-                <div class="unit-card" style="display:block; text-align:center;">
-                    <div style="font-size:3rem; margin-bottom:10px;">🎟️</div>
-                    <h3>Join a Club</h3>
-                    <p style="font-size:0.9rem; margin-bottom:15px;">Enter your invite code.</p>
-                    <input type="number" id="join-fam-code" placeholder="1234">
-                    <button class="btn btn-blue" onclick="joinFamily()">JOIN</button>
-                </div>
-            </div>
-
-            <div id="family-info" style="display:none;">
-                <div class="unit-card" style="background: var(--duo-blue); border-color: var(--duo-blue-shade); color: white; display:block; text-align:center;">
-                    <h2 style="color:white; font-size:2rem;" id="fam-name-display">Loading...</h2>
-                    <p style="color:rgba(255,255,255,0.8);">Invite Code</p>
-                    <div style="background:rgba(0,0,0,0.2); padding:10px; border-radius:10px; font-size:2rem; font-weight:800; letter-spacing:5px;" id="fam-code-display">....</div>
-                </div>
-                <button class="btn btn-outline" style="color:var(--duo-red); border-color:var(--duo-red); box-shadow:0 5px 0 #faa;" onclick="logout()">LOG OUT</button>
-            </div>
-        </div>
-
-        <div id="store-view" class="view">
-            <h1 style="color: var(--duo-blue);">The Shop</h1>
-            <p>Spend your gems!</p>
-            
-            <div class="unit-card">
-                <div style="font-size:3rem; margin-right:15px;">🍦</div>
-                <div style="flex:1;">
-                    <h3>Ice Cream</h3>
-                    <div style="color:var(--duo-yellow); font-weight:800;">100 Gems</div>
-                </div>
-                <button class="btn btn-green" style="width:auto; padding:10px 20px; font-size:0.9rem; margin:0;" onclick="alert('Bought!')">BUY</button>
-            </div>
-
-            <div class="unit-card">
-                <div style="font-size:3rem; margin-right:15px;">🎮</div>
-                <div style="flex:1;">
-                    <h3>Gaming Hour</h3>
-                    <div style="color:var(--duo-yellow); font-weight:800;">50 Gems</div>
-                </div>
-                <button class="btn btn-green" style="width:auto; padding:10px 20px; font-size:0.9rem; margin:0;" onclick="alert('Bought!')">BUY</button>
-            </div>
-        </div>
-
+        <p id="auth-error" style="color:red; text-align:center; margin-top:20px;"></p>
     </div>
 
-    <nav class="bottom-nav" id="nav-bar" style="display:none;">
-        <div class="nav-inner">
-            <div class="nav-item active" onclick="switchView('dashboard-view')">
-                <span class="nav-icon">🏠</span>
+    <div id="home-view" class="view">
+        <h1 style="margin-top: 20px;">Dashboard</h1>
+        
+        <div style="background: linear-gradient(135deg, #007AFF, #00C6FF); color: white; padding: 25px; border-radius: 18px; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(0,122,255,0.2);">
+            <p style="color:rgba(255,255,255,0.8); margin:0; font-size:15px; font-weight:600; text-transform:uppercase;">Current Balance</p>
+            <h1 style="font-size: 48px; margin: 5px 0;" id="coin-count">0</h1>
+            <div style="font-size: 15px; opacity: 0.9;">Tokens Available</div>
+        </div>
+
+        <div id="no-family-state" style="display:none; text-align:center; padding: 20px;">
+            <p>You aren't in a family group yet.</p>
+            <button class="btn-ios btn-text" onclick="openMoreMenu()">Tap 'More' to Join</button>
+        </div>
+
+        <div id="family-content">
+            <h2 style="padding-left: 5px;">Today's Tasks</h2>
+            <div id="task-list" class="ios-list" style="background: transparent;">
+                </div>
+        </div>
+    </div>
+
+    <div id="profile-view" class="view">
+        <h1 style="margin-top: 20px;">Profile</h1>
+        
+        <div class="ios-list">
+            <div class="list-item">
+                <div class="list-content">Name</div>
+                <div style="color:var(--ios-gray-text);" id="display-name">...</div>
             </div>
-            <div class="nav-item" onclick="switchView('family-view')">
-                <span class="nav-icon">🛡️</span> </div>
-            <div class="nav-item" onclick="switchView('store-view')">
-                <span class="nav-icon">🛍️</span>
+            <div class="list-item">
+                <div class="list-content">Role</div>
+                <div style="color:var(--ios-gray-text);" id="user-role-badge">...</div>
+            </div>
+            <div class="list-item">
+                <div class="list-content">Email</div>
+                <div style="color:var(--ios-gray-text); font-size:14px;" id="user-email">...</div>
             </div>
         </div>
-    </nav>
+
+        <button class="btn-ios" style="background:white; color:#FF3B30;" onclick="logout()">Log Out</button>
+    </div>
+
+    <div class="sheet-overlay" id="more-sheet" onclick="closeMoreMenu(event)">
+        <div class="action-sheet" onclick="event.stopPropagation()">
+            <div class="sheet-handle"></div>
+            <h2 style="margin-top:0;">More Options</h2>
+
+            <div class="ios-list">
+                <div class="list-item" onclick="alert('Store Feature coming soon!')">
+                    <span class="list-icon">🛍️</span>
+                    <div class="list-content">Rewards Store</div>
+                    <div class="list-arrow">›</div>
+                </div>
+            </div>
+
+            <div class="ios-list">
+                <div class="list-item" onclick="toggleFamilyForms()">
+                    <span class="list-icon">👨‍👩‍👧</span>
+                    <div class="list-content">Create or Join Family</div>
+                    <div class="list-arrow">›</div>
+                </div>
+                
+                <div id="fam-forms" style="display:none; padding:16px; background:#f9f9f9; border-top: 1px solid #ccc;">
+                    <input type="text" id="create-fam-name" placeholder="New Family Name">
+                    <button class="btn-ios" style="margin-bottom:15px;" onclick="createFamily()">Create New</button>
+                    <div style="text-align:center; margin:10px; color:#aaa;">- OR -</div>
+                    <input type="number" id="join-fam-code" placeholder="Invite Code">
+                    <button class="btn-ios" style="background:#8E8E93;" onclick="joinFamily()">Join Existing</button>
+                </div>
+            </div>
+            
+            <div id="more-fam-info" class="ios-list" style="display:none;">
+                <div class="list-item">
+                    <span class="list-icon">ℹ️</span>
+                    <div class="list-content">Invite Code: <span id="fam-code-display" style="font-weight:bold; color:var(--ios-blue);">Loading...</span></div>
+                </div>
+            </div>
+
+            <button class="btn-ios" style="background: white; color: var(--ios-blue); margin-top:10px;" onclick="closeMoreMenu()">Cancel</button>
+        </div>
+    </div>
+
+    <div class="tab-bar" id="tab-bar" style="display:none;">
+        <div class="tab-btn active" id="tab-home" onclick="switchTab('home-view')">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            Home
+        </div>
+
+        <div class="tab-btn" id="tab-profile" onclick="switchTab('profile-view')">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            Profile
+        </div>
+
+        <div class="tab-btn" id="tab-more" onclick="openMoreMenu()">
+            <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+            More
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
@@ -358,80 +319,110 @@
         let currentUser = null;
         let userData = null;
 
+        // --- AUTH ---
         window.loginGoogle = () => signInWithPopup(auth, provider).catch(e => document.getElementById('auth-error').innerText = e.message);
-
-        window.loginEmail = async () => {
-            const email = document.getElementById('email-in').value;
-            const pass = document.getElementById('pass-in').value;
-            try { await signInWithEmailAndPassword(auth, email, pass); } 
-            catch (e) { document.getElementById('auth-error').innerText = "Incorrect email or password"; }
-        };
-
-        window.signupEmail = async () => {
-            const email = document.getElementById('email-in').value;
-            const pass = document.getElementById('pass-in').value;
-            try { await createUserWithEmailAndPassword(auth, email, pass); } 
-            catch (e) { document.getElementById('auth-error').innerText = e.message; }
-        };
-
+        window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value).catch(e => document.getElementById('auth-error').innerText = e.message);
+        window.signupEmail = () => createUserWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value).catch(e => document.getElementById('auth-error').innerText = e.message);
         window.logout = () => signOut(auth).then(() => location.reload());
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                document.getElementById('auth-view').classList.remove('active');
-                document.getElementById('login-form-view').classList.remove('active');
-                
+                // Check user doc
                 const snap = await getDoc(doc(db, "users", user.uid));
                 if (snap.exists()) {
                     userData = snap.data();
                     loadApp();
                 } else {
-                    switchView('name-view');
+                    // Quick setup for new user
+                    const name = prompt("What is your name?");
+                    if(name) {
+                        await setDoc(doc(db, "users", user.uid), { name: name, email: user.email, coins: 0, familyId: null, role: null });
+                        location.reload();
+                    }
                 }
             } else {
-                switchView('auth-view');
-                document.getElementById('nav-bar').style.display = 'none';
+                document.getElementById('auth-view').classList.add('active');
+                document.getElementById('tab-bar').style.display = 'none';
+                document.getElementById('nav-title').innerText = "Login";
             }
         });
 
-        window.saveName = async () => {
-            const name = document.getElementById('user-name-input').value;
-            if(!name) return;
-            await setDoc(doc(db, "users", currentUser.uid), {
-                name: name, email: currentUser.email, coins: 0, familyId: null, role: null
-            });
-            location.reload();
+        // --- NAVIGATION ---
+        window.switchTab = (viewId) => {
+            // Hide all views
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            // Show selected view
+            document.getElementById(viewId).classList.add('active');
+            
+            // Update Tab Icons
+            document.getElementById('tab-home').classList.remove('active');
+            document.getElementById('tab-profile').classList.remove('active');
+            
+            if(viewId === 'home-view') {
+                document.getElementById('tab-home').classList.add('active');
+                document.getElementById('nav-title').innerText = "Family Centre";
+            } else if (viewId === 'profile-view') {
+                document.getElementById('tab-profile').classList.add('active');
+                document.getElementById('nav-title').innerText = "Profile";
+            }
         };
 
+        // --- MORE MENU LOGIC ---
+        window.openMoreMenu = () => {
+            document.getElementById('more-sheet').classList.add('open');
+            document.getElementById('tab-more').classList.add('active');
+        };
+
+        window.closeMoreMenu = (e) => {
+            if (e && e.target !== document.getElementById('more-sheet') && e.target.tagName !== 'BUTTON') return;
+            document.getElementById('more-sheet').classList.remove('open');
+            document.getElementById('tab-more').classList.remove('active');
+            
+            // Re-highlight current tab
+            if(document.getElementById('home-view').classList.contains('active')) document.getElementById('tab-home').classList.add('active');
+            else document.getElementById('tab-profile').classList.add('active');
+        };
+
+        window.toggleFamilyForms = () => {
+            const el = document.getElementById('fam-forms');
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        };
+
+        // --- DATA LOADING ---
         function loadApp() {
-            document.getElementById('nav-bar').style.display = 'flex';
-            document.getElementById('user-role-badge').innerText = userData.role ? userData.role.toUpperCase() : 'NEW';
-            switchView('dashboard-view');
+            document.getElementById('auth-view').classList.remove('active');
+            document.getElementById('tab-bar').style.display = 'flex';
+            
+            // Fill Profile
+            document.getElementById('display-name').innerText = userData.name;
+            document.getElementById('user-email').innerText = currentUser.email;
+            document.getElementById('user-role-badge').innerText = userData.role || "None";
+            
+            switchTab('home-view');
 
-            if(userData.familyId) {
-                document.getElementById('no-family-alert').style.display = 'none';
-                document.getElementById('family-setup-forms').style.display = 'none';
-                document.getElementById('family-info').style.display = 'block';
-                
-                getDoc(doc(db, "families", userData.familyId)).then(s => {
-                    if(s.exists()) {
-                        document.getElementById('fam-name-display').innerText = s.data().name;
-                        document.getElementById('fam-code-display').innerText = s.data().inviteCode;
-                    }
-                });
-                loadTasks();
-            } else {
-                document.getElementById('no-family-alert').style.display = 'block';
-                document.getElementById('family-setup-forms').style.display = 'block';
-                document.getElementById('family-info').style.display = 'none';
-            }
-
+            // Listen for Coins
             onSnapshot(doc(db, "users", currentUser.uid), (d) => {
                 document.getElementById('coin-count').innerText = d.data().coins || 0;
             });
+
+            // Family Logic
+            if(userData.familyId) {
+                document.getElementById('no-family-state').style.display = 'none';
+                document.getElementById('family-content').style.display = 'block';
+                document.getElementById('more-fam-info').style.display = 'block';
+
+                getDoc(doc(db, "families", userData.familyId)).then(s => {
+                    if(s.exists()) document.getElementById('fam-code-display').innerText = s.data().inviteCode;
+                });
+                loadTasks();
+            } else {
+                document.getElementById('no-family-state').style.display = 'block';
+                document.getElementById('family-content').style.display = 'none';
+            }
         }
 
+        // --- TASKS & FAMILY ---
         window.createFamily = async () => {
             const name = document.getElementById('create-fam-name').value;
             if(!name) return;
@@ -456,36 +447,24 @@
             onSnapshot(q, (snap) => {
                 const list = document.getElementById('task-list');
                 list.innerHTML = "";
-                if(snap.empty) list.innerHTML = "<p style='text-align:center; color:#ccc'>No tasks yet.</p>";
+                if(snap.empty) list.innerHTML = "<div style='padding:20px; text-align:center; color:#8E8E93;'>No tasks available</div>";
+                
                 snap.forEach(d => {
                     const t = d.data();
-                    // Task Item designed like a Duolingo lesson Unit
+                    // iOS List Item Style
                     list.innerHTML += `
-                        <div class="unit-card">
-                            <div style="display:flex; align-items:center;">
-                                <div style="width:40px; height:40px; border:2px solid var(--duo-gray); border-radius:50%; display:flex; justify-content:center; align-items:center; margin-right:15px; background:${t.status==='Done' ? 'var(--duo-green)' : 'white'}; color:${t.status==='Done' ? 'white' : 'var(--duo-gray)'}; font-weight:800;">
-                                    ${t.status==='Done' ? '✓' : '★'}
-                                </div>
-                                <div>
-                                    <div style="font-weight:800; font-size:1.1rem;">${t.title}</div>
-                                    <div style="color:var(--duo-yellow); font-weight:800; font-size:0.9rem;">+${t.reward} Gems</div>
-                                </div>
+                        <div class="list-item" style="background:white; margin:0; border-radius:0;">
+                            <div style="width:20px; height:20px; border:2px solid #C7C7CC; border-radius:50%; margin-right:15px; display:flex; justify-content:center; align-items:center;">
+                                ${t.status === 'Done' ? '<div style="width:12px; height:12px; background:#007AFF; border-radius:50%;"></div>' : ''}
+                            </div>
+                            <div class="list-content">
+                                <div style="font-weight:600;">${t.title}</div>
+                                <div style="font-size:13px; color:var(--ios-gray-text);">Reward: ${t.reward} Tokens</div>
                             </div>
                         </div>`;
                 });
             });
         }
-
-        window.switchView = (id) => {
-            document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            
-            // Nav Icon Animation Logic
-            document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-            if(id.includes('dashboard')) document.querySelectorAll('.nav-item')[0].classList.add('active');
-            if(id.includes('family')) document.querySelectorAll('.nav-item')[1].classList.add('active');
-            if(id.includes('store')) document.querySelectorAll('.nav-item')[2].classList.add('active');
-        };
     </script>
 </body>
 </html>
