@@ -40,6 +40,11 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-5px); }
@@ -163,10 +168,9 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.03); cursor: pointer;
         }
 
-        /* --- 8. PROFILE SPECIFIC STYLES (UPDATED) --- */
+        /* --- 8. PROFILE SPECIFIC STYLES --- */
         .profile-card {
             background: white; border-radius: 30px; 
-            /* FIXED: Removed overflow hidden so PFP can pop if needed, though structure handles it */
             box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center;
             padding-bottom: 30px;
             position: relative;
@@ -177,7 +181,6 @@
             border-radius: 30px 30px 0 0;
             position: relative;
         }
-        /* FIXED: PFP Positioning */
         .prof-pfp-container {
             width: 120px; height: 120px;
             background: white; border-radius: 50%;
@@ -194,18 +197,21 @@
             width: 100%; height: 100%; border-radius: 50%;
             background: #EEF2F9; font-size: 50px;
             display: flex; justify-content: center; align-items: center;
-            overflow: hidden; /* Ensures img stays in circle */
+            overflow: hidden; 
         }
         .prof-pfp img { width: 100%; height: 100%; object-fit: cover; }
 
+        /* BADGES STYLES */
         .badge-grid {
-            display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 15px 0;
+            display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; margin: 10px 0;
+            padding: 0 15px; min-height: 25px;
         }
-        .badge-pill {
-            background: #EEF2F9; padding: 6px 14px; border-radius: 20px;
-            font-size: 12px; font-weight: 700; color: var(--text-sec);
-            display: flex; align-items: center; gap: 5px;
+        .badge-icon {
+            width: 24px; height: 24px; object-fit: contain;
+            transition: transform 0.2s; cursor: help;
         }
+        .badge-icon:hover { transform: scale(1.2); }
+        
         .edit-fab {
             background: white; width: 40px; height: 40px; border-radius: 50%;
             position: absolute; top: 15px; right: 15px;
@@ -213,7 +219,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1); font-size: 18px; z-index: 20;
         }
 
-        /* --- 9. MODAL FOR EDITING --- */
+        /* --- 9. MODALS --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 5000;
@@ -225,6 +231,22 @@
             animation: fadeUp 0.3s ease-out;
             max-height: 90vh; overflow-y: auto;
         }
+        
+        /* NEW BADGE POPUP */
+        .new-badge-popup {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 6000;
+            display: none; justify-content: center; align-items: center;
+            flex-direction: column; text-align: center; color: white;
+        }
+        .new-badge-content {
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            padding: 40px; border-radius: 40px; border: 2px solid rgba(255,255,255,0.2);
+            max-width: 90%; width: 350px;
+        }
+        .shiny-badge { width: 100px; height: 100px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.6)); margin: 20px 0; }
+
         @media(min-width: 768px) {
             .modal-overlay { align-items: center; }
             .modal-card { border-radius: 30px; margin: 20px; }
@@ -252,6 +274,16 @@
 
     <div id="loader">
         <div style="font-size:60px; animation: shake 2s infinite;">🏦</div>
+    </div>
+
+    <div class="new-badge-popup" id="badge-popup">
+        <div class="new-badge-content">
+            <h2 style="margin:0; text-transform:uppercase; letter-spacing:1px; font-size:16px; opacity:0.8;">Unwrapped</h2>
+            <h1 style="margin:5px 0 0 0; font-size:32px;">New Badge!</h1>
+            <img id="new-badge-img" src="" class="shiny-badge">
+            <div id="new-badge-name" style="font-size:20px; font-weight:800; margin-bottom:20px; color:#FFB142;">...</div>
+            <button class="btn" style="background:white; color:var(--text-main);" onclick="closeBadgePopup()">Awesome!</button>
+        </div>
     </div>
 
     <div class="sidebar" id="desktop-sidebar">
@@ -380,10 +412,10 @@
                 </div>
                 <div class="list-item">
                     <div style="display:flex; align-items:center;">
-                        <div style="font-size:24px; margin-right:15px;">⭐</div>
-                        <div><div style="font-weight:800;">Pro Badge</div><div style="color:var(--primary);">500 Tokens</div></div>
+                        <div style="font-size:24px; margin-right:15px;">🎮</div>
+                        <div><div style="font-weight:800;">Video Game Time</div><div style="color:var(--primary);">200 Tokens</div></div>
                     </div>
-                    <button class="btn small secondary">Locked</button>
+                    <button class="btn small">Buy</button>
                 </div>
             </div>
         </div>
@@ -400,7 +432,9 @@
                 <div style="margin-top: 70px; padding: 0 20px;">
                     <h2 style="margin:0; font-size:26px;" id="p-name">Loading...</h2>
                     <div style="color:var(--text-sec); font-size:14px; margin-top:5px;" id="p-date">Member since...</div>
-                    <div class="badge-grid" id="p-badges"></div>
+                    
+                    <div class="badge-grid" id="p-badges">
+                        </div>
                 </div>
             </div>
 
@@ -486,10 +520,26 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
+        // --- BADGE ASSETS ---
+        const BADGE_ASSETS = {
+            'verified': 'https://cdn3.emoji.gg/emojis/70818-verified.png',
+            'creator': 'https://cdn3.emoji.gg/emojis/927654-youtuberroleicon.png',
+            'staff': 'https://cdn3.emoji.gg/emojis/679243-staff.png',
+            'supporter': 'https://cdn3.emoji.gg/emojis/58236-booster.png',
+            'bronze': 'https://cdn3.emoji.gg/emojis/94211-bronzerank.png',
+            'silver': 'https://cdn3.emoji.gg/emojis/83657-silverrank.png',
+            'gold': 'https://cdn3.emoji.gg/emojis/94211-goldrank.png',
+            'platinum': 'https://cdn3.emoji.gg/emojis/85322-platinumrank.png',
+            'diamond': 'https://cdn3.emoji.gg/emojis/85322-diamondrank.png',
+            'onyx': 'https://cdn3.emoji.gg/emojis/25827-onyxrank.png',
+            'nemesis': 'https://cdn3.emoji.gg/emojis/83657-nemisesrank.png'
+        };
+
         let currentUser = null;
         let userData = null;
         let tempPfp = null;
         let tempBanner = null;
+        let previousBadges = []; // Track for notifications
 
         function showToast(id, msg, type) {
             const el = document.getElementById(id);
@@ -543,6 +593,8 @@
             const snap = await getDoc(doc(db, "users", currentUser.uid));
             if (snap.exists()) {
                 userData = snap.data();
+                // Store initial badges so we don't spam notifications on load
+                previousBadges = userData.badges || []; 
                 loadApp(); 
             } else {
                 document.getElementById('loader').style.display = 'none';
@@ -564,7 +616,7 @@
                 joinedDate: Timestamp.now(),
                 pfp: '🙂',
                 banner: 'linear-gradient(135deg, #a8c0ff, #3f2b96)',
-                badges: ['Newbie']
+                badges: []
             };
             await setDoc(doc(db, "users", currentUser.uid), newUserData);
             document.getElementById('setup-view').style.display = 'none';
@@ -582,12 +634,24 @@
             else { document.getElementById('mobile-navbar').style.display = 'flex'; document.getElementById('header-title').style.display = 'flex'; }
 
             renderProfile();
-
             switchNav('home-view');
+
+            // LIVE LISTENER FOR USER DATA
             onSnapshot(doc(db, "users", currentUser.uid), (d) => {
-                userData = d.data(); 
-                document.getElementById('coin-count').innerText = userData.coins || 0;
-                renderProfile(); 
+                const newData = d.data();
+                document.getElementById('coin-count').innerText = newData.coins || 0;
+                
+                // CHECK FOR NEW BADGES
+                const currentBadges = newData.badges || [];
+                const newBadge = currentBadges.find(x => !previousBadges.includes(x));
+                
+                if (newBadge) {
+                    showBadgePopup(newBadge);
+                }
+                
+                userData = newData;
+                previousBadges = currentBadges;
+                renderProfile();
             });
 
             if(userData.familyId) {
@@ -612,7 +676,6 @@
             document.getElementById('p-name').innerText = userData.name;
             document.getElementById('user-email').innerText = currentUser.email;
             
-            // PFP RENDER
             const pfpEl = document.getElementById('p-pfp');
             if(userData.pfp && userData.pfp.startsWith('data:image')) {
                 pfpEl.innerHTML = `<img src="${userData.pfp}" alt="PFP">`;
@@ -622,7 +685,6 @@
                 pfpEl.style.background = '#EEF2F9';
             }
 
-            // BANNER RENDER
             const bannerEl = document.getElementById('p-banner');
             if(userData.banner && userData.banner.startsWith('data:image')) {
                 bannerEl.style.background = `url(${userData.banner})`;
@@ -639,16 +701,34 @@
             }
             document.getElementById('p-date').innerText = dateStr;
 
+            // RENDER BADGES
             const badgesDiv = document.getElementById('p-badges');
             badgesDiv.innerHTML = '';
             const badges = userData.badges || [];
-            if(badges.length === 0) badgesDiv.innerHTML = '<div style="font-size:12px; color:#ccc;">No badges yet</div>';
-            badges.forEach(b => {
-                badgesDiv.innerHTML += `<div class="badge-pill">⭐ ${b}</div>`;
-            });
+            
+            if(badges.length === 0) {
+                badgesDiv.innerHTML = '<div style="font-size:12px; color:#ccc;">No badges yet</div>';
+            } else {
+                badges.forEach(b => {
+                    const iconUrl = BADGE_ASSETS[b];
+                    if(iconUrl) {
+                        badgesDiv.innerHTML += `<img src="${iconUrl}" class="badge-icon" title="${b}">`;
+                    }
+                });
+            }
         }
 
-        // --- EDIT PROFILE (UPDATED WITH IMAGE LOGIC) ---
+        // --- BADGE POPUP LOGIC ---
+        function showBadgePopup(badgeKey) {
+            const url = BADGE_ASSETS[badgeKey];
+            if(!url) return;
+            document.getElementById('new-badge-img').src = url;
+            document.getElementById('new-badge-name').innerText = badgeKey.toUpperCase();
+            document.getElementById('badge-popup').style.display = 'flex';
+        }
+        window.closeBadgePopup = () => document.getElementById('badge-popup').style.display = 'none';
+
+        // --- EDIT PROFILE ---
         window.openEditProfile = () => {
             document.getElementById('edit-name-in').value = userData.name;
             document.getElementById('edit-modal').style.display = 'flex';
@@ -658,21 +738,16 @@
         };
         window.closeEditProfile = () => document.getElementById('edit-modal').style.display = 'none';
         
-        // Helper to read file to Base64
         window.previewFile = (inputId, previewId) => {
             const file = document.getElementById(inputId).files[0];
             const errorDiv = document.getElementById('upload-error');
             errorDiv.style.display = 'none';
-            
             if(!file) return;
-
-            // Limit file size to 800KB to prevent Firestore limit errors
             if(file.size > 800 * 1024) {
                 errorDiv.innerText = "File too big! Please use an image under 800KB.";
                 errorDiv.style.display = 'block';
                 return;
             }
-
             const reader = new FileReader();
             reader.onloadend = () => {
                 const res = reader.result;
@@ -687,21 +762,17 @@
         window.saveProfile = async () => {
             const newName = document.getElementById('edit-name-in').value;
             const btn = document.getElementById('save-btn');
-            
             if(!newName) return;
             btn.innerText = "Saving...";
-
             const updateData = { name: newName };
             if(tempPfp) updateData.pfp = tempPfp;
             if(tempBanner) updateData.banner = tempBanner;
-
             await updateDoc(doc(db, "users", currentUser.uid), updateData);
-            
             btn.innerText = "Save Changes";
             closeEditProfile();
         };
 
-        // --- NAVIGATION & LOGIC ---
+        // --- NAVIGATION ---
         window.switchNav = (viewId) => {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
