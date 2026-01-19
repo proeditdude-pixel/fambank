@@ -71,6 +71,7 @@
         }
         .btn:active { transform: scale(0.96); }
         .btn.secondary { background: #E4E9F2; color: var(--text-main); box-shadow: none; }
+        .btn.danger { background: #FF6B6B; color: white; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3); }
         .btn.small { padding: 10px 20px; width: auto; font-size: 14px; }
         
         .google-btn { 
@@ -185,7 +186,8 @@
             width: 120px; height: 120px;
             background: white; border-radius: 50%;
             position: absolute; 
-            bottom: -60px; /* Half height */
+            /* MOVED HIGHER TO SIT ON LINE */
+            bottom: -50px; 
             left: 50%; 
             transform: translateX(-50%);
             display: flex; justify-content: center; align-items: center;
@@ -266,6 +268,15 @@
         .preview-box {
             width: 100%; height: 80px; background: #eee; border-radius: 10px;
             margin-bottom: 15px; display: none; background-size: cover; background-position: center;
+        }
+        
+        /* ADMIN STYLES */
+        .admin-user-row {
+            display: flex; align-items: center; gap: 15px;
+        }
+        .admin-tag {
+            font-size: 10px; font-weight: 800; background: #333; color: white;
+            padding: 4px 8px; border-radius: 6px; text-transform: uppercase;
         }
 
     </style>
@@ -429,14 +440,15 @@
                 <div class="prof-pfp-container">
                     <div class="prof-pfp" id="p-pfp">🙂</div>
                 </div>
-                <div style="margin-top: 70px; padding: 0 20px;">
+                <div style="margin-top: 60px; padding: 0 20px;">
                     <h2 style="margin:0; font-size:26px;" id="p-name">Loading...</h2>
                     <div style="color:var(--text-sec); font-size:14px; margin-top:5px;" id="p-date">Member since...</div>
                     
-                    <div class="badge-grid" id="p-badges">
-                        </div>
+                    <div class="badge-grid" id="p-badges"></div>
                 </div>
             </div>
+
+            <button id="admin-panel-btn" class="btn" style="background:#2C3A59; margin-top:20px; display:none;" onclick="openAdmin()">👑 Admin Panel</button>
 
             <div class="bubble-list" style="margin-top:20px;">
                 <div class="list-item" style="cursor:default;">
@@ -445,14 +457,41 @@
                         <div style="font-size:15px; font-weight:600;" id="user-email">...</div>
                     </div>
                 </div>
-                <div class="list-item" style="cursor:default;">
-                    <div>
-                        <div style="font-size:12px; color:var(--text-sec); font-weight:800;">STATUS</div>
-                        <div style="font-size:14px; font-weight:700; color:var(--success);">Verified ✅</div>
-                    </div>
-                </div>
             </div>
             <button class="btn" style="background:#FF6B6B; margin-top:30px;" onclick="logout()">Log Out</button>
+        </div>
+
+        <div id="admin-view" class="view">
+            <h1 style="margin-bottom:10px;">Admin Dashboard</h1>
+            <p style="color:var(--text-sec); margin-top:0;">Manage users and rewards.</p>
+            <div class="bubble-list" id="admin-list">
+                <div style="text-align:center; padding:20px;">Loading users...</div>
+            </div>
+            <br>
+            <button class="btn secondary" onclick="switchNav('profile-view')">Back to Profile</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="admin-modal">
+        <div class="modal-card">
+            <h2 id="adm-modal-title">Manage User</h2>
+            
+            <p style="font-weight:700; font-size:12px; color:var(--text-sec); margin-bottom:5px;">GIVE BADGE</p>
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <input type="text" id="adm-badge-in" placeholder="Badge ID (e.g. verified, gold)" style="margin-bottom:0;">
+                <button class="btn small" onclick="adminGiveBadge()">Add</button>
+            </div>
+            <div style="font-size:12px; color:var(--text-sec); margin-bottom:15px;">
+                Available: verified, creator, staff, supporter, bronze, silver, gold, platinum, diamond, onyx, nemesis.
+            </div>
+
+            <p style="font-weight:700; font-size:12px; color:var(--text-sec); margin-bottom:5px;">SET COINS</p>
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <input type="number" id="adm-coin-in" placeholder="Amount" style="margin-bottom:0;">
+                <button class="btn small" onclick="adminSetCoins()">Set</button>
+            </div>
+
+            <button class="btn secondary" onclick="closeAdminModal()">Close</button>
         </div>
     </div>
 
@@ -480,8 +519,6 @@
 
             <button class="btn" onclick="saveProfile()" id="save-btn">Save Changes</button>
             <button class="btn secondary" style="margin-top:10px;" onclick="closeEditProfile()">Cancel</button>
-
-            <button class="btn" style="margin-top:20px; background:#FFB142;" onclick="addDemoBadges()">✨ Demo: Add Badges</button>
         </div>
     </div>
 
@@ -506,7 +543,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, onSnapshot, updateDoc, doc, getDoc, setDoc, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, updateDoc, doc, getDoc, setDoc, getDocs, Timestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCBoSEjCf3tECszYAUqed6hGntmL77JJ7Q",
@@ -522,7 +559,8 @@
         const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        // --- BADGE ASSETS ---
+        const ADMIN_EMAIL = "proeditdude@gmail.com";
+
         const BADGE_ASSETS = {
             'verified': 'https://cdn3.emoji.gg/emojis/70818-verified.png',
             'creator': 'https://cdn3.emoji.gg/emojis/927654-youtuberroleicon.png',
@@ -541,7 +579,8 @@
         let userData = null;
         let tempPfp = null;
         let tempBanner = null;
-        let previousBadges = []; // Track for notifications
+        let previousBadges = []; 
+        let selectedAdminUser = null; // For admin panel
 
         function showToast(id, msg, type) {
             const el = document.getElementById(id);
@@ -550,7 +589,7 @@
             setTimeout(() => el.classList.remove('show'), 4000);
         }
 
-        // --- AUTH & VERIFICATION ---
+        // --- AUTH ---
         window.loginGoogle = () => signInWithPopup(auth, provider).catch(e => showToast('auth-feedback', "Google Login Failed", "error"));
         window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value).catch(e => showToast('auth-feedback', "Wrong Email/Pass", "error"));
         window.signupEmail = async () => {
@@ -572,7 +611,6 @@
             }
         };
 
-        // --- AUTH STATE ---
         onAuthStateChanged(auth, async (user) => {
             const loader = document.getElementById('loader');
             if (user) {
@@ -595,7 +633,6 @@
             const snap = await getDoc(doc(db, "users", currentUser.uid));
             if (snap.exists()) {
                 userData = snap.data();
-                // Store initial badges so we don't spam notifications on load
                 previousBadges = userData.badges || []; 
                 loadApp(); 
             } else {
@@ -618,7 +655,8 @@
                 joinedDate: Timestamp.now(),
                 pfp: '🙂',
                 banner: 'linear-gradient(135deg, #a8c0ff, #3f2b96)',
-                badges: []
+                badges: [],
+                isAdmin: false
             };
             await setDoc(doc(db, "users", currentUser.uid), newUserData);
             document.getElementById('setup-view').style.display = 'none';
@@ -635,22 +673,31 @@
             if(window.innerWidth > 768) { document.getElementById('desktop-sidebar').style.display = 'flex'; }
             else { document.getElementById('mobile-navbar').style.display = 'flex'; document.getElementById('header-title').style.display = 'flex'; }
 
+            // SECURE ADMIN CHECK
+            if(currentUser.email === ADMIN_EMAIL) {
+                // Show button
+                document.getElementById('admin-panel-btn').style.display = 'block';
+                
+                // Auto-fix DB permission if missing
+                if(!userData.isAdmin) {
+                    updateDoc(doc(db, "users", currentUser.uid), { isAdmin: true });
+                }
+            } else {
+                document.getElementById('admin-panel-btn').style.display = 'none';
+            }
+
             renderProfile();
             switchNav('home-view');
 
-            // LIVE LISTENER FOR USER DATA
             onSnapshot(doc(db, "users", currentUser.uid), (d) => {
                 const newData = d.data();
                 document.getElementById('coin-count').innerText = newData.coins || 0;
                 
-                // CHECK FOR NEW BADGES
+                // NOTIFICATIONS
                 const currentBadges = newData.badges || [];
-                // Only notify if length increased (to avoid spamming on reload)
                 if(currentBadges.length > previousBadges.length) {
                     const newBadge = currentBadges.find(x => !previousBadges.includes(x));
-                    if (newBadge) {
-                        showBadgePopup(newBadge);
-                    }
+                    if (newBadge) showBadgePopup(newBadge);
                 }
                 
                 userData = newData;
@@ -705,28 +752,18 @@
             }
             document.getElementById('p-date').innerText = dateStr;
 
-            // RENDER BADGES
             const badgesDiv = document.getElementById('p-badges');
             badgesDiv.innerHTML = '';
             const badges = userData.badges || [];
-            
-            if(badges.length === 0) {
-                badgesDiv.innerHTML = '<div style="font-size:12px; color:#ccc;">No badges yet</div>';
-            } else {
-                badges.forEach(b => {
-                    const iconUrl = BADGE_ASSETS[b];
-                    // If we have an asset for this badge name, show it
-                    if(iconUrl) {
-                        badgesDiv.innerHTML += `<img src="${iconUrl}" class="badge-icon" title="${b}">`;
-                    } else if (b !== 'Newbie') {
-                        // Fallback for unmapped text badges (except 'Newbie')
-                        badgesDiv.innerHTML += `<span style="font-size:10px; background:#eee; padding:2px 6px; border-radius:10px;">${b}</span>`;
-                    }
-                });
-            }
+            if(badges.length === 0) badgesDiv.innerHTML = '<div style="font-size:12px; color:#ccc;">No badges yet</div>';
+            else badges.forEach(b => {
+                const iconUrl = BADGE_ASSETS[b];
+                if(iconUrl) badgesDiv.innerHTML += `<img src="${iconUrl}" class="badge-icon" title="${b}">`;
+                else badgesDiv.innerHTML += `<span style="font-size:10px; background:#eee; padding:2px 6px; border-radius:10px;">${b}</span>`;
+            });
         }
 
-        // --- BADGE POPUP LOGIC ---
+        // --- BADGE POPUP ---
         function showBadgePopup(badgeKey) {
             const url = BADGE_ASSETS[badgeKey];
             if(!url) return;
@@ -780,33 +817,86 @@
             closeEditProfile();
         };
 
-        // --- DEMO BUTTON FUNCTIONALITY ---
-        window.addDemoBadges = async () => {
-            const btn = document.querySelector('button[onclick="addDemoBadges()"]');
-            btn.innerText = "Adding...";
-            // We give Verified, Staff, and Diamond as a test
-            await updateDoc(doc(db, "users", currentUser.uid), {
-                badges: ['verified', 'staff', 'diamond']
+        // --- ADMIN PANEL FUNCTIONS ---
+        window.openAdmin = async () => {
+            if(currentUser.email !== ADMIN_EMAIL) return; // EXTRA SECURITY
+            switchNav('admin-view');
+            const list = document.getElementById('admin-list');
+            list.innerHTML = '<div style="text-align:center;">Fetching Users...</div>';
+            
+            const q = query(collection(db, "users"));
+            const snapshot = await getDocs(q);
+            list.innerHTML = '';
+            
+            snapshot.forEach(docSnap => {
+                const u = docSnap.data();
+                const uid = docSnap.id;
+                // Render Admin Row
+                const d = document.createElement('div');
+                d.className = 'list-item';
+                d.onclick = () => openAdminModal(uid, u);
+                d.innerHTML = `
+                    <div class="admin-user-row">
+                        <div style="width:40px; height:40px; border-radius:50%; background:#eee; overflow:hidden;">
+                            ${u.pfp && u.pfp.startsWith('data') ? `<img src="${u.pfp}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;">${u.pfp||'🙂'}</div>`}
+                        </div>
+                        <div>
+                            <div style="font-weight:700;">${u.name}</div>
+                            <div style="font-size:12px; color:#888;">${u.email}</div>
+                        </div>
+                    </div>
+                    <div>
+                        ${u.isAdmin ? '<span class="admin-tag">ADMIN</span>' : ''}
+                        <span style="font-weight:bold; color:var(--primary);">${u.coins || 0} T</span>
+                    </div>
+                `;
+                list.appendChild(d);
             });
-            // Reload page to ensure clean state
-            location.reload();
         };
 
-        // --- NAVIGATION ---
+        window.openAdminModal = (uid, user) => {
+            selectedAdminUser = uid;
+            document.getElementById('adm-modal-title').innerText = "Manage " + user.name;
+            document.getElementById('admin-modal').style.display = 'flex';
+        };
+        window.closeAdminModal = () => document.getElementById('admin-modal').style.display = 'none';
+
+        window.adminGiveBadge = async () => {
+            const badge = document.getElementById('adm-badge-in').value.toLowerCase().trim();
+            if(!badge || !selectedAdminUser) return;
+            
+            await updateDoc(doc(db, "users", selectedAdminUser), {
+                badges: arrayUnion(badge)
+            });
+            alert(`Given ${badge} to user!`);
+            document.getElementById('adm-badge-in').value = '';
+            closeAdminModal();
+            // Refresh logic optional, but simplest to reload admin view
+            openAdmin(); 
+        };
+
+        window.adminSetCoins = async () => {
+            const amt = parseInt(document.getElementById('adm-coin-in').value);
+            if(isNaN(amt) || !selectedAdminUser) return;
+            
+            await updateDoc(doc(db, "users", selectedAdminUser), {
+                coins: amt
+            });
+            alert(`Coins set to ${amt}`);
+            closeAdminModal();
+            openAdmin();
+        };
+
+        // --- NAVIGATION & LOGIC ---
         window.switchNav = (viewId) => {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
-            const titles = { 'home-view': 'Home', 'family-view': 'Family', 'store-view': 'Store', 'profile-view': 'Profile' };
-            document.getElementById('header-title').innerText = titles[viewId];
+            const titles = { 'home-view': 'Home', 'family-view': 'Family', 'store-view': 'Store', 'profile-view': 'Profile', 'admin-view': 'Admin' };
+            document.getElementById('header-title').innerText = titles[viewId] || 'FamBank';
             document.querySelectorAll('.mobile-tab').forEach(el => el.classList.remove('active'));
             if(viewId === 'home-view') document.querySelectorAll('.mobile-tab')[0].classList.add('active');
             else if(viewId === 'profile-view') document.querySelectorAll('.mobile-tab')[1].classList.add('active');
             else document.querySelectorAll('.mobile-tab')[2].classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            if(viewId.includes('home')) document.getElementById('pc-home').classList.add('active');
-            if(viewId.includes('fam')) document.getElementById('pc-fam').classList.add('active');
-            if(viewId.includes('store')) document.getElementById('pc-store').classList.add('active');
-            if(viewId.includes('prof')) document.getElementById('pc-prof').classList.add('active');
         };
 
         window.openSheet = () => document.getElementById('sheet-overlay').classList.add('open');
