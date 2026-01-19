@@ -28,12 +28,11 @@
             background-color: var(--bg-body);
             color: var(--text-main);
             margin: 0;
-            /* FIXED: Use 100dvh for mobile browsers to handle address bars correctly */
             height: 100dvh; 
             width: 100vw;
             display: flex;
-            overflow: hidden; /* Prevent body scroll, we scroll internal div */
-            position: fixed; /* Lock body in place */
+            overflow: hidden; 
+            position: fixed; 
         }
 
         /* --- 2. ANIMATIONS --- */
@@ -48,13 +47,13 @@
         }
 
         /* --- 3. UI ELEMENTS --- */
-        input {
+        input, select {
             width: 100%; padding: 18px; font-size: 16px;
             border: 2px solid transparent; background: #EEF2F9;
             border-radius: var(--radius); margin-bottom: 15px;
-            color: var(--text-main); font-weight: 700; transition: 0.3s;
+            color: var(--text-main); font-weight: 700; transition: 0.3s; appearance: none;
         }
-        input:focus { background: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(77, 142, 255, 0.2); }
+        input:focus, select:focus { background: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(77, 142, 255, 0.2); }
 
         .btn {
             width: 100%; padding: 16px;
@@ -67,6 +66,7 @@
         }
         .btn:active { transform: scale(0.96); }
         .btn.secondary { background: #E4E9F2; color: var(--text-main); box-shadow: none; }
+        .btn.small { padding: 10px 20px; width: auto; font-size: 14px; }
         
         .google-btn { 
             background: white; color: #3c4043; 
@@ -88,11 +88,8 @@
         /* --- 4. LAYOUT --- */
         .main-content {
             flex: 1; position: relative; 
-            /* FIXED: Proper scrolling settings */
-            overflow-y: auto; 
-            -webkit-overflow-scrolling: touch; 
-            height: 100%;
-            padding-bottom: 120px; /* Space for bottom nav */
+            overflow-y: auto; -webkit-overflow-scrolling: touch; 
+            height: 100%; padding-bottom: 120px;
         }
 
         .view {
@@ -139,7 +136,7 @@
             margin-bottom: 10px;
         }
 
-        /* --- 6. OVERLAYS (Auth, Setup, Verify) --- */
+        /* --- 6. OVERLAYS --- */
         .fullscreen-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-body); z-index: 9999;
@@ -165,6 +162,62 @@
             display: flex; align-items: center; justify-content: space-between;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03); cursor: pointer;
         }
+
+        /* --- 8. PROFILE SPECIFIC STYLES (NEW) --- */
+        .profile-card {
+            background: white; border-radius: 30px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center;
+            padding-bottom: 30px;
+        }
+        .prof-banner {
+            height: 140px; width: 100%;
+            background: linear-gradient(135deg, #a8c0ff, #3f2b96);
+            position: relative;
+        }
+        .prof-pfp-container {
+            width: 110px; height: 110px;
+            background: white; border-radius: 50%;
+            position: absolute; bottom: -55px; left: 50%; transform: translateX(-50%);
+            display: flex; justify-content: center; align-items: center;
+            padding: 6px; /* White border effect */
+        }
+        .prof-pfp {
+            width: 100%; height: 100%; border-radius: 50%;
+            background: #EEF2F9; font-size: 50px;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .badge-grid {
+            display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 15px 0;
+        }
+        .badge-pill {
+            background: #EEF2F9; padding: 6px 14px; border-radius: 20px;
+            font-size: 12px; font-weight: 700; color: var(--text-sec);
+            display: flex; align-items: center; gap: 5px;
+        }
+        .edit-fab {
+            background: white; width: 40px; height: 40px; border-radius: 50%;
+            position: absolute; top: 15px; right: 15px;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); font-size: 18px;
+        }
+
+        /* --- 9. MODAL FOR EDITING --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 5000;
+            display: none; justify-content: center; align-items: flex-end; /* Bottom sheet on mobile */
+        }
+        .modal-card {
+            background: white; width: 100%; max-width: 600px;
+            border-radius: 30px 30px 0 0; padding: 30px;
+            animation: fadeUp 0.3s ease-out;
+        }
+        @media(min-width: 768px) {
+            .modal-overlay { align-items: center; }
+            .modal-card { border-radius: 30px; margin: 20px; }
+        }
+        .color-opt { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
+        .color-opt.selected { border-color: var(--text-main); transform: scale(1.1); }
 
     </style>
 </head>
@@ -211,7 +264,6 @@
                     <button class="btn" style="flex:1;" onclick="loginEmail()">Log In</button>
                     <button class="btn secondary" style="flex:1;" onclick="signupEmail()">Sign Up</button>
                 </div>
-                
                 <div id="auth-feedback" class="toast-msg"></div>
             </div>
         </div>
@@ -221,15 +273,11 @@
                 <div style="font-size:60px; margin-bottom:10px;">📧</div>
                 <h1>Check Email</h1>
                 <p>We sent a verification link to your email.</p>
-                
                 <div style="background:#FFF3E0; border-radius:15px; padding:15px; margin-bottom:25px; color:#E67E22; font-size:14px; line-height:1.4;">
-                    <strong>Can't find it?</strong><br>
-                    Please check your <b>Spam</b>, <b>Junk</b>, or <b>Trash</b> folders.
+                    <strong>Can't find it?</strong><br>Check <b>Spam</b>, <b>Junk</b>, or <b>Trash</b>.
                 </div>
-
                 <button class="btn" onclick="checkVerification()" style="margin-bottom:15px;">I've Verified!</button>
                 <button class="btn secondary" onclick="resendVerification()">Resend Email</button>
-                
                 <div id="verify-feedback" class="toast-msg"></div>
                 <div style="margin-top:20px; font-size:13px; color:#FF6B6B; cursor:pointer;" onclick="logout()">Wrong email? Log Out</div>
             </div>
@@ -251,16 +299,13 @@
                 <h1 style="color:white; font-size:60px; margin: 10px 0;" id="coin-count">0</h1>
                 <div style="font-weight:700;">Tokens</div>
             </div>
-
             <h2 style="margin: 30px 0 20px 5px;">Tasks</h2>
-            
             <div id="no-fam-alert" style="display:none; background:white; padding:30px; border-radius:30px; text-align:center; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
                 <div style="font-size:40px; margin-bottom:15px;">👨‍👩‍👧</div>
                 <h3>No Family Yet</h3>
                 <p>Join or create a family to see tasks.</p>
                 <button class="btn secondary" onclick="switchNav('family-view')">Go to Family</button>
             </div>
-
             <div id="task-list" class="bubble-list"></div>
         </div>
 
@@ -280,7 +325,6 @@
                     <div id="join-error" class="toast-msg error"></div>
                 </div>
             </div>
-
             <div id="family-info" style="display:none;">
                 <div class="bubble-list">
                     <div class="list-item" style="cursor:default;">
@@ -309,24 +353,44 @@
                         <div style="font-size:24px; margin-right:15px;">🍦</div>
                         <div><div style="font-weight:800;">Ice Cream</div><div style="color:var(--primary);">100 Tokens</div></div>
                     </div>
-                    <button class="btn" style="width:auto; padding:10px 20px; margin:0; font-size:14px;">Buy</button>
+                    <button class="btn small">Buy</button>
+                </div>
+                <div class="list-item">
+                    <div style="display:flex; align-items:center;">
+                        <div style="font-size:24px; margin-right:15px;">⭐</div>
+                        <div><div style="font-weight:800;">Pro Badge</div><div style="color:var(--primary);">500 Tokens</div></div>
+                    </div>
+                    <button class="btn small secondary">Locked</button>
                 </div>
             </div>
         </div>
 
         <div id="profile-view" class="view">
-            <h1>Profile</h1>
-            <div class="bubble-list">
-                <div class="list-item" style="cursor:default;">
-                    <div>
-                        <div style="font-size:12px; color:var(--text-sec); font-weight:800;">NAME</div>
-                        <div style="font-size:18px; font-weight:700;" id="display-name">...</div>
-                    </div>
+            <h1 style="margin-bottom:20px;">Profile</h1>
+            
+            <div class="profile-card">
+                <div class="prof-banner" id="p-banner">
+                    <div class="edit-fab" onclick="openEditProfile()">✏️</div>
                 </div>
+                
+                <div class="prof-pfp-container">
+                    <div class="prof-pfp" id="p-pfp">🙂</div>
+                </div>
+
+                <div style="margin-top: 60px; padding: 0 20px;">
+                    <h2 style="margin:0; font-size:26px;" id="p-name">Loading...</h2>
+                    <div style="color:var(--text-sec); font-size:14px; margin-top:5px;" id="p-date">Member since...</div>
+                    
+                    <div class="badge-grid" id="p-badges">
+                        </div>
+                </div>
+            </div>
+
+            <div class="bubble-list" style="margin-top:20px;">
                 <div class="list-item" style="cursor:default;">
                     <div>
                         <div style="font-size:12px; color:var(--text-sec); font-weight:800;">EMAIL</div>
-                        <div style="font-size:16px; font-weight:600;" id="user-email">...</div>
+                        <div style="font-size:15px; font-weight:600;" id="user-email">...</div>
                     </div>
                 </div>
                 <div class="list-item" style="cursor:default;">
@@ -337,6 +401,37 @@
                 </div>
             </div>
             <button class="btn" style="background:#FF6B6B; margin-top:30px;" onclick="logout()">Log Out</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="edit-modal">
+        <div class="modal-card">
+            <h2 style="margin-top:0;">Edit Profile</h2>
+            
+            <p style="font-weight:700; font-size:12px; color:var(--text-sec); margin-bottom:5px;">DISPLAY NAME</p>
+            <input type="text" id="edit-name-in">
+
+            <p style="font-weight:700; font-size:12px; color:var(--text-sec); margin-bottom:5px;">AVATAR (EMOJI)</p>
+            <select id="edit-pfp-in">
+                <option value="🙂">🙂 Smiley</option>
+                <option value="😎">😎 Cool</option>
+                <option value="🦊">🦊 Fox</option>
+                <option value="🤖">🤖 Robot</option>
+                <option value="👻">👻 Ghost</option>
+                <option value="👸">👸 Princess</option>
+                <option value="🦸">🦸 Super</option>
+            </select>
+
+            <p style="font-weight:700; font-size:12px; color:var(--text-sec); margin-bottom:10px;">BANNER COLOR</p>
+            <div style="display:flex; gap:10px; margin-bottom:25px;">
+                <div class="color-opt" style="background:linear-gradient(135deg, #a8c0ff, #3f2b96);" onclick="selectBanner(this, 'linear-gradient(135deg, #a8c0ff, #3f2b96)')"></div>
+                <div class="color-opt" style="background:linear-gradient(135deg, #FF9A9E, #FECFEF);" onclick="selectBanner(this, 'linear-gradient(135deg, #FF9A9E, #FECFEF)')"></div>
+                <div class="color-opt" style="background:linear-gradient(135deg, #84fab0, #8fd3f4);" onclick="selectBanner(this, 'linear-gradient(135deg, #84fab0, #8fd3f4)')"></div>
+                <div class="color-opt" style="background:linear-gradient(135deg, #fccb90, #d57eeb);" onclick="selectBanner(this, 'linear-gradient(135deg, #fccb90, #d57eeb)')"></div>
+            </div>
+
+            <button class="btn" onclick="saveProfile()">Save Changes</button>
+            <button class="btn secondary" style="margin-top:10px;" onclick="closeEditProfile()">Cancel</button>
         </div>
     </div>
 
@@ -361,7 +456,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, onSnapshot, updateDoc, doc, getDoc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, updateDoc, doc, getDoc, setDoc, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCBoSEjCf3tECszYAUqed6hGntmL77JJ7Q",
@@ -379,6 +474,7 @@
 
         let currentUser = null;
         let userData = null;
+        let selectedBannerTemp = '';
 
         function showToast(id, msg, type) {
             const el = document.getElementById(id);
@@ -389,75 +485,41 @@
 
         // --- AUTH & VERIFICATION ---
         window.loginGoogle = () => signInWithPopup(auth, provider).catch(e => showToast('auth-feedback', "Google Login Failed", "error"));
-        
-        window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value)
-            .catch(e => showToast('auth-feedback', "Wrong Email or Password", "error"));
-
+        window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value).catch(e => showToast('auth-feedback', "Wrong Email/Pass", "error"));
         window.signupEmail = async () => {
             const email = document.getElementById('email-in').value;
             const pass = document.getElementById('pass-in').value;
-            if(!email || !pass) return showToast('auth-feedback', "Please enter email & password", "error");
-
+            if(!email || !pass) return showToast('auth-feedback', "Enter email & pass", "error");
             try {
                 const cred = await createUserWithEmailAndPassword(auth, email, pass);
                 await sendEmailVerification(cred.user);
-                // User created, onAuthStateChanged will trigger logic to show Verify Screen
-            } catch(e) {
-                showToast('auth-feedback', e.message, "error");
-            }
+            } catch(e) { showToast('auth-feedback', e.message, "error"); }
         };
-
         window.logout = () => signOut(auth).then(() => location.reload());
-
-        window.resendVerification = async () => {
-            if(currentUser) {
-                try {
-                    await sendEmailVerification(currentUser);
-                    showToast('verify-feedback', "Email Sent!", "success");
-                } catch(e) {
-                    showToast('verify-feedback', "Too many requests. Wait a bit.", "error");
-                }
-            }
-        };
-
+        window.resendVerification = async () => { if(currentUser) { try { await sendEmailVerification(currentUser); showToast('verify-feedback', "Sent!", "success"); } catch(e){ showToast('verify-feedback', "Wait a bit.", "error"); }}};
         window.checkVerification = async () => {
             if(currentUser) {
-                await currentUser.reload(); // FORCE FIREBASE TO UPDATE STATUS
-                if(currentUser.emailVerified) {
-                    showToast('verify-feedback', "Verified! Loading...", "success");
-                    document.getElementById('verify-view').style.display = 'none';
-                    checkUserProfile();
-                } else {
-                    showToast('verify-feedback', "Not verified yet. Check email.", "error");
-                }
+                await currentUser.reload();
+                if(currentUser.emailVerified) { document.getElementById('verify-view').style.display = 'none'; checkUserProfile(); }
+                else { showToast('verify-feedback', "Not verified yet.", "error"); }
             }
         };
 
-        // --- AUTH STATE CHANGED ---
+        // --- AUTH STATE ---
         onAuthStateChanged(auth, async (user) => {
             const loader = document.getElementById('loader');
-            
             if (user) {
                 currentUser = user;
-                
-                // 1. STRICT CHECK: IS EMAIL VERIFIED?
                 if (!user.emailVerified) {
-                    loader.style.display = 'none';
-                    document.getElementById('auth-view').style.display = 'none';
-                    document.getElementById('verify-view').style.display = 'flex'; // TRAPPED HERE
-                    return; 
+                    loader.style.display = 'none'; document.getElementById('auth-view').style.display = 'none';
+                    document.getElementById('verify-view').style.display = 'flex'; return;
                 }
-
-                // 2. Verified -> Check Database
                 checkUserProfile();
             } else {
-                // Logged Out
                 document.getElementById('mobile-navbar').style.display = 'none';
                 document.getElementById('header-title').style.display = 'none';
                 document.getElementById('desktop-sidebar').style.display = 'none';
-                
-                loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 500);
+                loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 500);
                 document.getElementById('auth-view').style.display = 'flex';
             }
         });
@@ -468,7 +530,7 @@
                 userData = snap.data();
                 loadApp(); 
             } else {
-                // Verified but no Name yet -> Setup Screen
+                // New User Setup
                 document.getElementById('loader').style.display = 'none';
                 document.getElementById('auth-view').style.display = 'none';
                 document.getElementById('verify-view').style.display = 'none';
@@ -479,7 +541,19 @@
         window.finalizeSetup = async () => {
             const name = document.getElementById('setup-name').value;
             if(!name) return;
-            await setDoc(doc(db, "users", currentUser.uid), { name, email: currentUser.email, coins: 0, familyId: null, role: null });
+            // INITIALIZE PROFILE DATA HERE
+            const newUserData = {
+                name: name,
+                email: currentUser.email,
+                coins: 0,
+                familyId: null,
+                role: null,
+                joinedDate: Timestamp.now(),
+                pfp: '🙂',
+                banner: 'linear-gradient(135deg, #a8c0ff, #3f2b96)',
+                badges: ['Newbie']
+            };
+            await setDoc(doc(db, "users", currentUser.uid), newUserData);
             document.getElementById('setup-view').style.display = 'none';
             checkUserProfile();
         };
@@ -491,27 +565,23 @@
             document.getElementById('verify-view').style.display = 'none';
             document.getElementById('setup-view').style.display = 'none';
             
-            if(window.innerWidth > 768) {
-                document.getElementById('desktop-sidebar').style.display = 'flex';
-            } else {
-                document.getElementById('mobile-navbar').style.display = 'flex';
-                document.getElementById('header-title').style.display = 'flex';
-            }
+            if(window.innerWidth > 768) { document.getElementById('desktop-sidebar').style.display = 'flex'; }
+            else { document.getElementById('mobile-navbar').style.display = 'flex'; document.getElementById('header-title').style.display = 'flex'; }
 
-            document.getElementById('display-name').innerText = userData.name;
-            document.getElementById('user-email').innerText = currentUser.email;
+            // RENDER PROFILE
+            renderProfile();
 
             switchNav('home-view');
-            
             onSnapshot(doc(db, "users", currentUser.uid), (d) => {
-                document.getElementById('coin-count').innerText = d.data().coins || 0;
+                userData = d.data(); // Sync local data
+                document.getElementById('coin-count').innerText = userData.coins || 0;
+                renderProfile(); // Re-render if changed
             });
 
             if(userData.familyId) {
                 document.getElementById('no-fam-alert').style.display = 'none';
                 document.getElementById('family-forms').style.display = 'none';
                 document.getElementById('family-info').style.display = 'block';
-
                 getDoc(doc(db, "families", userData.familyId)).then(s => {
                     if(s.exists()) {
                         document.getElementById('fam-name-display').innerText = s.data().name;
@@ -526,18 +596,69 @@
             }
         }
 
+        function renderProfile() {
+            document.getElementById('p-name').innerText = userData.name;
+            document.getElementById('user-email').innerText = currentUser.email;
+            document.getElementById('p-pfp').innerText = userData.pfp || '🙂';
+            document.getElementById('p-banner').style.background = userData.banner || 'var(--primary)';
+            
+            // Format Date
+            let dateStr = "Unknown";
+            if(userData.joinedDate) {
+                const date = userData.joinedDate.toDate();
+                dateStr = "Member since " + date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            }
+            document.getElementById('p-date').innerText = dateStr;
+
+            // Badges
+            const badgesDiv = document.getElementById('p-badges');
+            badgesDiv.innerHTML = '';
+            const badges = userData.badges || [];
+            if(badges.length === 0) badgesDiv.innerHTML = '<div style="font-size:12px; color:#ccc;">No badges yet</div>';
+            badges.forEach(b => {
+                badgesDiv.innerHTML += `<div class="badge-pill">⭐ ${b}</div>`;
+            });
+        }
+
+        // --- EDIT PROFILE LOGIC ---
+        window.openEditProfile = () => {
+            document.getElementById('edit-name-in').value = userData.name;
+            document.getElementById('edit-pfp-in').value = userData.pfp || '🙂';
+            selectedBannerTemp = userData.banner;
+            document.getElementById('edit-modal').style.display = 'flex';
+        };
+        window.closeEditProfile = () => document.getElementById('edit-modal').style.display = 'none';
+        
+        window.selectBanner = (el, gradient) => {
+            document.querySelectorAll('.color-opt').forEach(d => d.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedBannerTemp = gradient;
+        };
+
+        window.saveProfile = async () => {
+            const newName = document.getElementById('edit-name-in').value;
+            const newPfp = document.getElementById('edit-pfp-in').value;
+            
+            if(!newName) return;
+
+            await updateDoc(doc(db, "users", currentUser.uid), {
+                name: newName,
+                pfp: newPfp,
+                banner: selectedBannerTemp
+            });
+            closeEditProfile();
+        };
+
+        // --- NAVIGATION ---
         window.switchNav = (viewId) => {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
-
             const titles = { 'home-view': 'Home', 'family-view': 'Family', 'store-view': 'Store', 'profile-view': 'Profile' };
             document.getElementById('header-title').innerText = titles[viewId];
-
             document.querySelectorAll('.mobile-tab').forEach(el => el.classList.remove('active'));
             if(viewId === 'home-view') document.querySelectorAll('.mobile-tab')[0].classList.add('active');
             else if(viewId === 'profile-view') document.querySelectorAll('.mobile-tab')[1].classList.add('active');
             else document.querySelectorAll('.mobile-tab')[2].classList.add('active');
-            
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             if(viewId.includes('home')) document.getElementById('pc-home').classList.add('active');
             if(viewId.includes('fam')) document.getElementById('pc-fam').classList.add('active');
@@ -546,14 +667,8 @@
         };
 
         window.openSheet = () => document.getElementById('sheet-overlay').classList.add('open');
-        window.closeSheet = (e) => {
-            if(e && !e.target.classList.contains('sheet-overlay')) return;
-            document.getElementById('sheet-overlay').classList.remove('open');
-        };
-        window.mobileGo = (id) => {
-            document.getElementById('sheet-overlay').classList.remove('open');
-            switchNav(id);
-        };
+        window.closeSheet = (e) => { if(e && !e.target.classList.contains('sheet-overlay')) return; document.getElementById('sheet-overlay').classList.remove('open'); };
+        window.mobileGo = (id) => { document.getElementById('sheet-overlay').classList.remove('open'); switchNav(id); };
 
         window.createFamily = async () => {
             const name = document.getElementById('create-fam-name').value;
@@ -563,20 +678,15 @@
             await updateDoc(doc(db, "users", currentUser.uid), { familyId: ref.id, role: 'parent' });
             location.reload();
         };
-
         window.joinFamily = async () => {
             const code = document.getElementById('join-fam-code').value;
             const q = query(collection(db, "families"), where("inviteCode", "==", code));
             const snap = await getDocs(q);
-            if(snap.empty) {
-                showToast('join-error', "Code not found", "error");
-                return;
-            }
+            if(snap.empty) { showToast('join-error', "Code not found", "error"); return; }
             let fid = null; snap.forEach(d => fid = d.id);
             await updateDoc(doc(db, "users", currentUser.uid), { familyId: fid, role: 'child' });
             location.reload();
         };
-
         function loadTasks() {
             const q = query(collection(db, "tasks"), where("familyId", "==", userData.familyId));
             onSnapshot(q, (snap) => {
@@ -585,13 +695,7 @@
                 if(snap.empty) return; 
                 snap.forEach(d => {
                     const t = d.data();
-                    list.innerHTML += `
-                        <div class="list-item" style="cursor:default;">
-                            <div style="display:flex; align-items:center;">
-                                <div style="width:40px; height:40px; background:${t.status==='Done'?'var(--primary)':'#EEF2F9'}; color:${t.status==='Done'?'white':'inherit'}; border-radius:50%; display:flex; justify-content:center; align-items:center; margin-right:15px; font-weight:bold;">${t.status === 'Done' ? '✓' : ''}</div>
-                                <div><div style="font-weight:700;">${t.title}</div><div style="font-size:13px; color:var(--text-sec);">+${t.reward} Tokens</div></div>
-                            </div>
-                        </div>`;
+                    list.innerHTML += `<div class="list-item" style="cursor:default;"><div style="display:flex; align-items:center;"><div style="width:40px; height:40px; background:${t.status==='Done'?'var(--primary)':'#EEF2F9'}; color:${t.status==='Done'?'white':'inherit'}; border-radius:50%; display:flex; justify-content:center; align-items:center; margin-right:15px; font-weight:bold;">${t.status === 'Done' ? '✓' : ''}</div><div><div style="font-weight:700;">${t.title}</div><div style="font-size:13px; color:var(--text-sec);">+${t.reward} Tokens</div></div></div></div>`;
                 });
             });
         }
