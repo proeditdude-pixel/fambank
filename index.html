@@ -5,130 +5,198 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#ffffff">
     <title>FamBank</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        /* --- 1. FRIENDLY THEME --- */
+        /* --- DUOLINGO THEME VARIABLES --- */
         :root {
-            --primary: #546de5;    /* Soft Royal Blue */
-            --accent: #f19066;     /* Soft Orange */
-            --bg: #f5f6fa;         /* Very Light Grey-Blue */
-            --surface: #ffffff;
-            --text-main: #2f3542;
-            --text-sub: #a4b0be;
-            --radius: 20px;
+            --duo-green: #58CC02;
+            --duo-green-shade: #46A302;
+            --duo-blue: #1CB0F6;
+            --duo-blue-shade: #1899D6;
+            --duo-yellow: #FFC800;
+            --duo-red: #FF4B4B;
+            --duo-gray: #E5E5E5;
+            --duo-text: #4B4B4B;
+            --duo-bg: #FFFFFF;
+            --radius: 16px;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
+            font-family: 'Nunito', sans-serif; /* Round font */
+            background-color: var(--duo-bg);
+            color: var(--duo-text);
             margin: 0;
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* --- 2. LAYOUT --- */
+        h1, h2, h3 { margin: 0; font-weight: 800; color: #3c3c3c; }
+        p { color: #777; font-weight: 700; font-size: 1.1rem; margin-bottom: 20px; }
+
+        /* --- LAYOUT --- */
         .app-container {
             flex: 1;
-            position: relative;
             overflow-y: auto;
-            max-width: 600px;
+            max-width: 500px;
             margin: 0 auto;
             width: 100%;
-            background: var(--surface);
-            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            padding: 20px;
+            padding-bottom: 100px; /* Space for navbar */
         }
 
         .view {
             display: none;
-            padding: 25px;
-            padding-bottom: 100px;
-            animation: fade 0.3s ease;
+            animation: fadeIn 0.3s ease;
         }
         .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* --- THE "DUOLINGO" COMPONENTS --- */
 
-        /* --- 3. UI ELEMENTS --- */
-        h1 { font-size: 2rem; margin: 0 0 10px 0; color: var(--text-main); letter-spacing: -0.5px; }
-        h2 { font-size: 1.4rem; margin: 0 0 15px 0; font-weight: 700; }
-        p { color: var(--text-sub); line-height: 1.5; margin: 0 0 20px 0; }
+        /* 1. THE 3D BUTTONS */
+        .btn {
+            width: 100%;
+            padding: 15px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.1s;
+            position: relative;
+            letter-spacing: 0.8px;
+        }
 
-        .bubble-card {
-            background: #fff;
-            border: 1px solid #f1f2f6;
+        /* Green Button (Primary) */
+        .btn-green {
+            background-color: var(--duo-green);
+            color: white;
+            box-shadow: 0px 5px 0px var(--duo-green-shade); /* The 3D Shadow */
+        }
+        .btn-green:active {
+            transform: translateY(5px); /* Push down effect */
+            box-shadow: 0px 0px 0px var(--duo-green-shade);
+        }
+
+        /* Blue Button (Secondary) */
+        .btn-blue {
+            background-color: var(--duo-blue);
+            color: white;
+            box-shadow: 0px 5px 0px var(--duo-blue-shade);
+        }
+        .btn-blue:active { transform: translateY(5px); box-shadow: none; }
+
+        /* Outline Button (Google/Secondary) */
+        .btn-outline {
+            background-color: white;
+            color: var(--duo-blue);
+            border: 2px solid var(--duo-gray);
+            box-shadow: 0px 5px 0px var(--duo-gray);
+        }
+        .btn-outline:active {
+            transform: translateY(5px);
+            box-shadow: none;
+            background-color: #f7f7f7;
+        }
+
+        /* 2. CHUNKY INPUTS */
+        input {
+            width: 100%;
+            padding: 15px;
+            background: #f7f7f7;
+            border: 2px solid var(--duo-gray);
+            border-radius: var(--radius);
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #4b4b4b;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            outline: none;
+        }
+        input:focus { border-color: var(--duo-blue); background: white; }
+
+        /* 3. CARDS (Like Lesson Units) */
+        .unit-card {
+            border: 2px solid var(--duo-gray);
             border-radius: var(--radius);
             padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            transition: transform 0.1s;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        .bubble-card:active { transform: scale(0.98); }
 
-        .wallet-banner {
-            background: var(--primary);
-            color: white;
-            padding: 30px;
-            border-radius: var(--radius);
-            text-align: center;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 25px rgba(84, 109, 229, 0.3);
+        /* 4. TOP STATS BAR */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0 30px 0;
         }
-        .wallet-banner h1 { color: white; font-size: 3.5rem; margin: 10px 0; }
-        .wallet-banner p { color: rgba(255,255,255,0.8); margin: 0; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; }
-
-        input {
-            width: 100%; padding: 18px; margin-bottom: 15px;
-            background: #f1f2f6; border: none; border-radius: 15px;
-            font-size: 16px; color: var(--text-main);
-            box-sizing: border-box;
+        .stat-badge {
+            display: flex;
+            align-items: center;
+            font-weight: 800;
+            color: var(--duo-yellow);
+            font-size: 1.2rem;
         }
-        input:focus { outline: 2px solid var(--primary); background: #fff; }
-
-        button {
-            width: 100%; padding: 18px;
-            background: var(--text-main); color: white;
-            border: none; border-radius: 15px;
-            font-size: 16px; font-weight: 700; cursor: pointer;
-            transition: 0.2s;
-            margin-bottom: 10px;
+        .gem-icon {
+            width: 30px; height: 30px;
+            background: var(--duo-yellow);
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 3px 0 #dcb000;
         }
-        button:active { opacity: 0.8; transform: scale(0.97); }
-        
-        button.primary-btn { background: var(--primary); }
-        button.secondary { background: #dfe4ea; color: var(--text-main); }
-        button.google-btn { background: white; border: 2px solid #f1f2f6; color: var(--text-main); }
-        button.small { width: auto; padding: 10px 20px; font-size: 0.9rem; border-radius: 10px; margin-bottom:0; }
 
-        .divider { text-align: center; color: var(--text-sub); margin: 20px 0; font-size: 0.8rem; font-weight: bold; }
-
-        /* --- 4. NAVIGATION --- */
-        .bottom-bar {
+        /* 5. BOTTOM NAV BAR */
+        .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%;
-            background: white; border-top: 1px solid #f1f2f6;
+            background: white;
+            border-top: 2px solid var(--duo-gray);
             display: flex; justify-content: center;
             padding-bottom: env(safe-area-inset-bottom);
+            z-index: 100;
         }
-        
-        .bar-inner {
+        .nav-inner {
             display: flex; justify-content: space-around;
-            width: 100%; max-width: 600px; padding: 10px 0;
+            width: 100%; max-width: 500px;
         }
-
-        .nav-btn {
-            text-align: center; color: #ced6e0; font-size: 11px; font-weight: 600;
-            padding: 5px 20px; border-radius: 15px; cursor: pointer;
+        .nav-item {
+            padding: 15px; cursor: pointer;
+            flex: 1; text-align: center;
+        }
+        .nav-icon {
+            font-size: 28px; display: block; opacity: 0.4;
             transition: 0.2s;
         }
-        .nav-btn span { display: block; font-size: 22px; margin-bottom: 3px; }
-        .nav-btn.active { color: var(--primary); background: #f1f2f6; }
-
-        @media (min-width: 601px) {
-            body { background: #dfe4ea; justify-content: center; align-items: center; }
-            .app-container { height: 90vh; border-radius: 25px; overflow: hidden; }
-            .bottom-bar { position: absolute; }
+        .nav-item.active .nav-icon {
+            opacity: 1; transform: scale(1.1);
+            filter: drop-shadow(0 4px 0 rgba(0,0,0,0.1));
         }
+        /* Color icons differently when active */
+        .nav-item:nth-child(1).active .nav-icon { color: var(--duo-green); opacity: 1; }
+        .nav-item:nth-child(2).active .nav-icon { color: var(--duo-red); opacity: 1; }
+        .nav-item:nth-child(3).active .nav-icon { color: var(--duo-blue); opacity: 1; }
+
+        /* --- UTILS --- */
+        .mascot-lg { font-size: 5rem; margin-bottom: 20px; animation: bounce 2s infinite; display: inline-block; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        
+        .divider { 
+            text-align: center; font-weight: 800; 
+            color: #afafaf; margin: 20px 0; font-size: 0.9rem;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        .error-msg { color: var(--duo-red); font-weight: 800; text-align: center; margin-bottom: 10px; }
+
     </style>
 </head>
 <body>
@@ -136,116 +204,143 @@
     <div class="app-container">
         
         <div id="auth-view" class="view active" style="text-align: center; padding-top: 40px;">
-            <div style="font-size: 3rem; margin-bottom: 10px;">👋</div>
-            <h1>FamBank</h1>
-            <p>Login to start.</p>
+            <div class="mascot-lg">🦉</div> <h1 style="color:var(--duo-green); font-size: 2.2rem; margin-bottom:10px;">FamBank</h1>
+            <p>Learn to earn.<br>Together.</p>
             
-            <button class="google-btn" onclick="loginGoogle()">
-                <span style="margin-right:8px;">G</span> Sign in with Google
-            </button>
-
-            <div class="divider">OR USE EMAIL</div>
-
-            <input type="email" id="email-in" placeholder="Email Address">
-            <input type="password" id="pass-in" placeholder="Password">
-            
-            <button class="primary-btn" onclick="loginEmail()">Log In</button>
-            <button class="secondary" onclick="signupEmail()">Create New Account</button>
-            
-            <p id="auth-error" style="color:red; font-size:0.9rem; margin-top:10px;"></p>
+            <div style="margin-top: 40px;">
+                <button class="btn btn-green" onclick="switchView('login-form-view')">GET STARTED</button>
+                <button class="btn btn-outline" onclick="switchView('login-form-view')">I ALREADY HAVE AN ACCOUNT</button>
+            </div>
         </div>
 
-        <div id="name-view" class="view" style="padding-top: 60px;">
-            <h1>Nice to meet you.</h1>
-            <p>What should we call you?</p>
-            <input type="text" id="user-name-input" placeholder="Type your name...">
-            <button class="primary-btn" onclick="saveName()">Let's Go</button>
+        <div id="login-form-view" class="view" style="padding-top: 20px;">
+            <button class="btn btn-outline" style="width: auto; padding: 10px 20px; font-size:0.9rem;" onclick="switchView('auth-view')">← BACK</button>
+            <h1 style="margin: 20px 0;">Log in</h1>
+
+            <button class="btn btn-outline" onclick="loginGoogle()">
+                <span style="margin-right:8px;">G</span> GOOGLE LOGIN
+            </button>
+
+            <div class="divider">OR</div>
+
+            <input type="email" id="email-in" placeholder="Email or username">
+            <input type="password" id="pass-in" placeholder="Password">
+            
+            <p id="auth-error" class="error-msg"></p>
+
+            <button class="btn btn-blue" onclick="loginEmail()">LOG IN</button>
+            <button class="btn btn-outline" style="border:none; box-shadow:none; color:#afafaf;" onclick="signupEmail()">No account? Create one</button>
+        </div>
+
+        <div id="name-view" class="view" style="padding-top: 60px; text-align: center;">
+            <h1>What's your name?</h1>
+            <p>This is what you'll see on the leaderboard.</p>
+            <input type="text" id="user-name-input" placeholder="Name">
+            <button class="btn btn-green" onclick="saveName()">CONTINUE</button>
         </div>
 
         <div id="dashboard-view" class="view">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h2 style="margin:0;">Hi, <span id="display-name">Friend</span>!</h2>
-                <div style="background:#f1f2f6; padding:5px 12px; border-radius:20px; font-size:0.8rem; font-weight:bold; color:var(--text-sub);" id="user-role-badge">...</div>
+            <div class="stats-bar">
+                <div style="display:flex; gap:10px;">
+                     <div style="background:var(--duo-gray); padding:5px 10px; border-radius:10px; font-weight:800; color:#afafaf; text-transform:uppercase; font-size:0.8rem; display:flex; align-items:center;">
+                        <span id="user-role-badge">USER</span>
+                    </div>
+                </div>
+                <div class="stat-badge">
+                    <div class="gem-icon"></div>
+                    <span id="coin-count">0</span>
+                </div>
             </div>
 
-            <div class="wallet-banner">
-                <p>Your Stash</p>
-                <h1 id="coin-count">0</h1>
+            <h2 style="margin-bottom: 20px;">Today's Goals</h2>
+
+            <div id="no-family-alert" style="display:none; text-align:center; padding:30px; border:2px dashed var(--duo-gray); border-radius:16px;">
+                <div style="font-size:3rem;">😢</div>
+                <h3>You aren't in a family yet!</h3>
+                <p>Join a club to get tasks.</p>
+                <button class="btn btn-blue" onclick="switchView('family-view')">FIND A FAMILY</button>
             </div>
 
-            <div id="no-family-alert" class="bubble-card" style="display:none; text-align:center; background:#fff3cd; border-color:#ffeeba;">
-                <h3>⚠️ You're solo!</h3>
-                <p style="margin-bottom:10px; color:#856404;">You need to join a family to see tasks.</p>
-                <button class="small" style="background:#856404; color:white;" onclick="switchView('family-view')">Fix this</button>
-            </div>
-
-            <div id="dashboard-content">
-                <h3 style="color:var(--text-sub); font-size:0.9rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:15px;">Today's Tasks</h3>
-                <div id="task-list"></div>
-            </div>
+            <div id="task-list"></div>
         </div>
 
         <div id="family-view" class="view">
-            <h1>Your Team</h1>
-            <p>Manage your family group here.</p>
+            <h1 style="color: var(--duo-red);">Family Club</h1>
+            <p>Compete and collaborate.</p>
 
             <div id="family-setup-forms">
-                <div class="bubble-card">
-                    <h2>Start a Family</h2>
-                    <p style="font-size:0.9rem;">Perfect for parents.</p>
+                <div class="unit-card" style="display:block; text-align:center;">
+                    <div style="font-size:3rem; margin-bottom:10px;">👑</div>
+                    <h3>Create a Club</h3>
+                    <p style="font-size:0.9rem; margin-bottom:15px;">Become the Admin.</p>
                     <input type="text" id="create-fam-name" placeholder="Family Name">
-                    <button class="primary-btn" onclick="createFamily()">Create Group</button>
+                    <button class="btn btn-green" onclick="createFamily()">CREATE</button>
                 </div>
-                <div style="text-align:center; color:var(--text-sub); margin: 20px;">or</div>
-                <div class="bubble-card">
-                    <h2>Join a Family</h2>
-                    <p style="font-size:0.9rem;">Got a code?</p>
-                    <input type="number" id="join-fam-code" placeholder="4-digit code">
-                    <button class="secondary" onclick="joinFamily()">Join Group</button>
+
+                <div class="divider">OR</div>
+
+                <div class="unit-card" style="display:block; text-align:center;">
+                    <div style="font-size:3rem; margin-bottom:10px;">🎟️</div>
+                    <h3>Join a Club</h3>
+                    <p style="font-size:0.9rem; margin-bottom:15px;">Enter your invite code.</p>
+                    <input type="number" id="join-fam-code" placeholder="1234">
+                    <button class="btn btn-blue" onclick="joinFamily()">JOIN</button>
                 </div>
             </div>
 
             <div id="family-info" style="display:none;">
-                <div class="bubble-card" style="text-align:center; padding: 40px 20px;">
-                    <div style="font-size:3rem; margin-bottom:10px;">🏠</div>
-                    <h2 id="fam-name-display" style="font-size:1.8rem;">Loading...</h2>
-                    <p>Invite Code:</p>
-                    <div style="font-size:2rem; font-weight:800; color:var(--primary); letter-spacing:5px;" id="fam-code-display">....</div>
+                <div class="unit-card" style="background: var(--duo-blue); border-color: var(--duo-blue-shade); color: white; display:block; text-align:center;">
+                    <h2 style="color:white; font-size:2rem;" id="fam-name-display">Loading...</h2>
+                    <p style="color:rgba(255,255,255,0.8);">Invite Code</p>
+                    <div style="background:rgba(0,0,0,0.2); padding:10px; border-radius:10px; font-size:2rem; font-weight:800; letter-spacing:5px;" id="fam-code-display">....</div>
                 </div>
-                <button class="secondary" style="margin-top:20px; color:red; background:#fff0f0;" onclick="logout()">Log Out</button>
+                <button class="btn btn-outline" style="color:var(--duo-red); border-color:var(--duo-red); box-shadow:0 5px 0 #faa;" onclick="logout()">LOG OUT</button>
             </div>
         </div>
 
         <div id="store-view" class="view">
-            <h1>The Shop</h1>
-            <p>Spend your hard-earned coins!</p>
-            <div class="bubble-card" style="display:flex; align-items:center; gap:15px;">
-                <div style="font-size:2rem; background:#f1f2f6; padding:10px; border-radius:15px;">🍦</div>
+            <h1 style="color: var(--duo-blue);">The Shop</h1>
+            <p>Spend your gems!</p>
+            
+            <div class="unit-card">
+                <div style="font-size:3rem; margin-right:15px;">🍦</div>
                 <div style="flex:1;">
-                    <div style="font-weight:bold; font-size:1.1rem;">Ice Cream</div>
-                    <div style="color:var(--primary); font-weight:bold;">100 Coins</div>
+                    <h3>Ice Cream</h3>
+                    <div style="color:var(--duo-yellow); font-weight:800;">100 Gems</div>
                 </div>
-                <button class="small" onclick="alert('Enjoy!')">Get</button>
+                <button class="btn btn-green" style="width:auto; padding:10px 20px; font-size:0.9rem; margin:0;" onclick="alert('Bought!')">BUY</button>
+            </div>
+
+            <div class="unit-card">
+                <div style="font-size:3rem; margin-right:15px;">🎮</div>
+                <div style="flex:1;">
+                    <h3>Gaming Hour</h3>
+                    <div style="color:var(--duo-yellow); font-weight:800;">50 Gems</div>
+                </div>
+                <button class="btn btn-green" style="width:auto; padding:10px 20px; font-size:0.9rem; margin:0;" onclick="alert('Bought!')">BUY</button>
             </div>
         </div>
 
-        <nav class="bottom-bar" id="nav-bar" style="display:none;">
-            <div class="bar-inner">
-                <div class="nav-btn active" onclick="switchView('dashboard-view')"><span>🏠</span> Home</div>
-                <div class="nav-btn" onclick="switchView('family-view')"><span>👨‍👩‍👧</span> Family</div>
-                <div class="nav-btn" onclick="switchView('store-view')"><span>🛍️</span> Shop</div>
-            </div>
-        </nav>
-
     </div>
+
+    <nav class="bottom-nav" id="nav-bar" style="display:none;">
+        <div class="nav-inner">
+            <div class="nav-item active" onclick="switchView('dashboard-view')">
+                <span class="nav-icon">🏠</span>
+            </div>
+            <div class="nav-item" onclick="switchView('family-view')">
+                <span class="nav-icon">🛡️</span> </div>
+            <div class="nav-item" onclick="switchView('store-view')">
+                <span class="nav-icon">🛍️</span>
+            </div>
+        </div>
+    </nav>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        // ADDED: createUserWithEmailAndPassword, signInWithEmailAndPassword
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, where, onSnapshot, updateDoc, doc, getDoc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-        // KEYS
         const firebaseConfig = {
             apiKey: "AIzaSyCBoSEjCf3tECszYAUqed6hGntmL77JJ7Q",
             authDomain: "fambank-c839c.firebaseapp.com",
@@ -263,31 +358,20 @@
         let currentUser = null;
         let userData = null;
 
-        // --- AUTH FUNCTIONS ---
-        
-        // 1. Google Login
         window.loginGoogle = () => signInWithPopup(auth, provider).catch(e => document.getElementById('auth-error').innerText = e.message);
 
-        // 2. Email Login
         window.loginEmail = async () => {
             const email = document.getElementById('email-in').value;
             const pass = document.getElementById('pass-in').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-            } catch (error) {
-                document.getElementById('auth-error').innerText = error.message;
-            }
+            try { await signInWithEmailAndPassword(auth, email, pass); } 
+            catch (e) { document.getElementById('auth-error').innerText = "Incorrect email or password"; }
         };
 
-        // 3. Email Signup
         window.signupEmail = async () => {
             const email = document.getElementById('email-in').value;
             const pass = document.getElementById('pass-in').value;
-            try {
-                await createUserWithEmailAndPassword(auth, email, pass);
-            } catch (error) {
-                document.getElementById('auth-error').innerText = error.message;
-            }
+            try { await createUserWithEmailAndPassword(auth, email, pass); } 
+            catch (e) { document.getElementById('auth-error').innerText = e.message; }
         };
 
         window.logout = () => signOut(auth).then(() => location.reload());
@@ -296,6 +380,8 @@
             if (user) {
                 currentUser = user;
                 document.getElementById('auth-view').classList.remove('active');
+                document.getElementById('login-form-view').classList.remove('active');
+                
                 const snap = await getDoc(doc(db, "users", user.uid));
                 if (snap.exists()) {
                     userData = snap.data();
@@ -318,16 +404,13 @@
             location.reload();
         };
 
-        // LOAD APP
         function loadApp() {
             document.getElementById('nav-bar').style.display = 'flex';
-            document.getElementById('display-name').innerText = userData.name;
             document.getElementById('user-role-badge').innerText = userData.role ? userData.role.toUpperCase() : 'NEW';
             switchView('dashboard-view');
 
             if(userData.familyId) {
                 document.getElementById('no-family-alert').style.display = 'none';
-                document.getElementById('dashboard-content').style.display = 'block';
                 document.getElementById('family-setup-forms').style.display = 'none';
                 document.getElementById('family-info').style.display = 'block';
                 
@@ -340,7 +423,6 @@
                 loadTasks();
             } else {
                 document.getElementById('no-family-alert').style.display = 'block';
-                document.getElementById('dashboard-content').style.display = 'none';
                 document.getElementById('family-setup-forms').style.display = 'block';
                 document.getElementById('family-info').style.display = 'none';
             }
@@ -350,7 +432,6 @@
             });
         }
 
-        // FAMILY & TASKS (Unchanged logic)
         window.createFamily = async () => {
             const name = document.getElementById('create-fam-name').value;
             if(!name) return;
@@ -364,7 +445,7 @@
             const code = document.getElementById('join-fam-code').value;
             const q = query(collection(db, "families"), where("inviteCode", "==", code));
             const snap = await getDocs(q);
-            if(snap.empty) return alert("Oops! Wrong code.");
+            if(snap.empty) return alert("Code not found.");
             let fid = null; snap.forEach(d => fid = d.id);
             await updateDoc(doc(db, "users", currentUser.uid), { familyId: fid, role: 'child' });
             location.reload();
@@ -375,16 +456,21 @@
             onSnapshot(q, (snap) => {
                 const list = document.getElementById('task-list');
                 list.innerHTML = "";
-                if(snap.empty) list.innerHTML = "<p style='text-align:center; color:#ccc; margin-top:20px;'>No tasks right now.</p>";
+                if(snap.empty) list.innerHTML = "<p style='text-align:center; color:#ccc'>No tasks yet.</p>";
                 snap.forEach(d => {
                     const t = d.data();
+                    // Task Item designed like a Duolingo lesson Unit
                     list.innerHTML += `
-                        <div class="bubble-card" style="display:flex; justify-content:space-between; align-items:center; padding:15px;">
-                            <div>
-                                <div style="font-weight:bold;">${t.title}</div>
-                                <div style="color:var(--primary); font-size:0.9rem; font-weight:700;">+${t.reward}</div>
+                        <div class="unit-card">
+                            <div style="display:flex; align-items:center;">
+                                <div style="width:40px; height:40px; border:2px solid var(--duo-gray); border-radius:50%; display:flex; justify-content:center; align-items:center; margin-right:15px; background:${t.status==='Done' ? 'var(--duo-green)' : 'white'}; color:${t.status==='Done' ? 'white' : 'var(--duo-gray)'}; font-weight:800;">
+                                    ${t.status==='Done' ? '✓' : '★'}
+                                </div>
+                                <div>
+                                    <div style="font-weight:800; font-size:1.1rem;">${t.title}</div>
+                                    <div style="color:var(--duo-yellow); font-weight:800; font-size:0.9rem;">+${t.reward} Gems</div>
+                                </div>
                             </div>
-                            <div style="font-size:0.8rem; background:#f1f2f6; padding:5px 10px; border-radius:8px;">${t.status}</div>
                         </div>`;
                 });
             });
@@ -393,10 +479,12 @@
         window.switchView = (id) => {
             document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
-            if(id.includes('dashboard')) document.querySelectorAll('.nav-btn')[0].classList.add('active');
-            if(id.includes('family')) document.querySelectorAll('.nav-btn')[1].classList.add('active');
-            if(id.includes('store')) document.querySelectorAll('.nav-btn')[2].classList.add('active');
+            
+            // Nav Icon Animation Logic
+            document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+            if(id.includes('dashboard')) document.querySelectorAll('.nav-item')[0].classList.add('active');
+            if(id.includes('family')) document.querySelectorAll('.nav-item')[1].classList.add('active');
+            if(id.includes('store')) document.querySelectorAll('.nav-item')[2].classList.add('active');
         };
     </script>
 </body>
