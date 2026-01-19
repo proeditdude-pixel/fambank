@@ -100,13 +100,15 @@
         /* --- 3. LAYOUT & ANIMATIONS --- */
         .main-content {
             flex: 1; position: relative; 
-            height: 100%; padding: 20px; padding-bottom: 120px;
-            overflow-x: hidden; /* Prevent horizontal scroll */
-            overflow-y: scroll; /* Use scroll instead of auto for consistent behavior */
+            height: 100%; 
+            padding: 20px; 
+            padding-bottom: 120px; /* Space for nav */
+            overflow-x: hidden; 
+            overflow-y: auto; /* Allow scrolling */
             -webkit-overflow-scrolling: touch;
         }
 
-        /* FIXED VIEW TRANSITION LOGIC */
+        /* VIEW TRANSITION LOGIC */
         .view {
             display: none; max-width: 600px; margin: 0 auto;
             opacity: 0; 
@@ -116,6 +118,16 @@
         }
         .view.active { 
             display: block; opacity: 1; transform: translateY(0); 
+        }
+        
+        /* AUTH VIEW SCROLL FIX */
+        #auth-view {
+            /* Use min-height so it can grow and scroll if needed (e.g. keyboard up) */
+            min-height: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center;
+            padding-bottom: 50px; /* Bottom padding so we don't hit edge */
         }
 
         /* --- 4. NAVIGATION (DESKTOP / IPAD) --- */
@@ -204,7 +216,6 @@
             display: flex; justify-content: center; align-items: center;
             overflow: hidden; 
         }
-        /* Ensure GIF covers correctly */
         .prof-pfp img { width: 100%; height: 100%; object-fit: cover; display: block;}
         
         .prof-info-area { margin-top: 25px; padding: 0 25px; }
@@ -300,7 +311,7 @@
             .sidebar { display: flex; }
         }
         @media(max-width: 767px) {
-            .mobile-nav { display: flex; }
+            /* We handle display:flex in JS now to toggle it on login */
             .sidebar { display: none; }
         }
         
@@ -334,24 +345,26 @@
 
     <div class="main-content">
         
-        <div id="auth-view" class="view" style="display:flex; flex-direction:column; justify-content:center; height:100%; max-width:400px; margin:auto;">
+        <div id="auth-view" class="view">
             <div style="text-align:center; margin-bottom:40px;">
                 <div style="font-size:60px; margin-bottom:20px;">👋</div>
                 <h1 style="font-size:32px;">Welcome Back</h1>
                 <p>Manage your family rewards easily.</p>
             </div>
-            <button class="btn" style="background:white; color:#333; margin-bottom:20px;" onclick="loginGoogle()">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" style="margin-right:10px;"> Continue with Google
-            </button>
-            <div style="display:flex; align-items:center; margin:20px 0; color:var(--text-muted); font-size:12px; font-weight:700;">
-                <div style="flex:1; height:1px; background:#DCE4EF;"></div>
-                <span style="padding:0 15px;">OR EMAIL</span>
-                <div style="flex:1; height:1px; background:#DCE4EF;"></div>
+            <div style="max-width:400px; margin:0 auto; width:100%;">
+                <button class="btn" style="background:white; color:#333; margin-bottom:20px;" onclick="loginGoogle()">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" style="margin-right:10px;"> Continue with Google
+                </button>
+                <div style="display:flex; align-items:center; margin:20px 0; color:var(--text-muted); font-size:12px; font-weight:700;">
+                    <div style="flex:1; height:1px; background:#DCE4EF;"></div>
+                    <span style="padding:0 15px;">OR EMAIL</span>
+                    <div style="flex:1; height:1px; background:#DCE4EF;"></div>
+                </div>
+                <input type="email" id="email-in" placeholder="Email Address">
+                <input type="password" id="pass-in" placeholder="Password">
+                <button class="btn" onclick="loginEmail()">Log In</button>
+                <button class="btn secondary" style="margin-top:15px; background:transparent; border:none; box-shadow:none;" onclick="signupEmail()">Create an account</button>
             </div>
-            <input type="email" id="email-in" placeholder="Email Address">
-            <input type="password" id="pass-in" placeholder="Password">
-            <button class="btn" onclick="loginEmail()">Log In</button>
-            <button class="btn secondary" style="margin-top:15px; background:transparent; border:none; box-shadow:none;" onclick="signupEmail()">Create an account</button>
         </div>
 
         <div id="setup-view" class="view" style="padding-top:100px; text-align:center;">
@@ -440,7 +453,7 @@
 
     </div>
 
-    <div class="mobile-nav">
+    <div class="mobile-nav" id="mob-nav-bar">
         <div class="mobile-tab active" onclick="switchNav('family-view')">👨‍👩‍👧</div>
         <div class="mobile-tab" onclick="switchNav('profile-view')">👤</div>
         <div class="mobile-tab" onclick="toggleMoreMenu()">⋮</div>
@@ -566,7 +579,13 @@
 
         onAuthStateChanged(auth, async (u) => {
             if(u) {
+                // USER LOGGED IN
                 currentUser = u;
+                // Show Mobile Nav if Mobile
+                if(window.innerWidth < 768) {
+                    document.getElementById('mob-nav-bar').style.display = 'flex';
+                }
+                
                 const snap = await getDoc(doc(db, "users", u.uid));
                 if(snap.exists()) {
                     userData = snap.data();
@@ -575,10 +594,17 @@
                     document.getElementById('loader').style.display='none';
                     document.getElementById('auth-view').style.display='none';
                     document.getElementById('setup-view').style.display='block';
+                    // Hide Nav for Setup
+                    document.getElementById('mob-nav-bar').style.display = 'none';
                     setTimeout(()=>document.getElementById('setup-view').classList.add('active'), 50);
                 }
             } else {
+                // USER LOGGED OUT
                 document.getElementById('loader').style.display='none';
+                
+                // Hide Mobile Nav
+                document.getElementById('mob-nav-bar').style.display = 'none';
+
                 document.getElementById('auth-view').style.display='flex';
                 setTimeout(()=>document.getElementById('auth-view').classList.add('active'), 50);
             }
@@ -598,7 +624,6 @@
             document.getElementById('setup-view').style.display='none';
             document.getElementById('loader').style.display='none';
             
-            // Explicitly render FIRST before showing view
             renderProfile(); 
             switchNav('family-view');
 
@@ -673,9 +698,8 @@
             });
         }
 
-        // --- UPDATED VIEW SWITCHING (FIXES BLANK BUG) ---
         window.switchNav = (id) => {
-            // 1. Hide all others immediately to prevent stacking/floating
+            // Hide all views first
             document.querySelectorAll('.view').forEach(e => {
                 if(e.id !== id) {
                     e.classList.remove('active');
@@ -683,11 +707,10 @@
                 }
             });
 
-            // 2. Show new view
+            // Show new view
             const target = document.getElementById(id);
             if(target) {
                 target.style.display = 'block';
-                // Small delay to allow CSS transition to catch the "block" state
                 requestAnimationFrame(() => {
                     target.classList.add('active');
                 });
@@ -744,7 +767,6 @@
             openModal('edit-modal');
         }
 
-        // --- UPDATED IMAGE HANDLER (FIXES GIF BUG) ---
         window.previewFile = (inId, prevId) => {
             const file = document.getElementById(inId).files[0];
             if(!file) return;
@@ -752,36 +774,30 @@
             const labelSpan = document.querySelector(`#${inId === 'file-pfp' ? 'lbl-pfp' : 'lbl-ban'} span`);
             labelSpan.innerText = "⏳ Processing...";
 
-            // 1. Check if GIF
             if(file.type === 'image/gif') {
-                // GIF Limit Check (350KB safe limit for Firestore strings)
                 if(file.size > 350 * 1024) {
                     alert("GIF is too large! Please choose one under 350KB.");
                     labelSpan.innerText = "❌ Too Large";
                     return;
                 }
-
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const res = e.target.result;
                     document.getElementById(prevId).style.backgroundImage = `url(${res})`;
                     document.getElementById(prevId).style.display='block';
                     labelSpan.innerText = "✅ GIF Selected";
-                    
                     if(inId==='file-pfp') tempPfp = res;
                     if(inId==='file-ban') tempBan = res;
                 };
                 reader.readAsDataURL(file);
 
             } else {
-                // 2. Standard JPEG/PNG Compression
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const img = new Image();
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
-                        
                         const MAX_WIDTH = 500;
                         const MAX_HEIGHT = 500;
                         let width = img.width;
@@ -795,7 +811,6 @@
                         canvas.width = width;
                         canvas.height = height;
                         ctx.drawImage(img, 0, 0, width, height);
-                        
                         const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
                         
                         document.getElementById(prevId).style.backgroundImage = `url(${dataUrl})`;
