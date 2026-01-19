@@ -71,15 +71,16 @@
         }
         .google-btn svg { margin-right: 10px; }
 
-        /* Custom Toast Message (Error/Success) */
+        /* Custom Toast Notification (Replaces Alerts) */
         .toast-msg {
             font-size: 14px; font-weight: 700; 
-            margin-top: 10px; min-height: 20px; text-align: center;
+            margin-top: 15px; min-height: 20px; text-align: center;
             opacity: 0; transition: opacity 0.3s;
+            padding: 10px; border-radius: 10px;
         }
         .toast-msg.show { opacity: 1; animation: shake 0.3s; }
-        .toast-msg.error { color: var(--error); }
-        .toast-msg.success { color: var(--success); }
+        .toast-msg.error { color: var(--error); background: rgba(255, 107, 107, 0.1); }
+        .toast-msg.success { color: var(--success); background: rgba(0, 214, 143, 0.1); }
 
         /* --- 4. LAYOUT --- */
         .main-content {
@@ -94,7 +95,7 @@
         }
         .view.active { display: block; }
 
-        /* --- 5. NAVIGATION (HIDDEN INITIALLY) --- */
+        /* --- 5. NAVIGATION (HIDDEN BY DEFAULT) --- */
         .sidebar {
             width: 280px; background: white;
             display: none; /* Controlled by JS */
@@ -157,7 +158,6 @@
             display: flex; align-items: center; justify-content: space-between;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03); cursor: pointer;
         }
-
     </style>
 </head>
 <body>
@@ -302,6 +302,12 @@
                         <div style="font-size:16px; font-weight:600;" id="user-email">...</div>
                     </div>
                 </div>
+                <div class="list-item" style="cursor:default;">
+                    <div>
+                        <div style="font-size:12px; color:var(--text-sec); font-weight:800;">VERIFIED</div>
+                        <div style="font-size:14px; font-weight:700; color:var(--success);" id="user-verified">Checking...</div>
+                    </div>
+                </div>
             </div>
             <button class="btn" style="background:#FF6B6B; margin-top:30px;" onclick="logout()">Log Out</button>
         </div>
@@ -327,7 +333,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        // ADDED: sendEmailVerification
+        // IMPORTING sendEmailVerification here:
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, query, where, onSnapshot, updateDoc, doc, getDoc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
@@ -348,11 +354,11 @@
         let currentUser = null;
         let userData = null;
 
-        // --- HELPER FOR TOAST MESSAGES ---
+        // --- HELPER FOR TOAST MESSAGES (No Alerts) ---
         function showToast(id, msg, type) {
             const el = document.getElementById(id);
             el.innerText = msg;
-            el.className = `toast-msg show ${type}`; // e.g. "toast-msg show error"
+            el.className = `toast-msg show ${type}`; // Apply 'error' or 'success' class
             setTimeout(() => {
                 el.classList.remove('show');
             }, 4000);
@@ -364,7 +370,7 @@
         window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value)
             .catch(e => showToast('auth-feedback', "Wrong Email or Password", "error"));
 
-        // UPDATED: Signup with Verification
+        // SIGNUP WITH VERIFICATION EMAIL
         window.signupEmail = async () => {
             const email = document.getElementById('email-in').value;
             const pass = document.getElementById('pass-in').value;
@@ -372,11 +378,16 @@
             if(!email || !pass) return showToast('auth-feedback', "Please enter email & password", "error");
 
             try {
+                // 1. Create User
                 const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                // Send verification email
+                
+                // 2. Send Verification Email
                 await sendEmailVerification(cred.user);
+                
+                // 3. Notify User
                 showToast('auth-feedback', "Account Created! Verification email sent.", "success");
-                // The onAuthStateChanged will handle the transition
+                
+                // Note: The onAuthStateChanged listener below will automatically fire and log them in
             } catch(e) {
                 showToast('auth-feedback', e.message, "error");
             }
@@ -384,7 +395,7 @@
 
         window.logout = () => signOut(auth).then(() => location.reload());
 
-        // --- AUTH STATE & LOADING ---
+        // --- AUTH STATE & APP LOADING ---
         onAuthStateChanged(auth, async (user) => {
             const loader = document.getElementById('loader');
             
@@ -393,16 +404,17 @@
                 const snap = await getDoc(doc(db, "users", user.uid));
                 
                 if (snap.exists()) {
+                    // OLD USER -> Load App
                     userData = snap.data();
                     loadApp(); 
                 } else {
-                    // New User -> Go to Setup View
+                    // NEW USER -> Hide Loader, Hide Auth, Show Name Setup
                     loader.style.display = 'none';
                     document.getElementById('auth-view').style.display = 'none';
-                    document.getElementById('setup-view').style.display = 'flex';
+                    document.getElementById('setup-view').style.display = 'flex'; // GUI Prompt
                 }
             } else {
-                // Logged Out -> Hide Nav, Show Auth
+                // LOGGED OUT -> Hide Nav, Show Auth
                 document.getElementById('mobile-navbar').style.display = 'none';
                 document.getElementById('header-title').style.display = 'none';
                 document.getElementById('desktop-sidebar').style.display = 'none';
@@ -413,24 +425,27 @@
             }
         });
 
-        // --- SETUP NEW USER ---
+        // --- SETUP NEW USER (GUI) ---
         window.finalizeSetup = async () => {
             const name = document.getElementById('setup-name').value;
-            if(!name) return; 
+            if(!name) return; // Wait for input
             
+            // Create user doc
             await setDoc(doc(db, "users", currentUser.uid), { name, email: currentUser.email, coins: 0, familyId: null, role: null });
             document.getElementById('setup-view').style.display = 'none';
             
+            // Reload user data
             const snap = await getDoc(doc(db, "users", currentUser.uid));
             userData = snap.data();
             loadApp();
         };
 
-        // --- APP LOGIC ---
+        // --- LOAD DASHBOARD ---
         function loadApp() {
             document.getElementById('loader').style.display = 'none';
             document.getElementById('auth-view').classList.remove('active');
             
+            // Responsive Nav Display
             if(window.innerWidth > 768) {
                 document.getElementById('desktop-sidebar').style.display = 'flex';
             } else {
@@ -438,15 +453,28 @@
                 document.getElementById('header-title').style.display = 'flex';
             }
 
+            // Fill Profile Data
             document.getElementById('display-name').innerText = userData.name;
             document.getElementById('user-email').innerText = currentUser.email;
+            
+            // Check Verification Status
+            const verifiedEl = document.getElementById('user-verified');
+            if(currentUser.emailVerified) {
+                verifiedEl.innerText = "Yes ✅";
+                verifiedEl.style.color = "var(--success)";
+            } else {
+                verifiedEl.innerText = "No ❌ (Check Email)";
+                verifiedEl.style.color = "var(--error)";
+            }
 
             switchNav('home-view');
             
+            // Listen for Coins
             onSnapshot(doc(db, "users", currentUser.uid), (d) => {
                 document.getElementById('coin-count').innerText = d.data().coins || 0;
             });
 
+            // Check Family Status
             if(userData.familyId) {
                 document.getElementById('no-fam-alert').style.display = 'none';
                 document.getElementById('family-forms').style.display = 'none';
@@ -466,7 +494,7 @@
             }
         }
 
-        // --- NAV ---
+        // --- NAVIGATION LOGIC ---
         window.switchNav = (viewId) => {
             document.querySelectorAll('.view').forEach(v => {
                 if(v.id !== 'auth-view' && v.id !== 'setup-view') v.classList.remove('active');
@@ -498,7 +526,7 @@
             switchNav(id);
         };
 
-        // --- BACKEND ---
+        // --- BACKEND LOGIC ---
         window.createFamily = async () => {
             const name = document.getElementById('create-fam-name').value;
             if(!name) return;
