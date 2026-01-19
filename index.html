@@ -29,12 +29,10 @@
             --radius-lg: 24px;
             --radius-md: 16px;
             
-            /* Soft "Apple-style" shadows */
             --shadow-sm: 0 4px 12px rgba(0,0,0,0.03);
             --shadow-md: 0 12px 30px rgba(67, 97, 238, 0.12), 0 4px 8px rgba(0,0,0,0.02);
             --shadow-float: 0 20px 50px rgba(67, 97, 238, 0.2);
 
-            /* Spring Animation Curve */
             --bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
@@ -114,7 +112,7 @@
             display: block; opacity: 1; transform: scale(1) translateY(0); 
         }
 
-        /* --- 4. NAVIGATION --- */
+        /* --- 4. NAVIGATION (DESKTOP / IPAD) --- */
         .sidebar {
             width: 280px; background: white;
             display: none; flex-direction: column; padding: 40px 30px;
@@ -128,25 +126,49 @@
         .nav-item:hover { background: #F8F9FC; color: var(--primary); transform: translateX(5px); }
         .nav-item.active { background: var(--primary); color: white; box-shadow: var(--shadow-md); }
 
+        /* --- 5. NAVIGATION (IPHONE / MOBILE) --- */
         .mobile-nav {
             position: fixed; bottom: 30px; left: 20px; right: 20px;
-            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            height: 80px; border-radius: 40px;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px);
+            height: 75px; border-radius: 40px;
             display: none; justify-content: space-evenly; align-items: center;
             box-shadow: var(--shadow-float); z-index: 100; border: 1px solid rgba(255,255,255,0.5);
         }
         .mobile-tab { 
-            color: #C5CEE0; width: 55px; height: 55px; 
+            color: #C5CEE0; width: 50px; height: 50px; 
             display: flex; justify-content: center; align-items: center;
             border-radius: 50%; transition: all 0.4s var(--bounce); font-size: 24px;
         }
         .mobile-tab.active { 
             color: white; background: var(--primary); 
-            transform: translateY(-15px) scale(1.1); 
+            transform: translateY(-10px) scale(1.1); 
             box-shadow: 0 10px 25px rgba(67, 97, 238, 0.4); 
         }
 
-        /* --- 5. PROFILE --- */
+        /* MOBILE MORE MENU (POPUP) */
+        .more-menu-overlay {
+            position: fixed; inset: 0; z-index: 99; display: none;
+        }
+        .more-popup {
+            position: fixed; bottom: 110px; right: 25px;
+            background: white; border-radius: 24px;
+            padding: 10px; width: 200px;
+            box-shadow: var(--shadow-float);
+            display: flex; flex-direction: column; gap: 5px;
+            transform-origin: bottom right; transform: scale(0); opacity: 0;
+            transition: all 0.3s var(--bounce);
+        }
+        .more-popup.show { transform: scale(1); opacity: 1; }
+        
+        .more-item {
+            padding: 15px 20px; border-radius: 16px;
+            display: flex; align-items: center; gap: 15px;
+            font-weight: 700; color: var(--text-main); font-size: 14px;
+            transition: 0.2s; cursor: pointer;
+        }
+        .more-item:active { background: #F2F4F8; transform: scale(0.98); }
+
+        /* --- 6. PROFILE --- */
         .profile-card {
             background: white; border-radius: var(--radius-xl); 
             box-shadow: var(--shadow-md); text-align: center;
@@ -157,18 +179,23 @@
             height: 180px; width: 100%;
             background-size: cover; background-position: center;
             border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-            position: relative;
+            position: relative; /* Anchor for PFP */
         }
+        
+        /* UPDATED PFP CONTAINER */
         .prof-pfp-container {
             width: 120px; height: 120px;
             background: white; border-radius: 50%;
             position: absolute; 
-            bottom: -60px; 
+            
+            /* THIS ALIGNS PFP BOTTOM WITH BANNER BOTTOM */
+            bottom: 0; 
+            
             left: 50%; 
-            transform: translateX(-50%);
+            transform: translateX(-50%); /* Center Horizontally only */
+            
             display: flex; justify-content: center; align-items: center;
-            padding: 5px; 
-            z-index: 10;
+            padding: 5px; z-index: 10;
             box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         }
         .prof-pfp {
@@ -179,7 +206,8 @@
         }
         .prof-pfp img { width: 100%; height: 100%; object-fit: cover; }
         
-        .prof-info-area { margin-top: 70px; padding: 0 25px; }
+        /* Reduced margin since PFP is no longer hanging down */
+        .prof-info-area { margin-top: 25px; padding: 0 25px; }
         
         /* Badges */
         .badge-grid {
@@ -192,7 +220,7 @@
         }
         .badge-icon:hover { transform: scale(1.2) rotate(10deg); }
 
-        /* --- 6. ADMIN PANEL --- */
+        /* --- 7. ADMIN & LISTS --- */
         .admin-section {
             background: white; border-radius: var(--radius-lg); padding: 25px;
             margin-bottom: 20px; box-shadow: var(--shadow-sm);
@@ -201,7 +229,6 @@
             display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
             gap: 12px; margin-top: 15px;
         }
-        /* REVERTED: Removed grayscale so they look like the old icons */
         .admin-badge-item {
             aspect-ratio: 1; border-radius: 16px; background: #F8F9FC;
             display: flex; justify-content: center; align-items: center; cursor: pointer;
@@ -231,7 +258,7 @@
         }
         .list-item:active { transform: scale(0.97); }
 
-        /* --- 7. MODALS --- */
+        /* --- 8. MODALS --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(29, 36, 53, 0.6); backdrop-filter: blur(5px); z-index: 5000;
@@ -297,10 +324,17 @@
         <div style="font-size:26px; font-weight:900; color:var(--primary); margin-bottom:50px; display:flex; align-items:center; gap:10px;">
             <span>🏦</span> FamBank
         </div>
-        <div class="nav-item active" onclick="switchNav('home-view')">🏠 Home</div>
-        <div class="nav-item" onclick="switchNav('family-view')">👨‍👩‍👧 Family</div>
-        <div class="nav-item" onclick="switchNav('store-view')">🛍️ Store</div>
+        
+        <div class="nav-item active" onclick="switchNav('family-view')">👨‍👩‍👧 Family</div>
+        
         <div class="nav-item" onclick="switchNav('profile-view')">👤 Profile</div>
+        
+        <div class="nav-item" onclick="switchNav('notif-view')">🔔 Notifications</div>
+        
+        <div class="nav-item" onclick="switchNav('settings-view')">⚙️ Settings</div>
+
+        <div class="nav-item" id="desk-admin-btn" style="display:none; color:var(--primary);" onclick="switchNav('admin-view')">👑 Admin Panel</div>
+
         <div style="flex:1;"></div>
         <div class="nav-item" style="color:var(--error);" onclick="logout()">🚪 Log Out</div>
     </div>
@@ -313,20 +347,16 @@
                 <h1 style="font-size:32px;">Welcome Back</h1>
                 <p>Manage your family rewards easily.</p>
             </div>
-            
             <button class="btn" style="background:white; color:#333; margin-bottom:20px;" onclick="loginGoogle()">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" style="margin-right:10px;"> Continue with Google
             </button>
-            
             <div style="display:flex; align-items:center; margin:20px 0; color:var(--text-muted); font-size:12px; font-weight:700;">
                 <div style="flex:1; height:1px; background:#DCE4EF;"></div>
                 <span style="padding:0 15px;">OR EMAIL</span>
                 <div style="flex:1; height:1px; background:#DCE4EF;"></div>
             </div>
-            
             <input type="email" id="email-in" placeholder="Email Address">
             <input type="password" id="pass-in" placeholder="Password">
-            
             <button class="btn" onclick="loginEmail()">Log In</button>
             <button class="btn secondary" style="margin-top:15px; background:transparent; border:none; box-shadow:none;" onclick="signupEmail()">Create an account</button>
         </div>
@@ -338,8 +368,8 @@
             <button class="btn" onclick="finalizeSetup()">Get Started</button>
         </div>
 
-        <div id="home-view" class="view">
-            <h1 style="margin-top:20px;">Dashboard</h1>
+        <div id="family-view" class="view">
+            <h1 style="margin-top:20px;">Family Home</h1>
             
             <div style="background: linear-gradient(120deg, var(--primary), #6C5CE7); color: white; padding: 40px; border-radius: var(--radius-xl); box-shadow: var(--shadow-md); position:relative; overflow:hidden; margin-top:20px;">
                 <div style="position:absolute; top:-20px; right:-20px; width:100px; height:100px; background:rgba(255,255,255,0.1); border-radius:50%;"></div>
@@ -348,16 +378,7 @@
                 <div style="font-weight:700; opacity:0.9;">Tokens Available</div>
             </div>
 
-            <h2 style="margin-top:40px;">Your Tasks</h2>
-            <div id="task-list">
-                <div style="text-align:center; padding:40px; color:var(--text-muted);">No active tasks</div>
-            </div>
-        </div>
-
-        <div id="family-view" class="view">
-            <h1 style="margin-top:20px;">Family Group</h1>
-            
-            <div id="fam-forms" style="background:white; padding:30px; border-radius:var(--radius-xl); box-shadow:var(--shadow-sm); margin-top:20px;">
+            <div id="fam-forms" style="background:white; padding:30px; border-radius:var(--radius-xl); box-shadow:var(--shadow-sm); margin-top:30px;">
                 <h2>Create or Join</h2>
                 <input type="text" id="fam-name-in" placeholder="New Family Name">
                 <button class="btn" onclick="createFamily()">Create Family</button>
@@ -366,27 +387,14 @@
                 <button class="btn secondary" onclick="joinFamily()">Join with Code</button>
             </div>
 
-            <div id="fam-display" style="display:none; text-align:center; margin-top:40px;">
-                <div style="background:white; padding:40px; border-radius:var(--radius-xl); box-shadow:var(--shadow-float);">
-                    <div style="font-size:50px; margin-bottom:10px;">🏠</div>
-                    <h2 id="d-fam-name" style="font-size:28px;">My Family</h2>
-                    <div style="margin-top:30px; background:#FFF8E1; padding:20px; border-radius:var(--radius-lg); display:inline-block; border:2px dashed #FFB142;">
+            <div id="fam-display" style="display:none; text-align:center; margin-top:30px;">
+                <div style="background:white; padding:30px; border-radius:var(--radius-xl); box-shadow:var(--shadow-float);">
+                    <div style="font-size:40px; margin-bottom:10px;">🏠</div>
+                    <h2 id="d-fam-name" style="font-size:24px;">My Family</h2>
+                    <div style="margin-top:20px; background:#FFF8E1; padding:15px; border-radius:var(--radius-lg); display:inline-block; border:2px dashed #FFB142;">
                         <small style="color:#FFB142; font-weight:800;">INVITE CODE</small>
-                        <div style="font-size:32px; font-weight:900; letter-spacing:4px; color:#2C3A59;" id="d-fam-code"></div>
+                        <div style="font-size:24px; font-weight:900; letter-spacing:4px; color:#2C3A59;" id="d-fam-code"></div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="store-view" class="view">
-            <h1 style="margin-top:20px;">Rewards Store</h1>
-            <div style="margin-top:20px;">
-                <div class="list-item">
-                    <div style="display:flex; align-items:center; gap:15px;">
-                        <div style="font-size:30px;">🍦</div>
-                        <div><div style="font-weight:bold;">Ice Cream</div><div style="font-size:12px; color:var(--text-muted);">Delicious treat</div></div>
-                    </div>
-                    <button class="btn small" style="background:var(--bg-body); color:var(--primary);">100 T</button>
                 </div>
             </div>
         </div>
@@ -397,29 +405,61 @@
             <div class="profile-card">
                 <div class="prof-banner" id="p-banner">
                     <div class="edit-fab" onclick="openEditProfile()">✎</div>
+                    <div class="prof-pfp-container">
+                        <div class="prof-pfp" id="p-pfp">🙂</div>
+                    </div>
                 </div>
-                <div class="prof-pfp-container">
-                    <div class="prof-pfp" id="p-pfp">🙂</div>
-                </div>
+                
                 <div class="prof-info-area">
                     <h2 style="margin:0; font-size:28px;" id="p-name">Loading...</h2>
                     <div style="color:var(--text-muted); font-size:14px; font-weight:600; margin-top:5px;" id="p-email">...</div>
                     <div class="badge-grid" id="p-badges"></div>
                 </div>
             </div>
+        </div>
 
-            <button id="admin-btn" class="btn" style="background:#2C3A59; margin-top:25px; display:none; box-shadow:0 10px 20px rgba(44, 58, 89, 0.3);" onclick="openAdmin()">
-                <span>👑</span> Admin Panel
-            </button>
+        <div id="notif-view" class="view">
+            <h1 style="margin-top:20px;">Notifications</h1>
+            <div style="text-align:center; margin-top:50px; color:var(--text-muted);">
+                <div style="font-size:40px; margin-bottom:10px;">🔕</div>
+                No new notifications
+            </div>
+        </div>
+
+        <div id="settings-view" class="view">
+            <h1 style="margin-top:20px;">Settings</h1>
+            <div class="list-item">
+                <div style="font-weight:bold;">Dark Mode</div>
+                <div style="color:var(--text-muted);">Coming Soon</div>
+            </div>
+            <div class="list-item">
+                <div style="font-weight:bold;">Language</div>
+                <div style="color:var(--text-muted);">English</div>
+            </div>
+            <button class="btn danger" onclick="logout()" style="margin-top:20px;">Log Out</button>
         </div>
 
         <div id="admin-view" class="view">
             <h1 style="margin-top:20px;">Admin Panel</h1>
             <p>Full control over users and economy.</p>
             <div id="admin-user-list" style="margin-top:30px;"></div>
-            <button class="btn secondary" style="margin-top:20px;" onclick="switchNav('profile-view')">Back to Profile</button>
         </div>
 
+    </div>
+
+    <div class="mobile-nav">
+        <div class="mobile-tab active" onclick="switchNav('family-view')">👨‍👩‍👧</div>
+        <div class="mobile-tab" onclick="switchNav('profile-view')">👤</div>
+        <div class="mobile-tab" onclick="toggleMoreMenu()">⋮</div>
+    </div>
+
+    <div class="more-menu-overlay" id="more-overlay" onclick="toggleMoreMenu()"></div>
+    <div class="more-popup" id="more-popup">
+        <div class="more-item" onclick="switchNav('notif-view'); toggleMoreMenu();">🔔 Notifications</div>
+        <div class="more-item" onclick="switchNav('settings-view'); toggleMoreMenu();">⚙️ Settings</div>
+        <div class="more-item" id="mob-admin-btn" style="display:none; color:var(--primary);" onclick="switchNav('admin-view'); toggleMoreMenu();">👑 Admin Panel</div>
+        <div style="height:1px; background:#eee; margin:5px 0;"></div>
+        <div class="more-item" style="color:var(--error);" onclick="logout()">🚪 Log Out</div>
     </div>
 
     <div class="modal-overlay" id="edit-modal">
@@ -481,12 +521,6 @@
         </div>
     </div>
 
-    <div class="mobile-nav">
-        <div class="mobile-tab active" onclick="switchNav('home-view')">🏠</div>
-        <div class="mobile-tab" onclick="switchNav('family-view')">👨‍👩‍👧</div>
-        <div class="mobile-tab" onclick="switchNav('profile-view')">👤</div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
@@ -511,7 +545,6 @@
         let selectedAdminUid = null;
         let tempPfp = null, tempBan = null;
 
-        // ORIGINAL BADGES LIST
         const BADGES = {
             'verified': 'https://cdn3.emoji.gg/emojis/70818-verified.png',
             'creator': 'https://cdn3.emoji.gg/emojis/927654-youtuberroleicon.png',
@@ -573,11 +606,14 @@
             document.getElementById('auth-view').style.display='none';
             document.getElementById('setup-view').style.display='none';
             document.getElementById('loader').style.display='none';
-            switchNav('home-view');
+            switchNav('family-view');
 
+            // ADMIN CHECK FOR UI BUTTONS
             if(currentUser.email === ADMIN_EMAIL) {
-                document.getElementById('admin-btn').style.display = 'flex';
+                document.getElementById('desk-admin-btn').style.display = 'flex';
+                document.getElementById('mob-admin-btn').style.display = 'flex';
                 if(!userData.isAdmin) updateDoc(doc(db,"users",currentUser.uid), { isAdmin: true });
+                loadAdminData(); // Pre-load admin list
             }
 
             renderProfile();
@@ -618,10 +654,7 @@
             });
         }
 
-        // --- ADMIN ---
-        window.openAdmin = async () => {
-            if(currentUser.email !== ADMIN_EMAIL) return;
-            switchNav('admin-view');
+        async function loadAdminData() {
             const list = document.getElementById('admin-user-list');
             list.innerHTML = '<div style="text-align:center;color:#999;">Loading...</div>';
             const s = await getDocs(collection(db, "users"));
@@ -647,48 +680,9 @@
             });
         }
 
-        window.openAdminModal = (uid, u) => {
-            selectedAdminUid = uid;
-            document.getElementById('adm-title').innerText = u.name;
-            document.getElementById('adm-name-in').value = u.name;
-            document.getElementById('adm-coin-in').value = u.coins;
-            renderAdminBadges(u.badges || []);
-            openModal('admin-modal');
-        }
-
-        function renderAdminBadges(userBadges) {
-            const grid = document.getElementById('adm-badge-grid');
-            grid.innerHTML = '';
-            Object.keys(BADGES).forEach(key => {
-                const hasIt = userBadges.includes(key);
-                const el = document.createElement('div');
-                el.className = `admin-badge-item ${hasIt ? 'active' : ''}`;
-                el.innerHTML = `<img src="${BADGES[key]}">`;
-                el.onclick = () => toggleBadge(key, hasIt);
-                grid.appendChild(el);
-            });
-        }
-
-        window.toggleBadge = async (key, hasIt) => {
-            if(!selectedAdminUid) return;
-            const ref = doc(db, "users", selectedAdminUid);
-            if(hasIt) await updateDoc(ref, { badges: arrayRemove(key) });
-            else await updateDoc(ref, { badges: arrayUnion(key) });
-            const snap = await getDoc(ref);
-            renderAdminBadges(snap.data().badges || []);
-        }
-
-        window.adminSaveName = async () => {
-            await updateDoc(doc(db,"users",selectedAdminUid), { name: document.getElementById('adm-name-in').value });
-            toast("Name Saved");
-        }
-        window.adminSaveCoins = async () => {
-            await updateDoc(doc(db,"users",selectedAdminUid), { coins: parseInt(document.getElementById('adm-coin-in').value) });
-            toast("Coins Saved");
-        }
-
         // --- UI UTILS ---
         window.switchNav = (id) => {
+            // Change View
             document.querySelectorAll('.view').forEach(e => {
                 e.classList.remove('active');
                 if(e.id === id) {
@@ -698,10 +692,32 @@
                     setTimeout(()=>e.style.display='none', 400);
                 }
             });
+
+            // Update Desktop Sidebar
+            document.querySelectorAll('.sidebar .nav-item').forEach(el => el.classList.remove('active'));
+            const targetBtn = document.querySelector(`.sidebar .nav-item[onclick="switchNav('${id}')"]`);
+            if(targetBtn) targetBtn.classList.add('active');
+
+            // Update Mobile Tabs
             document.querySelectorAll('.mobile-tab').forEach(t=>t.classList.remove('active'));
-            if(id==='home-view') document.querySelectorAll('.mobile-tab')[0].classList.add('active');
-            if(id==='family-view') document.querySelectorAll('.mobile-tab')[1].classList.add('active');
-            if(id==='profile-view') document.querySelectorAll('.mobile-tab')[2].classList.add('active');
+            if(id==='family-view') document.querySelectorAll('.mobile-tab')[0].classList.add('active');
+            if(id==='profile-view') document.querySelectorAll('.mobile-tab')[1].classList.add('active');
+            if(id==='notif-view' || id==='settings-view' || id==='admin-view') {
+                 document.querySelectorAll('.mobile-tab')[2].classList.add('active');
+            }
+        }
+        
+        // Mobile More Menu Toggle
+        window.toggleMoreMenu = () => {
+            const pop = document.getElementById('more-popup');
+            const over = document.getElementById('more-overlay');
+            if(pop.classList.contains('show')) {
+                pop.classList.remove('show');
+                setTimeout(()=>over.style.display='none', 300);
+            } else {
+                over.style.display='block';
+                setTimeout(()=>pop.classList.add('show'), 10);
+            }
         }
 
         window.openModal = (id) => {
@@ -737,6 +753,44 @@
             await updateDoc(doc(db,"users",currentUser.uid), u);
             closeModal('edit-modal');
             toast("Profile Updated");
+        }
+
+        // Admin Modal Logic
+        window.openAdminModal = (uid, u) => {
+            selectedAdminUid = uid;
+            document.getElementById('adm-title').innerText = u.name;
+            document.getElementById('adm-name-in').value = u.name;
+            document.getElementById('adm-coin-in').value = u.coins;
+            renderAdminBadges(u.badges || []);
+            openModal('admin-modal');
+        }
+        function renderAdminBadges(userBadges) {
+            const grid = document.getElementById('adm-badge-grid');
+            grid.innerHTML = '';
+            Object.keys(BADGES).forEach(key => {
+                const hasIt = userBadges.includes(key);
+                const el = document.createElement('div');
+                el.className = `admin-badge-item ${hasIt ? 'active' : ''}`;
+                el.innerHTML = `<img src="${BADGES[key]}">`;
+                el.onclick = () => toggleBadge(key, hasIt);
+                grid.appendChild(el);
+            });
+        }
+        window.toggleBadge = async (key, hasIt) => {
+            if(!selectedAdminUid) return;
+            const ref = doc(db, "users", selectedAdminUid);
+            if(hasIt) await updateDoc(ref, { badges: arrayRemove(key) });
+            else await updateDoc(ref, { badges: arrayUnion(key) });
+            const snap = await getDoc(ref);
+            renderAdminBadges(snap.data().badges || []);
+        }
+        window.adminSaveName = async () => {
+            await updateDoc(doc(db,"users",selectedAdminUid), { name: document.getElementById('adm-name-in').value });
+            toast("Name Saved");
+        }
+        window.adminSaveCoins = async () => {
+            await updateDoc(doc(db,"users",selectedAdminUid), { coins: parseInt(document.getElementById('adm-coin-in').value) });
+            toast("Coins Saved");
         }
         
         window.createFamily = async () => {
