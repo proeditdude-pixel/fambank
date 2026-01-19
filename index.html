@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#F2F4F8">
-    <title>FamBank v3</title>
+    <title>FamBank v4</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,21 +18,16 @@
             --accent: #FFB703;
             --success: #06D6A0;
             --error: #EF476F;
-            
             --bg-body: #F2F4F8;
             --bg-card: #FFFFFF;
-            
             --text-main: #1D2435;
             --text-muted: #8D99AE;
-            
             --radius-xl: 32px;
             --radius-lg: 24px;
             --radius-md: 16px;
-            
             --shadow-sm: 0 4px 12px rgba(0,0,0,0.03);
             --shadow-md: 0 12px 30px rgba(67, 97, 238, 0.12), 0 4px 8px rgba(0,0,0,0.02);
             --shadow-float: 0 20px 50px rgba(67, 97, 238, 0.2);
-
             --bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
@@ -51,7 +46,6 @@
         }
 
         /* --- 2. UI COMPONENTS --- */
-        
         input, select {
             width: 100%; padding: 20px; font-size: 16px; font-family: 'Outfit', sans-serif;
             border: 2px solid transparent; background: #F8F9FC;
@@ -59,12 +53,7 @@
             color: var(--text-main); font-weight: 600; 
             transition: all 0.3s var(--bounce);
         }
-        input:focus { 
-            background: white; 
-            border-color: var(--primary); 
-            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.15); 
-            transform: translateY(-2px);
-        }
+        input:focus { background: white; border-color: var(--primary); box-shadow: 0 10px 30px rgba(67, 97, 238, 0.15); transform: translateY(-2px); }
 
         .btn {
             width: 100%; padding: 18px;
@@ -78,13 +67,8 @@
         .btn:active { transform: scale(0.95); box-shadow: 0 2px 10px rgba(67, 97, 238, 0.2); }
         .btn:disabled { opacity: 0.7; cursor: not-allowed; }
         
-        .btn.secondary { 
-            background: white; color: var(--text-main); 
-            box-shadow: var(--shadow-sm); border: 1px solid #EEF2F6; 
-        }
-        .btn.danger { 
-            background: var(--error); box-shadow: 0 8px 20px rgba(239, 71, 111, 0.3); 
-        }
+        .btn.secondary { background: white; color: var(--text-main); box-shadow: var(--shadow-sm); border: 1px solid #EEF2F6; }
+        .btn.danger { background: var(--error); box-shadow: 0 8px 20px rgba(239, 71, 111, 0.3); }
         .btn.small { padding: 12px 24px; width: auto; font-size: 14px; border-radius: var(--radius-md); }
 
         .toast-msg {
@@ -97,39 +81,24 @@
         }
         .toast-msg.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-        /* --- 3. LAYOUT & ANIMATIONS --- */
+        /* --- 3. LAYOUT --- */
         .main-content {
             flex: 1; position: relative; 
-            height: 100%; 
-            padding: 20px; 
-            padding-bottom: 120px; /* Space for nav */
-            overflow-x: hidden; 
-            overflow-y: auto; /* Allow scrolling */
-            -webkit-overflow-scrolling: touch;
+            height: 100%; padding: 20px; padding-bottom: 120px;
+            overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch;
         }
 
-        /* VIEW TRANSITION LOGIC */
         .view {
             display: none; max-width: 600px; margin: 0 auto;
-            opacity: 0; 
-            transform: translateY(15px);
+            opacity: 0; transform: translateY(15px);
             transition: opacity 0.3s ease, transform 0.3s var(--bounce);
-            width: 100%;
+            width: 100%; padding-bottom: 100px;
         }
-        .view.active { 
-            display: block; opacity: 1; transform: translateY(0); 
-        }
+        .view.active { display: block; opacity: 1; transform: translateY(0); }
         
-        /* AUTH VIEW SCROLL FIX */
-        #auth-view {
-            min-height: 100%; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center;
-            padding-bottom: 50px;
-        }
+        #auth-view { min-height: 100%; display: flex; flex-direction: column; justify-content: center; padding-bottom: 50px; }
 
-        /* --- 4. NAVIGATION (DESKTOP / IPAD) --- */
+        /* --- 4. NAVIGATION --- */
         .sidebar {
             width: 280px; background: white;
             display: none; flex-direction: column; padding: 40px 30px;
@@ -143,41 +112,34 @@
         .nav-item:hover { background: #F8F9FC; color: var(--primary); transform: translateX(5px); }
         .nav-item.active { background: var(--primary); color: white; box-shadow: var(--shadow-md); }
 
-        /* --- 5. NAVIGATION (IPHONE / MOBILE) --- */
         .mobile-nav {
             position: fixed; bottom: 30px; left: 20px; right: 20px;
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px);
             height: 75px; border-radius: 40px;
-            display: none; /* STRICTLY HIDDEN BY DEFAULT */
+            /* CRITICAL FIX: FORCE HIDDEN IN CSS */
+            display: none !important; 
             justify-content: space-evenly; align-items: center;
             box-shadow: var(--shadow-float); z-index: 100; border: 1px solid rgba(255,255,255,0.5);
         }
+        /* Only show when we explicitly add the 'visible' class in JS */
+        .mobile-nav.visible { display: flex !important; }
+
         .mobile-tab { 
             color: #C5CEE0; width: 50px; height: 50px; 
             display: flex; justify-content: center; align-items: center;
             border-radius: 50%; transition: all 0.4s var(--bounce); font-size: 24px;
         }
-        .mobile-tab.active { 
-            color: white; background: var(--primary); 
-            transform: translateY(-10px) scale(1.1); 
-            box-shadow: 0 10px 25px rgba(67, 97, 238, 0.4); 
-        }
+        .mobile-tab.active { color: white; background: var(--primary); transform: translateY(-10px) scale(1.1); box-shadow: 0 10px 25px rgba(67, 97, 238, 0.4); }
 
-        /* MOBILE MORE MENU (POPUP) */
-        .more-menu-overlay {
-            position: fixed; inset: 0; z-index: 99; display: none;
-        }
+        .more-menu-overlay { position: fixed; inset: 0; z-index: 99; display: none; }
         .more-popup {
             position: fixed; bottom: 110px; right: 25px;
-            background: white; border-radius: 24px;
-            padding: 10px; width: 200px;
-            box-shadow: var(--shadow-float);
-            display: flex; flex-direction: column; gap: 5px;
+            background: white; border-radius: 24px; padding: 10px; width: 200px;
+            box-shadow: var(--shadow-float); display: flex; flex-direction: column; gap: 5px;
             transform-origin: bottom right; transform: scale(0); opacity: 0;
             transition: all 0.3s var(--bounce);
         }
         .more-popup.show { transform: scale(1); opacity: 1; }
-        
         .more-item {
             padding: 15px 20px; border-radius: 16px;
             display: flex; align-items: center; gap: 15px;
@@ -186,103 +148,63 @@
         }
         .more-item:active { background: #F2F4F8; transform: scale(0.98); }
 
-        /* --- 6. PROFILE --- */
+        /* --- 5. PROFILE --- */
         .profile-card {
             background: white; border-radius: var(--radius-xl); 
             box-shadow: var(--shadow-md); text-align: center;
-            padding-bottom: 40px; position: relative;
-            margin-top: 20px; overflow: visible;
+            padding-bottom: 40px; position: relative; margin-top: 20px; overflow: visible;
         }
         .prof-banner {
-            height: 180px; width: 100%;
-            background-size: cover; background-position: center;
-            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-            position: relative; 
+            height: 180px; width: 100%; background-size: cover; background-position: center;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0; position: relative; 
         }
-        
         .prof-pfp-container {
-            width: 120px; height: 120px;
-            background: white; border-radius: 50%;
-            position: absolute; 
-            bottom: 0; left: 50%; 
-            transform: translateX(-50%); 
+            width: 120px; height: 120px; background: white; border-radius: 50%;
+            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); 
             display: flex; justify-content: center; align-items: center;
-            padding: 5px; z-index: 10;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            padding: 5px; z-index: 10; box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         }
         .prof-pfp {
-            width: 100%; height: 100%; border-radius: 50%;
-            background: #F8F9FC; font-size: 50px;
-            display: flex; justify-content: center; align-items: center;
-            overflow: hidden; 
+            width: 100%; height: 100%; border-radius: 50%; background: #F8F9FC; 
+            font-size: 50px; display: flex; justify-content: center; align-items: center; overflow: hidden; 
         }
         .prof-pfp img { width: 100%; height: 100%; object-fit: cover; display: block;}
-        
         .prof-info-area { margin-top: 25px; padding: 0 25px; }
-        
-        .badge-grid {
-            display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 15px;
-            min-height: 40px;
-        }
-        .badge-icon {
-            width: 36px; height: 36px; object-fit: contain;
-            transition: transform 0.3s var(--bounce); cursor: help;
-        }
+        .badge-grid { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 15px; min-height: 40px; }
+        .badge-icon { width: 36px; height: 36px; object-fit: contain; transition: transform 0.3s var(--bounce); cursor: help; }
         .badge-icon:hover { transform: scale(1.2) rotate(10deg); }
 
-        /* --- 7. ADMIN & LISTS --- */
-        .admin-section {
-            background: white; border-radius: var(--radius-lg); padding: 25px;
-            margin-bottom: 20px; box-shadow: var(--shadow-sm);
-        }
-        .admin-badge-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-            gap: 12px; margin-top: 15px;
-        }
+        /* --- 6. ADMIN & LISTS --- */
+        .admin-section { background: white; border-radius: var(--radius-lg); padding: 25px; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+        .admin-badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 12px; margin-top: 15px; }
         .admin-badge-item {
             aspect-ratio: 1; border-radius: 16px; background: #F8F9FC;
             display: flex; justify-content: center; align-items: center; cursor: pointer;
-            border: 2px solid transparent; opacity: 0.5;
-            transition: all 0.3s var(--bounce); position: relative;
+            border: 2px solid transparent; opacity: 0.5; transition: all 0.3s var(--bounce); position: relative;
         }
         .admin-badge-item img { width: 32px; height: 32px; object-fit: contain; }
-        
-        .admin-badge-item.active {
-            opacity: 1; 
-            background: #E8FBF4; border-color: var(--success);
-            box-shadow: 0 8px 20px rgba(6, 214, 160, 0.2);
-            transform: translateY(-3px);
-        }
-        .admin-badge-item.active::after {
-            content: '✓'; position: absolute; top: -6px; right: -6px;
-            background: var(--success); color: white; width: 20px; height: 20px;
-            border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center;
-            border: 2px solid white;
-        }
+        .admin-badge-item.active { opacity: 1; background: #E8FBF4; border-color: var(--success); box-shadow: 0 8px 20px rgba(6, 214, 160, 0.2); transform: translateY(-3px); }
+        .admin-badge-item.active::after { content: '✓'; position: absolute; top: -6px; right: -6px; background: var(--success); color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; border: 2px solid white; }
 
         .list-item {
             background: white; padding: 20px; border-radius: var(--radius-lg);
             display: flex; align-items: center; justify-content: space-between;
-            box-shadow: var(--shadow-sm); margin-bottom: 15px; cursor: pointer;
-            transition: transform 0.2s var(--bounce);
+            box-shadow: var(--shadow-sm); margin-bottom: 15px; cursor: pointer; transition: transform 0.2s var(--bounce);
         }
         .list-item:active { transform: scale(0.97); }
 
-        /* --- 8. MODALS --- */
+        /* --- 7. MODALS --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(29, 36, 53, 0.6); backdrop-filter: blur(5px); z-index: 5000;
-            display: none; justify-content: center; align-items: center; 
-            opacity: 0; transition: opacity 0.3s;
+            display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s;
         }
         .modal-overlay.show { opacity: 1; }
-        
         .modal-card {
             background: white; width: 90%; max-width: 480px;
             border-radius: var(--radius-xl); padding: 35px;
-            box-shadow: var(--shadow-float);
-            transform: scale(0.8) translateY(20px); transition: all 0.4s var(--bounce);
-            max-height: 90vh; overflow-y: auto;
+            box-shadow: var(--shadow-float); transform: scale(0.8) translateY(20px);
+            transition: all 0.4s var(--bounce); max-height: 90vh; overflow-y: auto;
         }
         .modal-overlay.show .modal-card { transform: scale(1) translateY(0); }
 
@@ -290,29 +212,21 @@
             background: white; width: 44px; height: 44px; border-radius: 50%;
             position: absolute; top: 20px; right: 20px;
             display: flex; justify-content: center; align-items: center; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-size: 18px; z-index: 20;
-            transition: 0.2s var(--bounce);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-size: 18px; z-index: 20; transition: 0.2s var(--bounce);
         }
         .edit-fab:active { transform: scale(0.8); }
 
         .file-upload-btn {
-            background: #F8F9FC; border: 2px dashed #DCE4EF;
-            color: var(--text-muted); padding: 25px; border-radius: var(--radius-lg);
-            text-align: center; font-weight: 700; cursor: pointer;
-            margin-bottom: 15px; position: relative; transition: 0.3s;
+            background: #F8F9FC; border: 2px dashed #DCE4EF; color: var(--text-muted);
+            padding: 25px; border-radius: var(--radius-lg); text-align: center;
+            font-weight: 700; cursor: pointer; margin-bottom: 15px; position: relative; transition: 0.3s;
         }
         .file-upload-btn:hover { border-color: var(--primary); color: var(--primary); background: #EEF2FF; }
         .file-upload-btn input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-        
         .preview-box { width: 100%; height: 120px; background: #eee; border-radius: var(--radius-lg); margin-bottom: 15px; display: none; background-size: cover; background-position: center; box-shadow: inset 0 0 20px rgba(0,0,0,0.1); }
 
-        @media(min-width: 768px) {
-            .mobile-nav { display: none !important; }
-            .sidebar { display: flex; }
-        }
-        @media(max-width: 767px) {
-            .sidebar { display: none; }
-        }
+        @media(min-width: 768px) { .mobile-nav.visible { display: none !important; } .sidebar { display: flex; } }
+        @media(max-width: 767px) { .sidebar { display: none; } }
         
         h1 { margin: 0 0 10px 0; font-weight: 800; letter-spacing: -0.5px; }
         h2 { margin: 0 0 15px 0; font-weight: 700; letter-spacing: -0.5px; }
@@ -330,9 +244,7 @@
     <div id="toast" class="toast-msg"></div>
 
     <div class="sidebar" id="desktop-sidebar">
-        <div style="font-size:26px; font-weight:900; color:var(--primary); margin-bottom:50px; display:flex; align-items:center; gap:10px;">
-            <span>🏦</span> FamBank
-        </div>
+        <div style="font-size:26px; font-weight:900; color:var(--primary); margin-bottom:50px; display:flex; align-items:center; gap:10px;"><span>🏦</span> FamBank</div>
         <div class="nav-item active" onclick="switchNav('family-view')">👨‍👩‍👧 Family</div>
         <div class="nav-item" onclick="switchNav('profile-view')">👤 Profile</div>
         <div class="nav-item" onclick="switchNav('notif-view')">🔔 Notifications</div>
@@ -355,9 +267,7 @@
                     <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" style="margin-right:10px;"> Continue with Google
                 </button>
                 <div style="display:flex; align-items:center; margin:20px 0; color:var(--text-muted); font-size:12px; font-weight:700;">
-                    <div style="flex:1; height:1px; background:#DCE4EF;"></div>
-                    <span style="padding:0 15px;">OR EMAIL</span>
-                    <div style="flex:1; height:1px; background:#DCE4EF;"></div>
+                    <div style="flex:1; height:1px; background:#DCE4EF;"></div><span style="padding:0 15px;">OR EMAIL</span><div style="flex:1; height:1px; background:#DCE4EF;"></div>
                 </div>
                 <input type="email" id="email-in" placeholder="Email Address">
                 <input type="password" id="pass-in" placeholder="Password">
@@ -375,14 +285,12 @@
 
         <div id="family-view" class="view">
             <h1 style="margin-top:20px;">Family Home</h1>
-            
             <div style="background: linear-gradient(120deg, var(--primary), #6C5CE7); color: white; padding: 40px; border-radius: var(--radius-xl); box-shadow: var(--shadow-md); position:relative; overflow:hidden; margin-top:20px;">
                 <div style="position:absolute; top:-20px; right:-20px; width:100px; height:100px; background:rgba(255,255,255,0.1); border-radius:50%;"></div>
                 <p style="margin:0; text-transform:uppercase; font-size:12px; font-weight:800; letter-spacing:1px; opacity:0.8;">Current Balance</p>
                 <h1 style="font-size:64px; margin: 10px 0; font-weight:800;" id="coin-count">0</h1>
                 <div style="font-weight:700; opacity:0.9;">Tokens Available</div>
             </div>
-
             <div id="fam-forms" style="background:white; padding:30px; border-radius:var(--radius-xl); box-shadow:var(--shadow-sm); margin-top:30px;">
                 <h2>Create or Join</h2>
                 <input type="text" id="fam-name-in" placeholder="New Family Name">
@@ -391,7 +299,6 @@
                 <input type="text" id="fam-code-in" placeholder="Enter Invite Code">
                 <button class="btn secondary" onclick="joinFamily()">Join with Code</button>
             </div>
-
             <div id="fam-display" style="display:none; text-align:center; margin-top:30px;">
                 <div style="background:white; padding:30px; border-radius:var(--radius-xl); box-shadow:var(--shadow-float);">
                     <div style="font-size:40px; margin-bottom:10px;">🏠</div>
@@ -406,15 +313,11 @@
 
         <div id="profile-view" class="view">
             <h1 style="margin-top:20px; margin-bottom:10px;">My Profile</h1>
-            
             <div class="profile-card">
                 <div class="prof-banner" id="p-banner">
                     <div class="edit-fab" onclick="openEditProfile()">✎</div>
-                    <div class="prof-pfp-container">
-                        <div class="prof-pfp" id="p-pfp">🙂</div>
-                    </div>
+                    <div class="prof-pfp-container"><div class="prof-pfp" id="p-pfp">🙂</div></div>
                 </div>
-                
                 <div class="prof-info-area">
                     <h2 style="margin:0; font-size:28px;" id="p-name">Loading...</h2>
                     <div style="color:var(--text-muted); font-size:14px; font-weight:600; margin-top:5px;" id="p-email">...</div>
@@ -425,22 +328,13 @@
 
         <div id="notif-view" class="view">
             <h1 style="margin-top:20px;">Notifications</h1>
-            <div style="text-align:center; margin-top:50px; color:var(--text-muted);">
-                <div style="font-size:40px; margin-bottom:10px;">🔕</div>
-                No new notifications
-            </div>
+            <div style="text-align:center; margin-top:50px; color:var(--text-muted);"><div style="font-size:40px; margin-bottom:10px;">🔕</div>No new notifications</div>
         </div>
 
         <div id="settings-view" class="view">
             <h1 style="margin-top:20px;">Settings</h1>
-            <div class="list-item">
-                <div style="font-weight:bold;">Dark Mode</div>
-                <div style="color:var(--text-muted);">Coming Soon</div>
-            </div>
-            <div class="list-item">
-                <div style="font-weight:bold;">Language</div>
-                <div style="color:var(--text-muted);">English</div>
-            </div>
+            <div class="list-item"><div style="font-weight:bold;">Dark Mode</div><div style="color:var(--text-muted);">Coming Soon</div></div>
+            <div class="list-item"><div style="font-weight:bold;">Language</div><div style="color:var(--text-muted);">English</div></div>
             <button class="btn danger" onclick="logout()" style="margin-top:20px;">Log Out</button>
         </div>
 
@@ -449,10 +343,9 @@
             <p>Full control over users and economy.</p>
             <div id="admin-user-list" style="margin-top:30px;"></div>
         </div>
-
     </div>
 
-    <div class="mobile-nav" id="mob-nav-bar" style="display:none;">
+    <div class="mobile-nav" id="mob-nav-bar">
         <div class="mobile-tab active" onclick="switchNav('family-view')">👨‍👩‍👧</div>
         <div class="mobile-tab" onclick="switchNav('profile-view')">👤</div>
         <div class="mobile-tab" onclick="toggleMoreMenu()">⋮</div>
@@ -472,21 +365,12 @@
             <h2>Edit Profile</h2>
             <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:5px;">DISPLAY NAME</p>
             <input type="text" id="edit-name-in">
-            
             <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:5px;">PROFILE PICTURE (JPG, PNG or GIF)</p>
-            <div class="file-upload-btn" id="lbl-pfp">
-                <span>📁 Upload Image/GIF</span>
-                <input type="file" id="file-pfp" accept="image/*" onchange="previewFile('file-pfp','prev-pfp')">
-            </div>
+            <div class="file-upload-btn" id="lbl-pfp"><span>📁 Upload Image/GIF</span><input type="file" id="file-pfp" accept="image/*" onchange="previewFile('file-pfp','prev-pfp')"></div>
             <div id="prev-pfp" class="preview-box"></div>
-
             <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:5px;">BANNER IMAGE</p>
-            <div class="file-upload-btn" id="lbl-ban">
-                <span>🖼️ Upload Banner</span>
-                <input type="file" id="file-ban" accept="image/*" onchange="previewFile('file-ban','prev-ban')">
-            </div>
+            <div class="file-upload-btn" id="lbl-ban"><span>🖼️ Upload Banner</span><input type="file" id="file-ban" accept="image/*" onchange="previewFile('file-ban','prev-ban')"></div>
             <div id="prev-ban" class="preview-box"></div>
-
             <button class="btn" id="save-btn" onclick="saveProfile()">Save Changes</button>
             <button class="btn secondary" style="margin-top:10px;" onclick="closeModal('edit-modal')">Cancel</button>
         </div>
@@ -498,28 +382,9 @@
                 <h2 id="adm-title" style="margin:0;">User</h2>
                 <div style="background:#F2F4F8; padding:5px 10px; border-radius:10px; font-size:12px; font-weight:bold;">EDITING</div>
             </div>
-            
-            <div class="admin-section">
-                <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px;">DISPLAY NAME</p>
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="adm-name-in" style="margin:0;">
-                    <button class="btn small" onclick="adminSaveName()">Save</button>
-                </div>
-            </div>
-
-            <div class="admin-section">
-                <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px;">TOKENS</p>
-                <div style="display:flex; gap:10px;">
-                    <input type="number" id="adm-coin-in" style="margin:0;">
-                    <button class="btn small" onclick="adminSaveCoins()">Set</button>
-                </div>
-            </div>
-
-            <div class="admin-section">
-                <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px;">BADGES</p>
-                <div class="admin-badge-grid" id="adm-badge-grid"></div>
-            </div>
-
+            <div class="admin-section"><p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px;">DISPLAY NAME</p><div style="display:flex; gap:10px;"><input type="text" id="adm-name-in" style="margin:0;"><button class="btn small" onclick="adminSaveName()">Save</button></div></div>
+            <div class="admin-section"><p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px;">TOKENS</p><div style="display:flex; gap:10px;"><input type="number" id="adm-coin-in" style="margin:0;"><button class="btn small" onclick="adminSaveCoins()">Set</button></div></div>
+            <div class="admin-section"><p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px;">BADGES</p><div class="admin-badge-grid" id="adm-badge-grid"></div></div>
             <button class="btn danger" style="margin-top:10px;">🚫 Ban User</button>
             <button class="btn secondary" style="margin-top:10px;" onclick="closeModal('admin-modal')">Close</button>
         </div>
@@ -545,9 +410,7 @@
         const provider = new GoogleAuthProvider();
 
         const ADMIN_EMAIL = "proeditdude@gmail.com";
-        let currentUser, userData;
-        let selectedAdminUid = null;
-        let tempPfp = null, tempBan = null;
+        let currentUser, userData, selectedAdminUid, tempPfp, tempBan;
 
         const BADGES = {
             'verified': 'https://cdn3.emoji.gg/emojis/70818-verified.png',
@@ -570,7 +433,6 @@
             setTimeout(()=>t.classList.remove('show'), 3000);
         }
 
-        // --- AUTH ---
         window.loginGoogle = () => signInWithPopup(auth, provider).catch(e=>toast(e.message));
         window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value).catch(e=>toast(e.message));
         window.signupEmail = () => createUserWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value).catch(e=>toast(e.message));
@@ -578,13 +440,7 @@
 
         onAuthStateChanged(auth, async (u) => {
             if(u) {
-                // USER LOGGED IN
                 currentUser = u;
-                // Only show mobile nav if the user is confirmed AND it is a mobile device
-                if(window.innerWidth < 768) {
-                    document.getElementById('mob-nav-bar').style.display = 'flex';
-                }
-                
                 const snap = await getDoc(doc(db, "users", u.uid));
                 if(snap.exists()) {
                     userData = snap.data();
@@ -593,19 +449,10 @@
                     document.getElementById('loader').style.display='none';
                     document.getElementById('auth-view').style.display='none';
                     document.getElementById('setup-view').style.display='block';
-                    
-                    // FORCE HIDE NAV DURING SETUP
-                    document.getElementById('mob-nav-bar').style.display = 'none';
-                    
                     setTimeout(()=>document.getElementById('setup-view').classList.add('active'), 50);
                 }
             } else {
-                // USER LOGGED OUT
                 document.getElementById('loader').style.display='none';
-                
-                // FORCE HIDE NAV
-                document.getElementById('mob-nav-bar').style.display = 'none';
-
                 document.getElementById('auth-view').style.display='flex';
                 setTimeout(()=>document.getElementById('auth-view').classList.add('active'), 50);
             }
@@ -619,12 +466,16 @@
             location.reload();
         }
 
-        // --- CORE ---
         function loadApp() {
             document.getElementById('auth-view').style.display='none';
             document.getElementById('setup-view').style.display='none';
             document.getElementById('loader').style.display='none';
             
+            // SHOW MOBILE NAV ONLY IF ON MOBILE
+            if(window.innerWidth < 768) {
+                document.getElementById('mob-nav-bar').classList.add('visible');
+            }
+
             renderProfile(); 
             switchNav('family-view');
 
@@ -700,29 +551,20 @@
         }
 
         window.switchNav = (id) => {
-            // Hide all views first
             document.querySelectorAll('.view').forEach(e => {
                 if(e.id !== id) {
                     e.classList.remove('active');
                     e.style.display = 'none'; 
                 }
             });
-
-            // Show new view
             const target = document.getElementById(id);
             if(target) {
                 target.style.display = 'block';
-                requestAnimationFrame(() => {
-                    target.classList.add('active');
-                });
+                requestAnimationFrame(() => target.classList.add('active'));
             }
-
-            // Update Desktop Sidebar
             document.querySelectorAll('.sidebar .nav-item').forEach(el => el.classList.remove('active'));
             const targetBtn = document.querySelector(`.sidebar .nav-item[onclick="switchNav('${id}')"]`);
             if(targetBtn) targetBtn.classList.add('active');
-
-            // Update Mobile Tabs
             document.querySelectorAll('.mobile-tab').forEach(t=>t.classList.remove('active'));
             if(id==='family-view') document.querySelectorAll('.mobile-tab')[0].classList.add('active');
             if(id==='profile-view') document.querySelectorAll('.mobile-tab')[1].classList.add('active');
@@ -771,10 +613,8 @@
         window.previewFile = (inId, prevId) => {
             const file = document.getElementById(inId).files[0];
             if(!file) return;
-
             const labelSpan = document.querySelector(`#${inId === 'file-pfp' ? 'lbl-pfp' : 'lbl-ban'} span`);
             labelSpan.innerText = "⏳ Processing...";
-
             if(file.type === 'image/gif') {
                 if(file.size > 350 * 1024) {
                     alert("GIF is too large! Please choose one under 350KB.");
@@ -791,7 +631,6 @@
                     if(inId==='file-ban') tempBan = res;
                 };
                 reader.readAsDataURL(file);
-
             } else {
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -803,7 +642,6 @@
                         const MAX_HEIGHT = 500;
                         let width = img.width;
                         let height = img.height;
-
                         if (width > height) {
                             if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                         } else {
@@ -813,11 +651,9 @@
                         canvas.height = height;
                         ctx.drawImage(img, 0, 0, width, height);
                         const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                        
                         document.getElementById(prevId).style.backgroundImage = `url(${dataUrl})`;
                         document.getElementById(prevId).style.display='block';
                         labelSpan.innerText = "✅ Image Selected";
-
                         if(inId==='file-pfp') tempPfp = dataUrl;
                         if(inId==='file-ban') tempBan = dataUrl;
                     };
@@ -831,12 +667,10 @@
             const btn = document.getElementById('save-btn');
             btn.innerText = "Saving...";
             btn.disabled = true;
-
             try {
                 const u = { name: document.getElementById('edit-name-in').value };
                 if(tempPfp) u.pfp = tempPfp;
                 if(tempBan) u.banner = tempBan;
-                
                 await updateDoc(doc(db,"users",currentUser.uid), u);
                 toast("Profile Updated");
                 closeModal('edit-modal');
