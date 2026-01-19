@@ -76,6 +76,7 @@
             display: flex; justify-content: center; align-items: center; gap: 10px;
         }
         .btn:active { transform: scale(0.95); box-shadow: 0 2px 10px rgba(67, 97, 238, 0.2); }
+        .btn:disabled { opacity: 0.7; cursor: not-allowed; }
         
         .btn.secondary { 
             background: white; color: var(--text-main); 
@@ -179,21 +180,17 @@
             height: 180px; width: 100%;
             background-size: cover; background-position: center;
             border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-            position: relative; /* Anchor for PFP */
+            position: relative; 
         }
         
-        /* UPDATED PFP CONTAINER */
+        /* PFP Touching Bottom of Banner */
         .prof-pfp-container {
             width: 120px; height: 120px;
             background: white; border-radius: 50%;
             position: absolute; 
-            
-            /* THIS ALIGNS PFP BOTTOM WITH BANNER BOTTOM */
             bottom: 0; 
-            
             left: 50%; 
-            transform: translateX(-50%); /* Center Horizontally only */
-            
+            transform: translateX(-50%); 
             display: flex; justify-content: center; align-items: center;
             padding: 5px; z-index: 10;
             box-shadow: 0 15px 35px rgba(0,0,0,0.15);
@@ -206,7 +203,6 @@
         }
         .prof-pfp img { width: 100%; height: 100%; object-fit: cover; }
         
-        /* Reduced margin since PFP is no longer hanging down */
         .prof-info-area { margin-top: 25px; padding: 0 25px; }
         
         /* Badges */
@@ -470,20 +466,20 @@
             <input type="text" id="edit-name-in">
             
             <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:5px;">PROFILE PICTURE</p>
-            <div class="file-upload-btn">
+            <div class="file-upload-btn" id="lbl-pfp">
                 <span>📁 Upload Image</span>
                 <input type="file" id="file-pfp" accept="image/*" onchange="previewFile('file-pfp','prev-pfp')">
             </div>
             <div id="prev-pfp" class="preview-box"></div>
 
             <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:5px;">BANNER IMAGE</p>
-            <div class="file-upload-btn">
+            <div class="file-upload-btn" id="lbl-ban">
                 <span>🖼️ Upload Banner</span>
                 <input type="file" id="file-ban" accept="image/*" onchange="previewFile('file-ban','prev-ban')">
             </div>
             <div id="prev-ban" class="preview-box"></div>
 
-            <button class="btn" onclick="saveProfile()">Save Changes</button>
+            <button class="btn" id="save-btn" onclick="saveProfile()">Save Changes</button>
             <button class="btn secondary" style="margin-top:10px;" onclick="closeModal('edit-modal')">Cancel</button>
         </div>
     </div>
@@ -707,7 +703,6 @@
             }
         }
         
-        // Mobile More Menu Toggle
         window.toggleMoreMenu = () => {
             const pop = document.getElementById('more-popup');
             const over = document.getElementById('more-overlay');
@@ -729,30 +724,90 @@
             const m = document.getElementById(id);
             m.classList.remove('show');
             setTimeout(()=>m.style.display='none', 300);
+            // Reset fields
+            if(id === 'edit-modal') {
+                tempPfp = null; tempBan = null;
+                document.getElementById('prev-pfp').style.display='none';
+                document.getElementById('prev-ban').style.display='none';
+                document.querySelector('#lbl-pfp span').innerText = '📁 Upload Image';
+                document.querySelector('#lbl-ban span').innerText = '🖼️ Upload Banner';
+                document.getElementById('save-btn').innerText = 'Save Changes';
+                document.getElementById('save-btn').disabled = false;
+            }
         }
         
         window.openEditProfile = () => {
             document.getElementById('edit-name-in').value = userData.name;
             openModal('edit-modal');
         }
+
+        // NEW: Image Compression Logic
         window.previewFile = (inId, prevId) => {
-            const f = document.getElementById(inId).files[0];
+            const file = document.getElementById(inId).files[0];
+            if(!file) return;
+
+            // Update button text
+            const labelSpan = document.querySelector(`#${inId === 'file-pfp' ? 'lbl-pfp' : 'lbl-ban'} span`);
+            labelSpan.innerText = "⏳ Processing...";
+
             const reader = new FileReader();
             reader.onload = (e) => {
-                document.getElementById(prevId).style.backgroundImage = `url(${e.target.result})`;
-                document.getElementById(prevId).style.display='block';
-                if(inId==='file-pfp') tempPfp = e.target.result;
-                if(inId==='file-ban') tempBan = e.target.result;
+                const img = new Image();
+                img.onload = () => {
+                    // Compress via Canvas
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Max dimensions
+                    const MAX_WIDTH = 500;
+                    const MAX_HEIGHT = 500;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    } else {
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8); // 80% quality JPEG
+                    
+                    // Show Preview
+                    document.getElementById(prevId).style.backgroundImage = `url(${dataUrl})`;
+                    document.getElementById(prevId).style.display='block';
+                    labelSpan.innerText = "✅ Image Selected";
+
+                    // Assign to global temp vars
+                    if(inId==='file-pfp') tempPfp = dataUrl;
+                    if(inId==='file-ban') tempBan = dataUrl;
+                };
+                img.src = e.target.result;
             };
-            reader.readAsDataURL(f);
+            reader.readAsDataURL(file);
         }
+
         window.saveProfile = async () => {
-            const u = { name: document.getElementById('edit-name-in').value };
-            if(tempPfp) u.pfp = tempPfp;
-            if(tempBan) u.banner = tempBan;
-            await updateDoc(doc(db,"users",currentUser.uid), u);
-            closeModal('edit-modal');
-            toast("Profile Updated");
+            const btn = document.getElementById('save-btn');
+            btn.innerText = "Saving...";
+            btn.disabled = true;
+
+            try {
+                const u = { name: document.getElementById('edit-name-in').value };
+                if(tempPfp) u.pfp = tempPfp;
+                if(tempBan) u.banner = tempBan;
+                
+                await updateDoc(doc(db,"users",currentUser.uid), u);
+                toast("Profile Updated");
+                closeModal('edit-modal'); // Hide GUI
+            } catch(e) {
+                console.error(e);
+                toast("Error Saving: Image might be too large");
+                btn.innerText = "Save Changes";
+                btn.disabled = false;
+            }
         }
 
         // Admin Modal Logic
