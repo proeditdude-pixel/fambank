@@ -3,28 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#F4F7FE">
+    <meta name="theme-color" content="#F2F4F8">
     <title>FamBank</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+
     <style>
-        /* --- 1. THEME VARIABLES --- */
+        /* --- 1. PREMIUM THEME VARIABLES --- */
         :root {
-            --primary: #4D8EFF;
-            --accent: #FFB142;
-            --success: #00D68F;
-            --error: #FF6B6B;
-            --bg-body: #F4F7FE;
-            --text-main: #2C3A59;
-            --text-sec: #8F9BB3;
-            --radius: 25px;
-            --shadow: 0 10px 30px rgba(77, 142, 255, 0.15);
-            --safe-top: env(safe-area-inset-top);
-            --safe-bottom: env(safe-area-inset-bottom);
+            --primary: #4361EE;
+            --primary-dark: #3046C4;
+            --accent: #FFB703;
+            --success: #06D6A0;
+            --error: #EF476F;
+            
+            --bg-body: #F2F4F8;
+            --bg-card: #FFFFFF;
+            
+            --text-main: #1D2435;
+            --text-muted: #8D99AE;
+            
+            --radius-xl: 32px;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            
+            /* Soft "Apple-style" shadows */
+            --shadow-sm: 0 4px 12px rgba(0,0,0,0.03);
+            --shadow-md: 0 12px 30px rgba(67, 97, 238, 0.12), 0 4px 8px rgba(0,0,0,0.02);
+            --shadow-float: 0 20px 50px rgba(67, 97, 238, 0.2);
+
+            /* Spring Animation Curve */
+            --bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Nunito", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Outfit', sans-serif;
             background-color: var(--bg-body);
             color: var(--text-main);
             margin: 0;
@@ -32,518 +49,448 @@
             width: 100vw;
             display: flex;
             overflow: hidden; 
-            position: fixed; 
+            position: fixed;
         }
 
-        /* --- 2. ANIMATIONS --- */
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes popIn {
-            0% { transform: scale(0); opacity: 0; }
-            80% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(1); }
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
-        /* --- 3. UI ELEMENTS --- */
+        /* --- 2. UI COMPONENTS --- */
+        
         input, select {
-            width: 100%; padding: 18px; font-size: 16px;
-            border: 2px solid transparent; background: #EEF2F9;
-            border-radius: var(--radius); margin-bottom: 15px;
-            color: var(--text-main); font-weight: 700; transition: 0.3s; appearance: none;
+            width: 100%; padding: 20px; font-size: 16px; font-family: 'Outfit', sans-serif;
+            border: 2px solid transparent; background: #F8F9FC;
+            border-radius: var(--radius-lg); margin-bottom: 15px;
+            color: var(--text-main); font-weight: 600; 
+            transition: all 0.3s var(--bounce);
         }
-        input:focus, select:focus { background: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(77, 142, 255, 0.2); }
+        input:focus { 
+            background: white; 
+            border-color: var(--primary); 
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.15); 
+            transform: translateY(-2px);
+        }
 
         .btn {
-            width: 100%; padding: 16px;
-            background: var(--primary); color: white;
-            border: none; border-radius: var(--radius);
-            font-size: 16px; font-weight: 800; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(77, 142, 255, 0.3);
-            transition: transform 0.1s;
-            display: flex; justify-content: center; align-items: center;
+            width: 100%; padding: 18px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; border: none; border-radius: var(--radius-lg);
+            font-size: 16px; font-weight: 800; cursor: pointer; font-family: 'Outfit', sans-serif;
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+            transition: transform 0.2s var(--bounce), box-shadow 0.2s;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
         }
-        .btn:active { transform: scale(0.96); }
-        .btn.secondary { background: #E4E9F2; color: var(--text-main); box-shadow: none; }
-        .btn.danger { background: #FF6B6B; color: white; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3); }
-        .btn.small { padding: 10px 20px; width: auto; font-size: 14px; }
+        .btn:active { transform: scale(0.95); box-shadow: 0 2px 10px rgba(67, 97, 238, 0.2); }
         
-        .google-btn { 
-            background: white; color: #3c4043; 
-            border: 1px solid #dadce0; box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
-            margin-bottom: 20px; 
+        .btn.secondary { 
+            background: white; color: var(--text-main); 
+            box-shadow: var(--shadow-sm); border: 1px solid #EEF2F6; 
         }
-        .google-btn svg { margin-right: 10px; }
+        .btn.danger { 
+            background: var(--error); box-shadow: 0 8px 20px rgba(239, 71, 111, 0.3); 
+        }
+        .btn.small { padding: 12px 24px; width: auto; font-size: 14px; border-radius: var(--radius-md); }
 
         .toast-msg {
-            font-size: 14px; font-weight: 700; 
-            margin-top: 15px; text-align: center;
-            opacity: 0; transition: opacity 0.3s;
-            padding: 10px; border-radius: 10px; pointer-events: none;
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: white; color: var(--text-main); padding: 15px 30px;
+            border-radius: 50px; font-weight: 700; font-size: 14px;
+            box-shadow: var(--shadow-float); z-index: 11000;
+            opacity: 0; transition: all 0.5s var(--bounce);
+            display: flex; align-items: center; gap: 10px;
         }
-        .toast-msg.show { opacity: 1; animation: shake 0.3s; }
-        .toast-msg.error { color: var(--error); background: rgba(255, 107, 107, 0.1); }
-        .toast-msg.success { color: var(--success); background: rgba(0, 214, 143, 0.1); }
+        .toast-msg.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-        /* --- 4. LAYOUT --- */
+        /* --- 3. LAYOUT & ANIMATIONS --- */
         .main-content {
             flex: 1; position: relative; 
             overflow-y: auto; -webkit-overflow-scrolling: touch; 
-            height: 100%; padding-bottom: 120px;
+            height: 100%; padding: 20px; padding-bottom: 120px;
         }
 
         .view {
-            display: none; padding: 25px;
-            max-width: 800px; margin: 0 auto;
-            animation: fadeUp 0.4s ease-out;
+            display: none; max-width: 600px; margin: 0 auto;
+            opacity: 0; transform: scale(0.95) translateY(10px);
+            transition: opacity 0.4s ease, transform 0.4s var(--bounce);
         }
-        .view.active { display: block; }
+        .view.active { 
+            display: block; opacity: 1; transform: scale(1) translateY(0); 
+        }
 
-        /* --- 5. NAVIGATION --- */
+        /* --- 4. NAVIGATION --- */
         .sidebar {
             width: 280px; background: white;
-            display: none; flex-direction: column; padding: 30px;
-            border-right: 1px solid #EEF2F9; z-index: 50;
+            display: none; flex-direction: column; padding: 40px 30px;
+            box-shadow: var(--shadow-sm); z-index: 50;
         }
         .nav-item {
-            display: flex; align-items: center; padding: 15px 20px;
-            margin-bottom: 8px; border-radius: 18px;
-            color: var(--text-sec); font-weight: 700; cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; padding: 18px 20px;
+            margin-bottom: 10px; border-radius: var(--radius-lg);
+            color: var(--text-muted); font-weight: 700; cursor: pointer; transition: 0.3s var(--bounce);
         }
-        .nav-item:hover { background: #F4F7FE; color: var(--primary); }
-        .nav-item.active { background: var(--primary); color: white; box-shadow: 0 4px 15px rgba(77, 142, 255, 0.4); }
+        .nav-item:hover { background: #F8F9FC; color: var(--primary); transform: translateX(5px); }
+        .nav-item.active { background: var(--primary); color: white; box-shadow: var(--shadow-md); }
 
         .mobile-nav {
-            position: fixed; bottom: 20px; left: 20px; right: 20px;
-            background: white; height: 75px; border-radius: 40px;
-            display: none; justify-content: space-around; align-items: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1); z-index: 100;
-            padding-bottom: var(--safe-bottom);
+            position: fixed; bottom: 30px; left: 20px; right: 20px;
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            height: 80px; border-radius: 40px;
+            display: none; justify-content: space-evenly; align-items: center;
+            box-shadow: var(--shadow-float); z-index: 100; border: 1px solid rgba(255,255,255,0.5);
         }
         .mobile-tab { 
-            color: #C5CEE0; width: 50px; height: 50px; 
+            color: #C5CEE0; width: 55px; height: 55px; 
             display: flex; justify-content: center; align-items: center;
-            border-radius: 50%; transition: 0.3s;
+            border-radius: 50%; transition: all 0.4s var(--bounce); font-size: 24px;
         }
-        .mobile-tab.active { color: white; background: var(--primary); transform: translateY(-5px); box-shadow: 0 5px 15px rgba(77, 142, 255, 0.4); }
-
-        .mobile-header {
-            position: sticky; top: 0; left: 0; width: 100%; height: 70px;
-            background: rgba(244, 247, 254, 0.95); backdrop-filter: blur(10px);
-            display: none; align-items: center; justify-content: center;
-            font-weight: 800; font-size: 18px; color: var(--text-main);
-            z-index: 90; padding-top: var(--safe-top);
-            margin-bottom: 10px;
+        .mobile-tab.active { 
+            color: white; background: var(--primary); 
+            transform: translateY(-15px) scale(1.1); 
+            box-shadow: 0 10px 25px rgba(67, 97, 238, 0.4); 
         }
 
-        /* --- 6. OVERLAYS --- */
-        .fullscreen-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-body); z-index: 9999;
-            display: none; justify-content: center; align-items: center;
-            overflow-y: auto;
-        }
-        .auth-card {
-            background: white; width: 100%; max-width: 450px; padding: 40px;
-            border-radius: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.05);
-            text-align: center; margin: 20px;
-        }
-
-        /* --- 7. LOADING & LISTS --- */
-        #loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; z-index: 10000;
-            display: flex; justify-content: center; align-items: center; flex-direction: column;
-            transition: opacity 0.5s;
-        }
-        .bubble-list { display: flex; flex-direction: column; gap: 15px; }
-        .list-item {
-            background: white; padding: 20px; border-radius: 25px;
-            display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03); cursor: pointer;
-        }
-
-        /* --- 8. PROFILE SPECIFIC STYLES --- */
+        /* --- 5. PROFILE --- */
         .profile-card {
-            background: white; border-radius: 30px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center;
-            padding-bottom: 30px;
-            position: relative;
+            background: white; border-radius: var(--radius-xl); 
+            box-shadow: var(--shadow-md); text-align: center;
+            padding-bottom: 40px; position: relative;
+            margin-top: 20px; overflow: visible;
         }
         .prof-banner {
-            height: 140px; width: 100%;
+            height: 180px; width: 100%;
             background-size: cover; background-position: center;
-            border-radius: 30px 30px 0 0;
+            border-radius: var(--radius-xl) var(--radius-xl) 0 0;
             position: relative;
         }
         .prof-pfp-container {
             width: 120px; height: 120px;
             background: white; border-radius: 50%;
             position: absolute; 
-            /* MOVED HIGHER TO SIT ON LINE */
-            bottom: -50px; 
+            bottom: -60px; 
             left: 50%; 
             transform: translateX(-50%);
             display: flex; justify-content: center; align-items: center;
-            padding: 6px; 
+            padding: 5px; 
             z-index: 10;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         }
         .prof-pfp {
             width: 100%; height: 100%; border-radius: 50%;
-            background: #EEF2F9; font-size: 50px;
+            background: #F8F9FC; font-size: 50px;
             display: flex; justify-content: center; align-items: center;
             overflow: hidden; 
         }
         .prof-pfp img { width: 100%; height: 100%; object-fit: cover; }
-
-        /* BADGES STYLES */
+        
+        .prof-info-area { margin-top: 70px; padding: 0 25px; }
+        
+        /* Badges */
         .badge-grid {
-            display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 10px 0;
-            padding: 0 15px; min-height: 25px;
+            display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 15px;
+            min-height: 40px;
         }
         .badge-icon {
-            width: 32px; height: 32px; object-fit: contain;
-            transition: transform 0.2s; cursor: help;
+            width: 36px; height: 36px; object-fit: contain;
+            transition: transform 0.3s var(--bounce); cursor: help;
         }
-        .badge-icon:hover { transform: scale(1.2); }
-        
-        .edit-fab {
-            background: white; width: 40px; height: 40px; border-radius: 50%;
-            position: absolute; top: 15px; right: 15px;
+        .badge-icon:hover { transform: scale(1.2) rotate(10deg); }
+
+        /* --- 6. ADMIN PANEL --- */
+        .admin-section {
+            background: white; border-radius: var(--radius-lg); padding: 25px;
+            margin-bottom: 20px; box-shadow: var(--shadow-sm);
+        }
+        .admin-badge-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 12px; margin-top: 15px;
+        }
+        /* REVERTED: Removed grayscale so they look like the old icons */
+        .admin-badge-item {
+            aspect-ratio: 1; border-radius: 16px; background: #F8F9FC;
             display: flex; justify-content: center; align-items: center; cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); font-size: 18px; z-index: 20;
+            border: 2px solid transparent; opacity: 0.5;
+            transition: all 0.3s var(--bounce); position: relative;
+        }
+        .admin-badge-item img { width: 32px; height: 32px; object-fit: contain; }
+        
+        .admin-badge-item.active {
+            opacity: 1; 
+            background: #E8FBF4; border-color: var(--success);
+            box-shadow: 0 8px 20px rgba(6, 214, 160, 0.2);
+            transform: translateY(-3px);
+        }
+        .admin-badge-item.active::after {
+            content: '✓'; position: absolute; top: -6px; right: -6px;
+            background: var(--success); color: white; width: 20px; height: 20px;
+            border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center;
+            border: 2px solid white;
         }
 
-        /* --- 9. MODALS --- */
+        .list-item {
+            background: white; padding: 20px; border-radius: var(--radius-lg);
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: var(--shadow-sm); margin-bottom: 15px; cursor: pointer;
+            transition: transform 0.2s var(--bounce);
+        }
+        .list-item:active { transform: scale(0.97); }
+
+        /* --- 7. MODALS --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 5000;
-            display: none; justify-content: center; align-items: flex-end; 
+            background: rgba(29, 36, 53, 0.6); backdrop-filter: blur(5px); z-index: 5000;
+            display: none; justify-content: center; align-items: center; 
+            opacity: 0; transition: opacity 0.3s;
         }
+        .modal-overlay.show { opacity: 1; }
+        
         .modal-card {
-            background: white; width: 100%; max-width: 600px;
-            border-radius: 30px 30px 0 0; padding: 30px;
-            animation: fadeUp 0.3s ease-out;
+            background: white; width: 90%; max-width: 480px;
+            border-radius: var(--radius-xl); padding: 35px;
+            box-shadow: var(--shadow-float);
+            transform: scale(0.8) translateY(20px); transition: all 0.4s var(--bounce);
             max-height: 90vh; overflow-y: auto;
         }
+        .modal-overlay.show .modal-card { transform: scale(1) translateY(0); }
+
+        .edit-fab {
+            background: white; width: 44px; height: 44px; border-radius: 50%;
+            position: absolute; top: 20px; right: 20px;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-size: 18px; z-index: 20;
+            transition: 0.2s var(--bounce);
+        }
+        .edit-fab:active { transform: scale(0.8); }
+
+        .file-upload-btn {
+            background: #F8F9FC; border: 2px dashed #DCE4EF;
+            color: var(--text-muted); padding: 25px; border-radius: var(--radius-lg);
+            text-align: center; font-weight: 700; cursor: pointer;
+            margin-bottom: 15px; position: relative; transition: 0.3s;
+        }
+        .file-upload-btn:hover { border-color: var(--primary); color: var(--primary); background: #EEF2FF; }
+        .file-upload-btn input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
         
-        /* NEW BADGE POPUP */
-        .new-badge-popup {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 6000;
-            display: none; justify-content: center; align-items: center;
-            flex-direction: column; text-align: center; color: white;
-        }
-        .new-badge-content {
-            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
-            padding: 40px; border-radius: 40px; border: 2px solid rgba(255,255,255,0.2);
-            max-width: 90%; width: 350px;
-        }
-        .shiny-badge { width: 100px; height: 100px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.6)); margin: 20px 0; }
+        .preview-box { width: 100%; height: 120px; background: #eee; border-radius: var(--radius-lg); margin-bottom: 15px; display: none; background-size: cover; background-position: center; box-shadow: inset 0 0 20px rgba(0,0,0,0.1); }
 
         @media(min-width: 768px) {
-            .modal-overlay { align-items: center; }
-            .modal-card { border-radius: 30px; margin: 20px; }
+            .mobile-nav { display: none; }
+            .sidebar { display: flex; }
+        }
+        @media(max-width: 767px) {
+            .mobile-nav { display: flex; }
+            .sidebar { display: none; }
         }
         
-        /* File Upload Styles */
-        .file-upload-btn {
-            background: #EEF2F9; border: 2px dashed #C5CEE0;
-            color: var(--text-sec); padding: 15px; border-radius: 15px;
-            text-align: center; font-weight: 700; cursor: pointer;
-            margin-bottom: 15px; position: relative;
-        }
-        .file-upload-btn input {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0; cursor: pointer;
-        }
-        .preview-box {
-            width: 100%; height: 80px; background: #eee; border-radius: 10px;
-            margin-bottom: 15px; display: none; background-size: cover; background-position: center;
-        }
-        
-        /* ADMIN STYLES */
-        .admin-user-row {
-            display: flex; align-items: center; gap: 15px;
-        }
-        .admin-tag {
-            font-size: 10px; font-weight: 800; background: #333; color: white;
-            padding: 4px 8px; border-radius: 6px; text-transform: uppercase;
-        }
+        h1 { margin: 0 0 10px 0; font-weight: 800; letter-spacing: -0.5px; }
+        h2 { margin: 0 0 15px 0; font-weight: 700; letter-spacing: -0.5px; }
+        p { margin: 0 0 20px 0; color: var(--text-muted); line-height: 1.5; }
 
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div style="font-size:60px; animation: shake 2s infinite;">🏦</div>
+    <div id="loader" style="position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-body); z-index:10000; display:flex; justify-content:center; align-items:center;">
+        <div style="font-size:50px; animation: breathe 2s infinite ease-in-out;">🏦</div>
     </div>
+    <style>@keyframes breathe { 0%,100% { transform: scale(1); opacity:0.8; } 50% { transform: scale(1.2); opacity:1; } }</style>
 
-    <div class="new-badge-popup" id="badge-popup">
-        <div class="new-badge-content">
-            <h2 style="margin:0; text-transform:uppercase; letter-spacing:1px; font-size:16px; opacity:0.8;">Unwrapped</h2>
-            <h1 style="margin:5px 0 0 0; font-size:32px;">New Badge!</h1>
-            <img id="new-badge-img" src="" class="shiny-badge">
-            <div id="new-badge-name" style="font-size:20px; font-weight:800; margin-bottom:20px; color:#FFB142;">...</div>
-            <button class="btn" style="background:white; color:var(--text-main);" onclick="closeBadgePopup()">Awesome!</button>
-        </div>
-    </div>
+    <div id="toast" class="toast-msg"></div>
 
     <div class="sidebar" id="desktop-sidebar">
-        <div style="font-size:24px; font-weight:900; color:var(--primary); margin-bottom:40px; padding-left:10px;">🏦 FamBank</div>
-        <div class="nav-item active" onclick="switchNav('home-view')" id="pc-home">🏠 Home</div>
-        <div class="nav-item" onclick="switchNav('family-view')" id="pc-fam">👨‍👩‍👧 Family</div>
-        <div class="nav-item" onclick="switchNav('store-view')" id="pc-store">🛍️ Store</div>
-        <div class="nav-item" onclick="switchNav('profile-view')" id="pc-prof">👤 Profile</div>
+        <div style="font-size:26px; font-weight:900; color:var(--primary); margin-bottom:50px; display:flex; align-items:center; gap:10px;">
+            <span>🏦</span> FamBank
+        </div>
+        <div class="nav-item active" onclick="switchNav('home-view')">🏠 Home</div>
+        <div class="nav-item" onclick="switchNav('family-view')">👨‍👩‍👧 Family</div>
+        <div class="nav-item" onclick="switchNav('store-view')">🛍️ Store</div>
+        <div class="nav-item" onclick="switchNav('profile-view')">👤 Profile</div>
         <div style="flex:1;"></div>
-        <div class="nav-item" style="color:#FF6B6B;" onclick="logout()">🚪 Log Out</div>
+        <div class="nav-item" style="color:var(--error);" onclick="logout()">🚪 Log Out</div>
     </div>
 
     <div class="main-content">
-        <div class="mobile-header" id="header-title">Home</div>
-
-        <div id="auth-view" class="fullscreen-overlay active" style="display:flex;">
-            <div class="auth-card">
-                <div style="font-size:60px; margin-bottom:10px;">👋</div>
-                <h1>Welcome!</h1>
-                <p>Sign in to manage your family.</p>
-                <button class="btn google-btn" onclick="loginGoogle()">
-                    <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                    Continue with Google
-                </button>
-                <div style="display:flex; align-items:center; margin:20px 0; color:#C5CEE0;">
-                    <div style="flex:1; height:2px; background:#EEF2F9;"></div>
-                    <span style="padding:0 10px; font-size:12px; font-weight:800;">OR</span>
-                    <div style="flex:1; height:2px; background:#EEF2F9;"></div>
-                </div>
-                <input type="email" id="email-in" placeholder="Email">
-                <input type="password" id="pass-in" placeholder="Password">
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn" style="flex:1;" onclick="loginEmail()">Log In</button>
-                    <button class="btn secondary" style="flex:1;" onclick="signupEmail()">Sign Up</button>
-                </div>
-                <div id="auth-feedback" class="toast-msg"></div>
+        
+        <div id="auth-view" class="view" style="display:flex; flex-direction:column; justify-content:center; height:100%; max-width:400px; margin:auto;">
+            <div style="text-align:center; margin-bottom:40px;">
+                <div style="font-size:60px; margin-bottom:20px;">👋</div>
+                <h1 style="font-size:32px;">Welcome Back</h1>
+                <p>Manage your family rewards easily.</p>
             </div>
+            
+            <button class="btn" style="background:white; color:#333; margin-bottom:20px;" onclick="loginGoogle()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" style="margin-right:10px;"> Continue with Google
+            </button>
+            
+            <div style="display:flex; align-items:center; margin:20px 0; color:var(--text-muted); font-size:12px; font-weight:700;">
+                <div style="flex:1; height:1px; background:#DCE4EF;"></div>
+                <span style="padding:0 15px;">OR EMAIL</span>
+                <div style="flex:1; height:1px; background:#DCE4EF;"></div>
+            </div>
+            
+            <input type="email" id="email-in" placeholder="Email Address">
+            <input type="password" id="pass-in" placeholder="Password">
+            
+            <button class="btn" onclick="loginEmail()">Log In</button>
+            <button class="btn secondary" style="margin-top:15px; background:transparent; border:none; box-shadow:none;" onclick="signupEmail()">Create an account</button>
         </div>
 
-        <div id="verify-view" class="fullscreen-overlay" style="z-index: 10000;">
-            <div class="auth-card">
-                <div style="font-size:60px; margin-bottom:10px;">📧</div>
-                <h1>Check Email</h1>
-                <p>We sent a verification link to your email.</p>
-                <div style="background:#FFF3E0; border-radius:15px; padding:15px; margin-bottom:25px; color:#E67E22; font-size:14px; line-height:1.4;">
-                    <strong>Can't find it?</strong><br>Check <b>Spam</b>, <b>Junk</b>, or <b>Trash</b>.
-                </div>
-                <button class="btn" onclick="checkVerification()" style="margin-bottom:15px;">I've Verified!</button>
-                <button class="btn secondary" onclick="resendVerification()">Resend Email</button>
-                <div id="verify-feedback" class="toast-msg"></div>
-                <div style="margin-top:20px; font-size:13px; color:#FF6B6B; cursor:pointer;" onclick="logout()">Wrong email? Log Out</div>
-            </div>
-        </div>
-
-        <div id="setup-view" class="fullscreen-overlay">
-            <div class="auth-card">
-                <div style="font-size:60px; margin-bottom:10px;">📝</div>
-                <h1>One last thing!</h1>
-                <p>What should we call you?</p>
-                <input type="text" id="setup-name" placeholder="Your Name (e.g. Dad, Mom)">
-                <button class="btn" onclick="finalizeSetup()">Let's Go!</button>
-            </div>
+        <div id="setup-view" class="view" style="padding-top:100px; text-align:center;">
+            <h1>Setup Profile</h1>
+            <p>What should we call you?</p>
+            <input type="text" id="setup-name" placeholder="Display Name (e.g. Dad)">
+            <button class="btn" onclick="finalizeSetup()">Get Started</button>
         </div>
 
         <div id="home-view" class="view">
-            <div style="background: linear-gradient(135deg, var(--primary), #6C5CE7); color: white; padding: 35px; border-radius: 35px; box-shadow: var(--shadow); position:relative; overflow:hidden;">
-                <p style="color:rgba(255,255,255,0.9); margin:0; text-transform:uppercase; font-size:12px; font-weight:800;">Balance</p>
-                <h1 style="color:white; font-size:60px; margin: 10px 0;" id="coin-count">0</h1>
-                <div style="font-weight:700;">Tokens</div>
+            <h1 style="margin-top:20px;">Dashboard</h1>
+            
+            <div style="background: linear-gradient(120deg, var(--primary), #6C5CE7); color: white; padding: 40px; border-radius: var(--radius-xl); box-shadow: var(--shadow-md); position:relative; overflow:hidden; margin-top:20px;">
+                <div style="position:absolute; top:-20px; right:-20px; width:100px; height:100px; background:rgba(255,255,255,0.1); border-radius:50%;"></div>
+                <p style="margin:0; text-transform:uppercase; font-size:12px; font-weight:800; letter-spacing:1px; opacity:0.8;">Current Balance</p>
+                <h1 style="font-size:64px; margin: 10px 0; font-weight:800;" id="coin-count">0</h1>
+                <div style="font-weight:700; opacity:0.9;">Tokens Available</div>
             </div>
-            <h2 style="margin: 30px 0 20px 5px;">Tasks</h2>
-            <div id="no-fam-alert" style="display:none; background:white; padding:30px; border-radius:30px; text-align:center; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
-                <div style="font-size:40px; margin-bottom:15px;">👨‍👩‍👧</div>
-                <h3>No Family Yet</h3>
-                <p>Join or create a family to see tasks.</p>
-                <button class="btn secondary" onclick="switchNav('family-view')">Go to Family</button>
+
+            <h2 style="margin-top:40px;">Your Tasks</h2>
+            <div id="task-list">
+                <div style="text-align:center; padding:40px; color:var(--text-muted);">No active tasks</div>
             </div>
-            <div id="task-list" class="bubble-list"></div>
         </div>
 
         <div id="family-view" class="view">
-            <h1>Family</h1>
-            <div id="family-forms">
-                <div style="background:white; padding:30px; border-radius:30px; margin-bottom:20px;">
-                    <h3>New Group</h3>
-                    <input type="text" id="create-fam-name" placeholder="Family Name">
-                    <button class="btn" onclick="createFamily()">Create</button>
-                </div>
-                <div style="text-align:center; color:var(--text-sec); font-weight:800; margin:20px;">OR</div>
-                <div style="background:white; padding:30px; border-radius:30px;">
-                    <h3>Join Group</h3>
-                    <input type="number" id="join-fam-code" placeholder="Invite Code">
-                    <button class="btn secondary" onclick="joinFamily()">Join</button>
-                    <div id="join-error" class="toast-msg error"></div>
-                </div>
+            <h1 style="margin-top:20px;">Family Group</h1>
+            
+            <div id="fam-forms" style="background:white; padding:30px; border-radius:var(--radius-xl); box-shadow:var(--shadow-sm); margin-top:20px;">
+                <h2>Create or Join</h2>
+                <input type="text" id="fam-name-in" placeholder="New Family Name">
+                <button class="btn" onclick="createFamily()">Create Family</button>
+                <div style="text-align:center; margin:20px; font-weight:800; color:var(--text-muted); font-size:12px;">OR JOIN EXISTING</div>
+                <input type="text" id="fam-code-in" placeholder="Enter Invite Code">
+                <button class="btn secondary" onclick="joinFamily()">Join with Code</button>
             </div>
-            <div id="family-info" style="display:none;">
-                <div class="bubble-list">
-                    <div class="list-item" style="cursor:default;">
-                        <div>
-                            <div style="font-size:12px; color:var(--text-sec); font-weight:800;">NAME</div>
-                            <div style="font-size:20px; font-weight:800;" id="fam-name-display">...</div>
-                        </div>
-                        <div style="font-size:30px;">🏠</div>
-                    </div>
-                    <div class="list-item" style="background:#FFF8E1; cursor:default;">
-                        <div>
-                            <div style="font-size:12px; color:#FF8F00; font-weight:800;">INVITE CODE</div>
-                            <div style="font-size:28px; font-weight:900; letter-spacing:4px; color:#FF6F00;" id="fam-code-display">....</div>
-                        </div>
-                        <div style="font-size:30px;">🔑</div>
+
+            <div id="fam-display" style="display:none; text-align:center; margin-top:40px;">
+                <div style="background:white; padding:40px; border-radius:var(--radius-xl); box-shadow:var(--shadow-float);">
+                    <div style="font-size:50px; margin-bottom:10px;">🏠</div>
+                    <h2 id="d-fam-name" style="font-size:28px;">My Family</h2>
+                    <div style="margin-top:30px; background:#FFF8E1; padding:20px; border-radius:var(--radius-lg); display:inline-block; border:2px dashed #FFB142;">
+                        <small style="color:#FFB142; font-weight:800;">INVITE CODE</small>
+                        <div style="font-size:32px; font-weight:900; letter-spacing:4px; color:#2C3A59;" id="d-fam-code"></div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div id="store-view" class="view">
-            <h1>Store</h1>
-            <div class="bubble-list">
+            <h1 style="margin-top:20px;">Rewards Store</h1>
+            <div style="margin-top:20px;">
                 <div class="list-item">
-                    <div style="display:flex; align-items:center;">
-                        <div style="font-size:24px; margin-right:15px;">🍦</div>
-                        <div><div style="font-weight:800;">Ice Cream</div><div style="color:var(--primary);">100 Tokens</div></div>
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <div style="font-size:30px;">🍦</div>
+                        <div><div style="font-weight:bold;">Ice Cream</div><div style="font-size:12px; color:var(--text-muted);">Delicious treat</div></div>
                     </div>
-                    <button class="btn small">Buy</button>
-                </div>
-                <div class="list-item">
-                    <div style="display:flex; align-items:center;">
-                        <div style="font-size:24px; margin-right:15px;">🎮</div>
-                        <div><div style="font-weight:800;">Video Game Time</div><div style="color:var(--primary);">200 Tokens</div></div>
-                    </div>
-                    <button class="btn small">Buy</button>
+                    <button class="btn small" style="background:var(--bg-body); color:var(--primary);">100 T</button>
                 </div>
             </div>
         </div>
 
         <div id="profile-view" class="view">
-            <h1 style="margin-bottom:20px;">Profile</h1>
+            <h1 style="margin-top:20px; margin-bottom:10px;">My Profile</h1>
+            
             <div class="profile-card">
                 <div class="prof-banner" id="p-banner">
-                    <div class="edit-fab" onclick="openEditProfile()">✏️</div>
+                    <div class="edit-fab" onclick="openEditProfile()">✎</div>
                 </div>
                 <div class="prof-pfp-container">
                     <div class="prof-pfp" id="p-pfp">🙂</div>
                 </div>
-                <div style="margin-top: 60px; padding: 0 20px;">
-                    <h2 style="margin:0; font-size:26px;" id="p-name">Loading...</h2>
-                    <div style="color:var(--text-sec); font-size:14px; margin-top:5px;" id="p-date">Member since...</div>
-                    
+                <div class="prof-info-area">
+                    <h2 style="margin:0; font-size:28px;" id="p-name">Loading...</h2>
+                    <div style="color:var(--text-muted); font-size:14px; font-weight:600; margin-top:5px;" id="p-email">...</div>
                     <div class="badge-grid" id="p-badges"></div>
                 </div>
             </div>
 
-            <button id="admin-panel-btn" class="btn" style="background:#2C3A59; margin-top:20px; display:none;" onclick="openAdmin()">👑 Admin Panel</button>
-
-            <div class="bubble-list" style="margin-top:20px;">
-                <div class="list-item" style="cursor:default;">
-                    <div>
-                        <div style="font-size:12px; color:var(--text-sec); font-weight:800;">EMAIL</div>
-                        <div style="font-size:15px; font-weight:600;" id="user-email">...</div>
-                    </div>
-                </div>
-            </div>
-            <button class="btn" style="background:#FF6B6B; margin-top:30px;" onclick="logout()">Log Out</button>
+            <button id="admin-btn" class="btn" style="background:#2C3A59; margin-top:25px; display:none; box-shadow:0 10px 20px rgba(44, 58, 89, 0.3);" onclick="openAdmin()">
+                <span>👑</span> Admin Panel
+            </button>
         </div>
 
         <div id="admin-view" class="view">
-            <h1 style="margin-bottom:10px;">Admin Dashboard</h1>
-            <p style="color:var(--text-sec); margin-top:0;">Manage users and rewards.</p>
-            <div class="bubble-list" id="admin-list">
-                <div style="text-align:center; padding:20px;">Loading users...</div>
+            <h1 style="margin-top:20px;">Admin Panel</h1>
+            <p>Full control over users and economy.</p>
+            <div id="admin-user-list" style="margin-top:30px;"></div>
+            <button class="btn secondary" style="margin-top:20px;" onclick="switchNav('profile-view')">Back to Profile</button>
+        </div>
+
+    </div>
+
+    <div class="modal-overlay" id="edit-modal">
+        <div class="modal-card">
+            <h2>Edit Profile</h2>
+            
+            <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:5px;">DISPLAY NAME</p>
+            <input type="text" id="edit-name-in">
+            
+            <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:5px;">PROFILE PICTURE</p>
+            <div class="file-upload-btn">
+                <span>📁 Upload Image</span>
+                <input type="file" id="file-pfp" accept="image/*" onchange="previewFile('file-pfp','prev-pfp')">
             </div>
-            <br>
-            <button class="btn secondary" onclick="switchNav('profile-view')">Back to Profile</button>
+            <div id="prev-pfp" class="preview-box"></div>
+
+            <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:5px;">BANNER IMAGE</p>
+            <div class="file-upload-btn">
+                <span>🖼️ Upload Banner</span>
+                <input type="file" id="file-ban" accept="image/*" onchange="previewFile('file-ban','prev-ban')">
+            </div>
+            <div id="prev-ban" class="preview-box"></div>
+
+            <button class="btn" onclick="saveProfile()">Save Changes</button>
+            <button class="btn secondary" style="margin-top:10px;" onclick="closeModal('edit-modal')">Cancel</button>
         </div>
     </div>
 
     <div class="modal-overlay" id="admin-modal">
         <div class="modal-card">
-            <h2 id="adm-modal-title">Manage User</h2>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 id="adm-title" style="margin:0;">User</h2>
+                <div style="background:#F2F4F8; padding:5px 10px; border-radius:10px; font-size:12px; font-weight:bold;">EDITING</div>
+            </div>
             
-            <p style="font-weight:700; font-size:12px; color:var(--text-sec); margin-bottom:5px;">GIVE BADGE</p>
-            <div style="display:flex; gap:10px; margin-bottom:20px;">
-                <input type="text" id="adm-badge-in" placeholder="Badge ID (e.g. verified, gold)" style="margin-bottom:0;">
-                <button class="btn small" onclick="adminGiveBadge()">Add</button>
-            </div>
-            <div style="font-size:12px; color:var(--text-sec); margin-bottom:15px;">
-                Available: verified, creator, staff, supporter, bronze, silver, gold, platinum, diamond, onyx, nemesis.
-            </div>
-
-            <p style="font-weight:700; font-size:12px; color:var(--text-sec); margin-bottom:5px;">SET COINS</p>
-            <div style="display:flex; gap:10px; margin-bottom:20px;">
-                <input type="number" id="adm-coin-in" placeholder="Amount" style="margin-bottom:0;">
-                <button class="btn small" onclick="adminSetCoins()">Set</button>
+            <div class="admin-section">
+                <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px;">DISPLAY NAME</p>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="adm-name-in" style="margin:0;">
+                    <button class="btn small" onclick="adminSaveName()">Save</button>
+                </div>
             </div>
 
-            <button class="btn secondary" onclick="closeAdminModal()">Close</button>
+            <div class="admin-section">
+                <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px;">TOKENS</p>
+                <div style="display:flex; gap:10px;">
+                    <input type="number" id="adm-coin-in" style="margin:0;">
+                    <button class="btn small" onclick="adminSaveCoins()">Set</button>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <p style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px;">BADGES (TAP TO TOGGLE)</p>
+                <div class="admin-badge-grid" id="adm-badge-grid"></div>
+            </div>
+
+            <button class="btn danger" style="margin-top:10px;" onclick="alert('Ban Logic Here')">🚫 Ban User</button>
+            <button class="btn secondary" style="margin-top:10px;" onclick="closeModal('admin-modal')">Close</button>
         </div>
     </div>
 
-    <div class="modal-overlay" id="edit-modal">
-        <div class="modal-card">
-            <h2 style="margin-top:0;">Edit Profile</h2>
-            <div id="upload-error" style="color:var(--error); font-size:12px; font-weight:bold; margin-bottom:10px; display:none;"></div>
-            
-            <p style="font-weight:700; font-size:12px; color:var(--text-sec); margin-bottom:5px;">DISPLAY NAME</p>
-            <input type="text" id="edit-name-in">
-
-            <p style="font-weight:700; font-size:12px; color:var(--text-sec); margin-bottom:5px;">AVATAR (GIF/PNG)</p>
-            <div class="file-upload-btn">
-                <span>📁 Upload New Avatar</span>
-                <input type="file" id="file-pfp" accept="image/png, image/jpeg, image/gif" onchange="previewFile('file-pfp', 'preview-pfp')">
-            </div>
-            <div id="preview-pfp" class="preview-box"></div>
-
-            <p style="font-weight:700; font-size:12px; color:var(--text-sec); margin-bottom:10px;">BANNER IMAGE</p>
-            <div class="file-upload-btn">
-                <span>🖼️ Upload New Banner</span>
-                <input type="file" id="file-banner" accept="image/png, image/jpeg, image/gif" onchange="previewFile('file-banner', 'preview-banner')">
-            </div>
-            <div id="preview-banner" class="preview-box"></div>
-
-            <button class="btn" onclick="saveProfile()" id="save-btn">Save Changes</button>
-            <button class="btn secondary" style="margin-top:10px;" onclick="closeEditProfile()">Cancel</button>
-        </div>
+    <div class="mobile-nav">
+        <div class="mobile-tab active" onclick="switchNav('home-view')">🏠</div>
+        <div class="mobile-tab" onclick="switchNav('family-view')">👨‍👩‍👧</div>
+        <div class="mobile-tab" onclick="switchNav('profile-view')">👤</div>
     </div>
-
-    <div class="mobile-nav" id="mobile-navbar">
-        <div class="mobile-tab active" onclick="switchNav('home-view')"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
-        <div class="mobile-tab" onclick="switchNav('profile-view')"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
-        <div class="mobile-tab" onclick="openSheet()"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div>
-    </div>
-
-    <div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet(event)" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:200; opacity:0; pointer-events:none; transition:0.3s;">
-        <div class="sheet-card" style="position:absolute; bottom:20px; left:20px; right:20px; background:white; border-radius:30px; padding:25px; transform:translateY(150%); transition:0.4s;">
-            <div style="width:50px; height:6px; background:#EEF2F9; border-radius:10px; margin:0 auto 20px auto;"></div>
-            <h2>More</h2>
-            <div class="bubble-list">
-                <div class="list-item" onclick="mobileGo('family-view')"><div style="font-weight:700;">👨‍👩‍👧 Family Group</div></div>
-                <div class="list-item" onclick="mobileGo('store-view')"><div style="font-weight:700;">🛍️ Rewards Store</div></div>
-            </div>
-        </div>
-    </div>
-    <style>.sheet-overlay.open { opacity: 1; pointer-events: auto; } .sheet-overlay.open .sheet-card { transform: translateY(0); }</style>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, onSnapshot, updateDoc, doc, getDoc, setDoc, getDocs, Timestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, updateDoc, doc, getDoc, setDoc, getDocs, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCBoSEjCf3tECszYAUqed6hGntmL77JJ7Q",
@@ -560,8 +507,12 @@
         const provider = new GoogleAuthProvider();
 
         const ADMIN_EMAIL = "proeditdude@gmail.com";
+        let currentUser, userData;
+        let selectedAdminUid = null;
+        let tempPfp = null, tempBan = null;
 
-        const BADGE_ASSETS = {
+        // ORIGINAL BADGES LIST
+        const BADGES = {
             'verified': 'https://cdn3.emoji.gg/emojis/70818-verified.png',
             'creator': 'https://cdn3.emoji.gg/emojis/927654-youtuberroleicon.png',
             'staff': 'https://cdn3.emoji.gg/emojis/679243-staff.png',
@@ -575,362 +526,234 @@
             'nemesis': 'https://cdn3.emoji.gg/emojis/83657-nemisesrank.png'
         };
 
-        let currentUser = null;
-        let userData = null;
-        let tempPfp = null;
-        let tempBanner = null;
-        let previousBadges = []; 
-        let selectedAdminUser = null; // For admin panel
-
-        function showToast(id, msg, type) {
-            const el = document.getElementById(id);
-            el.innerText = msg;
-            el.className = `toast-msg show ${type}`;
-            setTimeout(() => el.classList.remove('show'), 4000);
+        function toast(msg) {
+            const t = document.getElementById('toast');
+            t.innerHTML = `<span>🔔</span> ${msg}`;
+            t.classList.add('show');
+            setTimeout(()=>t.classList.remove('show'), 3000);
         }
 
         // --- AUTH ---
-        window.loginGoogle = () => signInWithPopup(auth, provider).catch(e => showToast('auth-feedback', "Google Login Failed", "error"));
-        window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value).catch(e => showToast('auth-feedback', "Wrong Email/Pass", "error"));
-        window.signupEmail = async () => {
-            const email = document.getElementById('email-in').value;
-            const pass = document.getElementById('pass-in').value;
-            if(!email || !pass) return showToast('auth-feedback', "Enter email & pass", "error");
-            try {
-                const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                await sendEmailVerification(cred.user);
-            } catch(e) { showToast('auth-feedback', e.message, "error"); }
-        };
-        window.logout = () => signOut(auth).then(() => location.reload());
-        window.resendVerification = async () => { if(currentUser) { try { await sendEmailVerification(currentUser); showToast('verify-feedback', "Sent!", "success"); } catch(e){ showToast('verify-feedback', "Wait a bit.", "error"); }}};
-        window.checkVerification = async () => {
-            if(currentUser) {
-                await currentUser.reload();
-                if(currentUser.emailVerified) { document.getElementById('verify-view').style.display = 'none'; checkUserProfile(); }
-                else { showToast('verify-feedback', "Not verified yet.", "error"); }
-            }
-        };
+        window.loginGoogle = () => signInWithPopup(auth, provider).catch(e=>toast(e.message));
+        window.loginEmail = () => signInWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value).catch(e=>toast(e.message));
+        window.signupEmail = () => createUserWithEmailAndPassword(auth, document.getElementById('email-in').value, document.getElementById('pass-in').value).catch(e=>toast(e.message));
+        window.logout = () => signOut(auth).then(()=>location.reload());
 
-        onAuthStateChanged(auth, async (user) => {
-            const loader = document.getElementById('loader');
-            if (user) {
-                currentUser = user;
-                if (!user.emailVerified) {
-                    loader.style.display = 'none'; document.getElementById('auth-view').style.display = 'none';
-                    document.getElementById('verify-view').style.display = 'flex'; return;
+        onAuthStateChanged(auth, async (u) => {
+            if(u) {
+                currentUser = u;
+                const snap = await getDoc(doc(db, "users", u.uid));
+                if(snap.exists()) {
+                    userData = snap.data();
+                    loadApp();
+                } else {
+                    document.getElementById('loader').style.display='none';
+                    document.getElementById('auth-view').style.display='none';
+                    document.getElementById('setup-view').style.display='block';
+                    setTimeout(()=>document.getElementById('setup-view').classList.add('active'), 50);
                 }
-                checkUserProfile();
             } else {
-                document.getElementById('mobile-navbar').style.display = 'none';
-                document.getElementById('header-title').style.display = 'none';
-                document.getElementById('desktop-sidebar').style.display = 'none';
-                loader.style.opacity = '0'; setTimeout(() => loader.style.display = 'none', 500);
-                document.getElementById('auth-view').style.display = 'flex';
+                document.getElementById('loader').style.display='none';
+                document.getElementById('auth-view').style.display='flex';
+                setTimeout(()=>document.getElementById('auth-view').classList.add('active'), 50);
             }
         });
-
-        async function checkUserProfile() {
-            const snap = await getDoc(doc(db, "users", currentUser.uid));
-            if (snap.exists()) {
-                userData = snap.data();
-                previousBadges = userData.badges || []; 
-                loadApp(); 
-            } else {
-                document.getElementById('loader').style.display = 'none';
-                document.getElementById('auth-view').style.display = 'none';
-                document.getElementById('verify-view').style.display = 'none';
-                document.getElementById('setup-view').style.display = 'flex';
-            }
-        }
 
         window.finalizeSetup = async () => {
             const name = document.getElementById('setup-name').value;
             if(!name) return;
-            const newUserData = {
-                name: name,
-                email: currentUser.email,
-                coins: 0,
-                familyId: null,
-                role: null,
-                joinedDate: Timestamp.now(),
-                pfp: '🙂',
-                banner: 'linear-gradient(135deg, #a8c0ff, #3f2b96)',
-                badges: [],
-                isAdmin: false
-            };
-            await setDoc(doc(db, "users", currentUser.uid), newUserData);
-            document.getElementById('setup-view').style.display = 'none';
-            checkUserProfile();
-        };
+            const d = { name, email: currentUser.email, coins: 0, badges: [], pfp: '🙂', banner: '' };
+            await setDoc(doc(db,"users",currentUser.uid), d);
+            location.reload();
+        }
 
-        // --- MAIN APP ---
+        // --- CORE ---
         function loadApp() {
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('auth-view').style.display = 'none';
-            document.getElementById('verify-view').style.display = 'none';
-            document.getElementById('setup-view').style.display = 'none';
-            
-            if(window.innerWidth > 768) { document.getElementById('desktop-sidebar').style.display = 'flex'; }
-            else { document.getElementById('mobile-navbar').style.display = 'flex'; document.getElementById('header-title').style.display = 'flex'; }
+            document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+            document.getElementById('auth-view').style.display='none';
+            document.getElementById('setup-view').style.display='none';
+            document.getElementById('loader').style.display='none';
+            switchNav('home-view');
 
-            // SECURE ADMIN CHECK
             if(currentUser.email === ADMIN_EMAIL) {
-                // Show button
-                document.getElementById('admin-panel-btn').style.display = 'block';
-                
-                // Auto-fix DB permission if missing
-                if(!userData.isAdmin) {
-                    updateDoc(doc(db, "users", currentUser.uid), { isAdmin: true });
-                }
-            } else {
-                document.getElementById('admin-panel-btn').style.display = 'none';
+                document.getElementById('admin-btn').style.display = 'flex';
+                if(!userData.isAdmin) updateDoc(doc(db,"users",currentUser.uid), { isAdmin: true });
             }
 
             renderProfile();
-            switchNav('home-view');
-
-            onSnapshot(doc(db, "users", currentUser.uid), (d) => {
-                const newData = d.data();
-                document.getElementById('coin-count').innerText = newData.coins || 0;
-                
-                // NOTIFICATIONS
-                const currentBadges = newData.badges || [];
-                if(currentBadges.length > previousBadges.length) {
-                    const newBadge = currentBadges.find(x => !previousBadges.includes(x));
-                    if (newBadge) showBadgePopup(newBadge);
-                }
-                
-                userData = newData;
-                previousBadges = currentBadges;
+            onSnapshot(doc(db, "users", currentUser.uid), (s) => {
+                userData = s.data();
                 renderProfile();
+                document.getElementById('coin-count').innerText = userData.coins;
+                if(userData.familyId) {
+                    document.getElementById('fam-forms').style.display='none';
+                    document.getElementById('fam-display').style.display='block';
+                    getDoc(doc(db,"families",userData.familyId)).then(f=>{
+                        if(f.exists()){
+                            document.getElementById('d-fam-name').innerText = f.data().name;
+                            document.getElementById('d-fam-code').innerText = f.data().inviteCode;
+                        }
+                    });
+                }
             });
-
-            if(userData.familyId) {
-                document.getElementById('no-fam-alert').style.display = 'none';
-                document.getElementById('family-forms').style.display = 'none';
-                document.getElementById('family-info').style.display = 'block';
-                getDoc(doc(db, "families", userData.familyId)).then(s => {
-                    if(s.exists()) {
-                        document.getElementById('fam-name-display').innerText = s.data().name;
-                        document.getElementById('fam-code-display').innerText = s.data().inviteCode;
-                    }
-                });
-                loadTasks();
-            } else {
-                document.getElementById('no-fam-alert').style.display = 'block';
-                document.getElementById('family-forms').style.display = 'block';
-                document.getElementById('family-info').style.display = 'none';
-            }
         }
 
         function renderProfile() {
             document.getElementById('p-name').innerText = userData.name;
-            document.getElementById('user-email').innerText = currentUser.email;
-            
-            const pfpEl = document.getElementById('p-pfp');
-            if(userData.pfp && userData.pfp.startsWith('data:image')) {
-                pfpEl.innerHTML = `<img src="${userData.pfp}" alt="PFP">`;
-                pfpEl.style.background = 'white';
-            } else {
-                pfpEl.innerHTML = userData.pfp || '🙂';
-                pfpEl.style.background = '#EEF2F9';
-            }
+            document.getElementById('p-email').innerText = userData.email;
+            const p = document.getElementById('p-pfp');
+            if(userData.pfp && userData.pfp.length > 5) {
+                p.innerHTML = `<img src="${userData.pfp}">`;
+                p.style.background = 'white';
+            } else { p.innerHTML = userData.pfp || '🙂'; p.style.background = '#F8F9FC'; }
 
-            const bannerEl = document.getElementById('p-banner');
-            if(userData.banner && userData.banner.startsWith('data:image')) {
-                bannerEl.style.background = `url(${userData.banner})`;
-                bannerEl.style.backgroundSize = 'cover';
-                bannerEl.style.backgroundPosition = 'center';
-            } else {
-                bannerEl.style.background = userData.banner || 'var(--primary)';
-            }
-            
-            let dateStr = "Unknown";
-            if(userData.joinedDate) {
-                const date = userData.joinedDate.toDate();
-                dateStr = "Member since " + date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            }
-            document.getElementById('p-date').innerText = dateStr;
+            const b = document.getElementById('p-banner');
+            if(userData.banner && userData.banner.length > 5) b.style.backgroundImage = `url(${userData.banner})`;
+            else b.style.background = 'linear-gradient(135deg, #a8c0ff, #3f2b96)';
 
-            const badgesDiv = document.getElementById('p-badges');
-            badgesDiv.innerHTML = '';
-            const badges = userData.badges || [];
-            if(badges.length === 0) badgesDiv.innerHTML = '<div style="font-size:12px; color:#ccc;">No badges yet</div>';
-            else badges.forEach(b => {
-                const iconUrl = BADGE_ASSETS[b];
-                if(iconUrl) badgesDiv.innerHTML += `<img src="${iconUrl}" class="badge-icon" title="${b}">`;
-                else badgesDiv.innerHTML += `<span style="font-size:10px; background:#eee; padding:2px 6px; border-radius:10px;">${b}</span>`;
+            const bg = document.getElementById('p-badges');
+            bg.innerHTML = '';
+            (userData.badges||[]).forEach(k => {
+                if(BADGES[k]) bg.innerHTML += `<img src="${BADGES[k]}" class="badge-icon" title="${k}">`;
             });
         }
 
-        // --- BADGE POPUP ---
-        function showBadgePopup(badgeKey) {
-            const url = BADGE_ASSETS[badgeKey];
-            if(!url) return;
-            document.getElementById('new-badge-img').src = url;
-            document.getElementById('new-badge-name').innerText = badgeKey.toUpperCase();
-            document.getElementById('badge-popup').style.display = 'flex';
-        }
-        window.closeBadgePopup = () => document.getElementById('badge-popup').style.display = 'none';
-
-        // --- EDIT PROFILE ---
-        window.openEditProfile = () => {
-            document.getElementById('edit-name-in').value = userData.name;
-            document.getElementById('edit-modal').style.display = 'flex';
-            document.getElementById('upload-error').style.display = 'none';
-            tempPfp = null;
-            tempBanner = null;
-        };
-        window.closeEditProfile = () => document.getElementById('edit-modal').style.display = 'none';
-        
-        window.previewFile = (inputId, previewId) => {
-            const file = document.getElementById(inputId).files[0];
-            const errorDiv = document.getElementById('upload-error');
-            errorDiv.style.display = 'none';
-            if(!file) return;
-            if(file.size > 800 * 1024) {
-                errorDiv.innerText = "File too big! Please use an image under 800KB.";
-                errorDiv.style.display = 'block';
-                return;
-            }
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const res = reader.result;
-                document.getElementById(previewId).style.backgroundImage = `url(${res})`;
-                document.getElementById(previewId).style.display = 'block';
-                if(inputId === 'file-pfp') tempPfp = res;
-                if(inputId === 'file-banner') tempBanner = res;
-            };
-            reader.readAsDataURL(file);
-        };
-
-        window.saveProfile = async () => {
-            const newName = document.getElementById('edit-name-in').value;
-            const btn = document.getElementById('save-btn');
-            if(!newName) return;
-            btn.innerText = "Saving...";
-            const updateData = { name: newName };
-            if(tempPfp) updateData.pfp = tempPfp;
-            if(tempBanner) updateData.banner = tempBanner;
-            await updateDoc(doc(db, "users", currentUser.uid), updateData);
-            btn.innerText = "Save Changes";
-            closeEditProfile();
-        };
-
-        // --- ADMIN PANEL FUNCTIONS ---
+        // --- ADMIN ---
         window.openAdmin = async () => {
-            if(currentUser.email !== ADMIN_EMAIL) return; // EXTRA SECURITY
+            if(currentUser.email !== ADMIN_EMAIL) return;
             switchNav('admin-view');
-            const list = document.getElementById('admin-list');
-            list.innerHTML = '<div style="text-align:center;">Fetching Users...</div>';
-            
-            const q = query(collection(db, "users"));
-            const snapshot = await getDocs(q);
+            const list = document.getElementById('admin-user-list');
+            list.innerHTML = '<div style="text-align:center;color:#999;">Loading...</div>';
+            const s = await getDocs(collection(db, "users"));
             list.innerHTML = '';
-            
-            snapshot.forEach(docSnap => {
-                const u = docSnap.data();
-                const uid = docSnap.id;
-                // Render Admin Row
-                const d = document.createElement('div');
-                d.className = 'list-item';
-                d.onclick = () => openAdminModal(uid, u);
-                d.innerHTML = `
-                    <div class="admin-user-row">
-                        <div style="width:40px; height:40px; border-radius:50%; background:#eee; overflow:hidden;">
-                            ${u.pfp && u.pfp.startsWith('data') ? `<img src="${u.pfp}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="width:100%; height:100%; display:flex; justify-content:center; align-items:center;">${u.pfp||'🙂'}</div>`}
+            s.forEach(d => {
+                const u = d.data();
+                const div = document.createElement('div');
+                div.className = 'list-item';
+                div.onclick = () => openAdminModal(d.id, u);
+                div.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <div style="width:40px; height:40px; background:#eee; border-radius:50%; overflow:hidden;">
+                            ${u.pfp && u.pfp.length > 5 ? `<img src="${u.pfp}" style="width:100%;height:100%;object-fit:cover;">` : '<div style="width:100%;height:100%;display:flex;justify-content:center;align-items:center;">🙂</div>'}
                         </div>
                         <div>
                             <div style="font-weight:700;">${u.name}</div>
-                            <div style="font-size:12px; color:#888;">${u.email}</div>
+                            <div style="font-size:12px; color:#999;">${u.email}</div>
                         </div>
                     </div>
-                    <div>
-                        ${u.isAdmin ? '<span class="admin-tag">ADMIN</span>' : ''}
-                        <span style="font-weight:bold; color:var(--primary);">${u.coins || 0} T</span>
-                    </div>
+                    <div style="font-weight:800; color:var(--primary); background:#F0F4FF; padding:5px 10px; border-radius:10px;">${u.coins} T</div>
                 `;
-                list.appendChild(d);
+                list.appendChild(div);
             });
-        };
+        }
 
-        window.openAdminModal = (uid, user) => {
-            selectedAdminUser = uid;
-            document.getElementById('adm-modal-title').innerText = "Manage " + user.name;
-            document.getElementById('admin-modal').style.display = 'flex';
-        };
-        window.closeAdminModal = () => document.getElementById('admin-modal').style.display = 'none';
+        window.openAdminModal = (uid, u) => {
+            selectedAdminUid = uid;
+            document.getElementById('adm-title').innerText = u.name;
+            document.getElementById('adm-name-in').value = u.name;
+            document.getElementById('adm-coin-in').value = u.coins;
+            renderAdminBadges(u.badges || []);
+            openModal('admin-modal');
+        }
 
-        window.adminGiveBadge = async () => {
-            const badge = document.getElementById('adm-badge-in').value.toLowerCase().trim();
-            if(!badge || !selectedAdminUser) return;
-            
-            await updateDoc(doc(db, "users", selectedAdminUser), {
-                badges: arrayUnion(badge)
+        function renderAdminBadges(userBadges) {
+            const grid = document.getElementById('adm-badge-grid');
+            grid.innerHTML = '';
+            Object.keys(BADGES).forEach(key => {
+                const hasIt = userBadges.includes(key);
+                const el = document.createElement('div');
+                el.className = `admin-badge-item ${hasIt ? 'active' : ''}`;
+                el.innerHTML = `<img src="${BADGES[key]}">`;
+                el.onclick = () => toggleBadge(key, hasIt);
+                grid.appendChild(el);
             });
-            alert(`Given ${badge} to user!`);
-            document.getElementById('adm-badge-in').value = '';
-            closeAdminModal();
-            // Refresh logic optional, but simplest to reload admin view
-            openAdmin(); 
-        };
+        }
 
-        window.adminSetCoins = async () => {
-            const amt = parseInt(document.getElementById('adm-coin-in').value);
-            if(isNaN(amt) || !selectedAdminUser) return;
-            
-            await updateDoc(doc(db, "users", selectedAdminUser), {
-                coins: amt
+        window.toggleBadge = async (key, hasIt) => {
+            if(!selectedAdminUid) return;
+            const ref = doc(db, "users", selectedAdminUid);
+            if(hasIt) await updateDoc(ref, { badges: arrayRemove(key) });
+            else await updateDoc(ref, { badges: arrayUnion(key) });
+            const snap = await getDoc(ref);
+            renderAdminBadges(snap.data().badges || []);
+        }
+
+        window.adminSaveName = async () => {
+            await updateDoc(doc(db,"users",selectedAdminUid), { name: document.getElementById('adm-name-in').value });
+            toast("Name Saved");
+        }
+        window.adminSaveCoins = async () => {
+            await updateDoc(doc(db,"users",selectedAdminUid), { coins: parseInt(document.getElementById('adm-coin-in').value) });
+            toast("Coins Saved");
+        }
+
+        // --- UI UTILS ---
+        window.switchNav = (id) => {
+            document.querySelectorAll('.view').forEach(e => {
+                e.classList.remove('active');
+                if(e.id === id) {
+                    e.style.display = 'block';
+                    setTimeout(()=>e.classList.add('active'), 10);
+                } else {
+                    setTimeout(()=>e.style.display='none', 400);
+                }
             });
-            alert(`Coins set to ${amt}`);
-            closeAdminModal();
-            openAdmin();
-        };
+            document.querySelectorAll('.mobile-tab').forEach(t=>t.classList.remove('active'));
+            if(id==='home-view') document.querySelectorAll('.mobile-tab')[0].classList.add('active');
+            if(id==='family-view') document.querySelectorAll('.mobile-tab')[1].classList.add('active');
+            if(id==='profile-view') document.querySelectorAll('.mobile-tab')[2].classList.add('active');
+        }
 
-        // --- NAVIGATION & LOGIC ---
-        window.switchNav = (viewId) => {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
-            const titles = { 'home-view': 'Home', 'family-view': 'Family', 'store-view': 'Store', 'profile-view': 'Profile', 'admin-view': 'Admin' };
-            document.getElementById('header-title').innerText = titles[viewId] || 'FamBank';
-            document.querySelectorAll('.mobile-tab').forEach(el => el.classList.remove('active'));
-            if(viewId === 'home-view') document.querySelectorAll('.mobile-tab')[0].classList.add('active');
-            else if(viewId === 'profile-view') document.querySelectorAll('.mobile-tab')[1].classList.add('active');
-            else document.querySelectorAll('.mobile-tab')[2].classList.add('active');
-        };
-
-        window.openSheet = () => document.getElementById('sheet-overlay').classList.add('open');
-        window.closeSheet = (e) => { if(e && !e.target.classList.contains('sheet-overlay')) return; document.getElementById('sheet-overlay').classList.remove('open'); };
-        window.mobileGo = (id) => { document.getElementById('sheet-overlay').classList.remove('open'); switchNav(id); };
-
+        window.openModal = (id) => {
+            const m = document.getElementById(id);
+            m.style.display = 'flex';
+            setTimeout(()=>m.classList.add('show'), 10);
+        }
+        window.closeModal = (id) => {
+            const m = document.getElementById(id);
+            m.classList.remove('show');
+            setTimeout(()=>m.style.display='none', 300);
+        }
+        
+        window.openEditProfile = () => {
+            document.getElementById('edit-name-in').value = userData.name;
+            openModal('edit-modal');
+        }
+        window.previewFile = (inId, prevId) => {
+            const f = document.getElementById(inId).files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById(prevId).style.backgroundImage = `url(${e.target.result})`;
+                document.getElementById(prevId).style.display='block';
+                if(inId==='file-pfp') tempPfp = e.target.result;
+                if(inId==='file-ban') tempBan = e.target.result;
+            };
+            reader.readAsDataURL(f);
+        }
+        window.saveProfile = async () => {
+            const u = { name: document.getElementById('edit-name-in').value };
+            if(tempPfp) u.pfp = tempPfp;
+            if(tempBan) u.banner = tempBan;
+            await updateDoc(doc(db,"users",currentUser.uid), u);
+            closeModal('edit-modal');
+            toast("Profile Updated");
+        }
+        
         window.createFamily = async () => {
-            const name = document.getElementById('create-fam-name').value;
-            if(!name) return;
-            const code = Math.floor(1000 + Math.random() * 9000).toString();
-            const ref = await addDoc(collection(db, "families"), { name, inviteCode: code, admin: currentUser.uid });
-            await updateDoc(doc(db, "users", currentUser.uid), { familyId: ref.id, role: 'parent' });
-            location.reload();
-        };
+            const n = document.getElementById('fam-name-in').value;
+            if(!n) return;
+            const c = Math.floor(1000+Math.random()*9000).toString();
+            const ref = await addDoc(collection(db,"families"), { name:n, inviteCode:c });
+            await updateDoc(doc(db,"users",currentUser.uid), { familyId: ref.id });
+        }
         window.joinFamily = async () => {
-            const code = document.getElementById('join-fam-code').value;
-            const q = query(collection(db, "families"), where("inviteCode", "==", code));
-            const snap = await getDocs(q);
-            if(snap.empty) { showToast('join-error', "Code not found", "error"); return; }
-            let fid = null; snap.forEach(d => fid = d.id);
-            await updateDoc(doc(db, "users", currentUser.uid), { familyId: fid, role: 'child' });
-            location.reload();
-        };
-        function loadTasks() {
-            const q = query(collection(db, "tasks"), where("familyId", "==", userData.familyId));
-            onSnapshot(q, (snap) => {
-                const list = document.getElementById('task-list');
-                list.innerHTML = "";
-                if(snap.empty) return; 
-                snap.forEach(d => {
-                    const t = d.data();
-                    list.innerHTML += `<div class="list-item" style="cursor:default;"><div style="display:flex; align-items:center;"><div style="width:40px; height:40px; background:${t.status==='Done'?'var(--primary)':'#EEF2F9'}; color:${t.status==='Done'?'white':'inherit'}; border-radius:50%; display:flex; justify-content:center; align-items:center; margin-right:15px; font-weight:bold;">${t.status === 'Done' ? '✓' : ''}</div><div><div style="font-weight:700;">${t.title}</div><div style="font-size:13px; color:var(--text-sec);">+${t.reward} Tokens</div></div></div></div>`;
-                });
-            });
+            const c = document.getElementById('fam-code-in').value;
+            const q = query(collection(db,"families"), where("inviteCode","==",c));
+            const s = await getDocs(q);
+            if(!s.empty) {
+                let fid; s.forEach(d=>fid=d.id);
+                await updateDoc(doc(db,"users",currentUser.uid), { familyId: fid });
+            } else toast("Invalid Code");
         }
     </script>
 </body>
